@@ -1,0 +1,15 @@
+REVISION 4 VALIDATION — 2026-11-08
+Windows / Python 3.14.2 / pygame-ce 2.5.8
+
+16 headless automated tests passed.
+New regression coverage: single-lane graph, no blind corridors, every movement edge sampled against drawn wall pixels; all eight gate launches, owner-only access, returns and respawns on all four maps.
+Existing coverage: complete 1/2/8 autoplay matches on four maps; movement, all powers, scoring, lives, combat, portals, transitions, menu, pause, restart, resizing and simulated controller input.
+
+Native Windows autoplay, 900 frames per mode:
+1 players: 60.3 FPS; scores [1720]; lives [3].
+2 players: 60.07 FPS; scores [745, 2355]; lives [1, 3].
+8 players: 60.12 FPS; scores [1045, 1720, 620, 605, 185, 1420, 430, 1480]; lives [1, 1, 2, 2, 3, 2, 2, 2].
+
+Actual native eight-player window inspected during active play. GIFs are fresh 12-second computer-controlled recordings, including entry through player bays. All-map montage also regenerated. These are not eight-human or physical USB tests.
+
+Physical USB controllers, Linux hardware and audible sound quality remain unverified. Previous native injected-key automation was inconclusive; direct event checks pass. Visual resemblance is not identity: authored geometry, artwork, gate timing and other custom rules remain.
