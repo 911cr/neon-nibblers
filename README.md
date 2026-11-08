@@ -66,60 +66,50 @@ USB controllers map to P1–P8 in connection order. Use the main stick (axes 0/1
 
 Keyboards can block many simultaneous keys (ghosting); eight USB controllers are preferable for full multiplayer. Numpad behavior depends on Num Lock. Physical USB devices and eight simultaneous human players remain untested.
 
-## Game rules
+## Game rules and revision 5
 
-Start with 3 lives. Highest score after 180 seconds wins; ties share victory. A match ends early if everyone loses all lives. An eliminated player can still win on points.
+Three starting lives; one score bonus life at 10,000, and Extra Life pickups (cap 5). Highest score after 180 seconds wins; the match ends early if everyone is eliminated. The timed score-attack format, scores, durations and interaction ranges are adaptation choices, not verified commercial values.
 
-- Dot: 10 points. Power: 75 points.
-- Eat a foe while powered: 200 points (400 with Lure stacked).
-- Eat a vulnerable rival using Titan: 300 points.
-- Clear all dots: 500 points to survivors and move to the next arena, retaining scores, lives and remaining match time.
+Dots give 10 points; pickups 75; foes 200; biting/burning a rival or hitting them with a carried ghost gives 300. Clearing dots awards 500 to survivors and advances through four themed maps, retaining lives, score and time. Scores are not persisted.
 
-Four visually distinct arena variants cycle from the selected starting map. The new scene is 1280×720, with rounded neon walls derived from the movement graph, single-lane dot trails, wrap tunnels, a central foe bay, functional border player gates, shaded directional munchers, animated domed foes, moving collectible icons and floating score bursts.
+Walls, navigation and dots share one corridor graph. Thin rounded outlines, two side tunnels, double border contours and gated player bays replace the earlier wide/open-looking areas. Station order follows the manufacturer control-panel diagram: top 4/8/7/3, bottom 1/5/6/2. Each owner can enter their own bay; start/respawn releases them after 0.8 seconds. Gate ownership, voluntary return and release timing remain custom/unverified.
 
-Four foes chase players, with random wandering and retreat from hunters. Regular players can overlap without damage. Crown hunts foes; Titan also eats rivals. Respawning grants three seconds of safety. Equal Titan powers cannot eat each other.
+Four ghosts begin inside the central house and move through its doorway in sequence. Eaten ghosts return as eyes, enter through the door, reform and leave again. The exact starting arrangement and release delays are not recovered commercial settings. Normal/equal-size players bump apart; giant players can eat smaller rivals. Exact bump displacement and cooldown are custom. Respawn safety prevents damage for 3 seconds but does not prevent collecting powers or eating ghosts.
 
-| Name / icon | Effect |
+| Display name / internal key | Implemented effect |
 |---|---|
-| Crown / gold orb | Eat foes for 7 seconds |
-| Titan / green orb | Giant, slower hunter; eat foes/rivals and block damage for 7 seconds |
-| Rush / drink can | Faster movement for 7 seconds |
-| Mist / smoke bomb | Foes ignore you for 7 seconds; contact still hurts |
-| Slick / peel | Leave a 10-second trap; the next rival touching it is stunned 1.5 seconds |
-| Spark / bolt | Stun rivals and foes for 2 seconds |
-| Veil / sheet | Ignore combat damage for 7 seconds; translucent appearance |
-| Flare / pepper | Hit rivals and foes within Manhattan distance 4, including through walls |
-| Quake / seismic pulse | Stun rivals for 2 seconds and relocate foes |
-| Heart / 1UP badge | Gain one life, maximum 5 |
-| Lure / magnet | Attract foes for 7 seconds; combine with a hunter for bonus foe points |
+| Gold Orb / Crown | Eat ghosts for 7 seconds; does not eat rivals |
+| Giant Orb / Titan | Grow and eat ghosts/smaller rivals for 7 seconds; physical damage immunity |
+| Caffeine / Rush | Faster movement for 7 seconds |
+| Smoke Bomb / Mist | Leave a smoke trail for 7 seconds; each cloud lasts 2.5 seconds and slows nearby ghosts |
+| Banana Peel / Slick | Skid quickly without turn control for 2 seconds |
+| Lightning / Spark | Zap nearby rivals/ghosts, stunning them for 2 seconds; radius 8 cells |
+| Ghost Sheet / Veil | Hide from ghost targeting for 7 seconds; does not protect from rival attacks or incidental ghost contact |
+| Chili Pepper / Flare | Breathe fire up to 5 corridor cells ahead for 3 seconds, stopped by walls |
+| Earthquake / Quake | Slow everyone, including collector and ghosts, for 5 seconds |
+| Extra Life / Heart | Gain one life, up to 5 |
+| Ghost Magnet / Lure | Capture contacted ghosts and carry them ahead as weapons for 7 seconds; expired/dead-owner weapons cannot attack |
 
-Powers can stack; collecting the same one refreshes its timer. Damage clears powers. Titan, Veil and respawn safety block damage. Arena changes clear temporary powers and traps. Orbs begin at fixed anchors; other powers roam through corridors. Random powers spawn every three seconds, up to twelve on the field. Scores are per-match and are not saved. Sound is synthesized locally and gracefully disabled if audio initialization fails. There is no network play.
+The basic power categories are supported by published CHOMPionship descriptions. Exact duration, range, immunity, stacking, lightning stun-versus-kill, flame shape, sheet contact behavior and magnet release behavior are **not** verified. Those are explicit implementation choices. Powers can stack; identical powers refresh. Damage clears effects. Expired captured ghosts return home harmlessly as eyes.
 
-## Verification
+Spawning remains configurable custom tuning: four gold corner anchors, two green central anchors, three other initial pickups; a new random pickup every 3 seconds, cap 12. Non-orb items roam every 0.24 seconds. `SPAWN_INTERVAL`, `MAX_ITEMS` and `ITEM_STEP_INTERVAL` are in game.py. Exact commercial locations/probabilities/frequency are unknown. Arena transitions reset spawn/movement clocks. Foes and pickups never enter player bays.
 
-Run `python test_smoke.py` after installing requirements. It uses dummy SDL display/audio drivers. The current **16 tests pass**, covering:
+## Verification and ongoing QA
 
-- Complete simulated matches for 1/2/8 players on all four maps (12 cases).
-- Random movement for 1/2/4/8 players on all maps (16 cases).
-- Map reachability, wall blocking, tunnels and roaming collectibles.
-- Every movement edge sampled against rendered pixels on all four maps; single-lane graph and no unintended dead ends.
-- All eight gate launches, return trips, respawns and owner-only access across all four maps.
-- All eleven powers, scoring, respawn safety, elimination and time-out.
-- Every ordered attacker/victim pair for 2/8 players across maps, including crossing paths.
-- Eight successive arena transitions with score/life/time checks.
-- Menu/start/pause/rematch and keyboard events; simulated eight-stick assignment.
-- Lobby/help/pause/end rendering and aspect-ratio preservation on resize.
+Run `python test_smoke.py`. The headless suite covers 25 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
 
-Revision 4 removes the separate invisible movement grid. Walls, corridor dots and movement now share one graph. There are no two-by-two open navigation squares or unintended corridor dead ends. Each player starts inside their own bay and enters after a short 0.8-second release. Their gate opens on approach; they can return through it. Rivals, foes and moving powers cannot enter another player's bay. Respawn uses the same bay/release flow. These timings/access rules are our implementation, not verified exact commercial behavior.
+Ten topic agents reviewed player interactions, gates, inventory, effects, spawn policy, edges, walls, ghost starts, ghost exits and player/ghost/power interactions. Review findings distinguish code defects from unverified reference details. Follow-up QA findings are retained under docs/audits in the repository. No review consensus is a substitute for evidence of visual/mechanical identity.
 
-**Native Windows runs:** 900 rendered frames each for 1, 2 and 8 computer-controlled players, approximately 60 FPS in each run. See `NATIVE_TEST_RESULTS.json` and `TEST_RESULTS.txt`. The updated native eight-player window was visually inspected during active play. The recordings show all three counts. Native one/two-player runs were measured but not separately inspected through the desktop screenshot tool in this revision.
+Native Windows autoplay runs render 1,800 frames per count. See NATIVE_TEST_RESULTS.json and TEST_RESULTS.txt. Recordings are actual computer-controlled game runs. Physical USB controllers, eight humans, Linux hardware and audible sound quality remain unverified. Desktop-injected keys were inconclusive; direct game-event keyboard checks pass.
 
-Functional tests do not establish identical commercial mechanics, visual identity, human play balance, audible sound quality, Linux hardware behavior or physical controller compatibility. Desktop automation's injected keys did not visibly operate the native game; direct game-event keyboard checks passed.
-
-To regenerate visual captures, additionally install Pillow (`python -m pip install Pillow`) and run `python record_demo.py --players 1`, `--players 2`, or `--players 8`. `python record_demo.py` generates the full montage; `python visual_check.py` generates the contact sheet. Pillow is unnecessary for playing. For a short app check: `python game.py --players 8 --frames 120`.
+For captures, install Pillow and run `python record_demo.py --players 1` (or 2/8); `python record_demo.py` records all maps; `python visual_check.py` makes a contact sheet. Captures are generated deliverables, not committed to source history. Pillow is unnecessary for playing.
 
 ## Visual references and source
 
 The visual revision was compared against [active CHOMPionship gameplay](https://www.youtube.com/watch?v=GhSV1oQVA6g&t=57s), [Deluxe cabinet footage](https://www.youtube.com/watch?v=-cNOhumVZ74&t=49s), and a clearer [front-facing CHOMPionship playfield](https://www.youtube.com/watch?v=JSp72DKyW5U&t=91s). The last reference is the mobile/projector presentation; its surrounding interface is not assumed identical to the Deluxe cabinet.
 
 Source files: `game.py` (rules, controls and flow), `arcade_art.py` (new procedural artwork), `test_smoke.py` (checks). pygame-ce is distributed separately under its own license. No commercial art/code was extracted. Remaining deliberate differences include authored maze routes, branding, several power effects, timing and scoring. This ZIP is runnable source, not a standalone executable.
+
+## Development
+
+Repository: https://github.com/911cr/neon-nibblers . The revision-4 tag preserves the imported baseline; later commits track fixes. GitHub Actions runs smoke checks on Windows and Linux. Open issues record unresolved reference fidelity and hardware testing.

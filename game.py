@@ -18,18 +18,24 @@ COLORS = [(255,222,45),(255,108,195),(75,226,245),(255,83,80),
 DIRS = [(1,0),(-1,0),(0,1),(0,-1)]
 THEMES = [('Golden Junction',(238,221,85)),('Violet Switchback',(194,117,255)),
           ('Ember Crossroads',(255,140,71)),('Cyan Circuit',(75,227,239))]
+SPAWN_INTERVAL=3.0  # Custom tuning; commercial cadence is not published.
+MAX_ITEMS=12
+ITEM_STEP_INTERVAL=.24
 ITEMS = {
  'Crown': ('CR','Hunt foes for 7s.'),
- 'Titan': ('TI','Giant hunter, shielded and slower for 7s.'),
+ 'Titan': ('TI','Grow giant and eat smaller rivals for 7s.'),
  'Rush': ('RU','Move faster for 7s.'),
- 'Mist': ('MI','Foes ignore you for 7s.'),
- 'Slick': ('SL','Leave a slowing trap behind you for 10s.'),
- 'Spark': ('SP','Stun all rivals and foes for 2s.'),
- 'Veil': ('VE','Pass safely through all combat for 7s.'),
- 'Flare': ('FL','Blast foes and rivals within 4 tiles.'),
- 'Quake': ('QU','Stun rivals for 2s and scatter foes.'),
+ 'Mist': ('MI','Leave a smoke trail that slows foes.'),
+ 'Slick': ('SL','Skid uncontrollably for 2 seconds.'),
+ 'Spark': ('SP','Zap nearby rivals and foes.'),
+ 'Veil': ('VE','Ghosts cannot track you; rivals still can.'),
+ 'Flare': ('FL','Breathe fire down your corridor.'),
+ 'Quake': ('QU','Slow everyone with a quake.'),
  'Heart': ('HE','Gain a life, up to 5.'),
- 'Lure': ('LU','Draw foes toward you for 7s; bonus foe points.')}
+ 'Lure': ('LU','Carry a captured ghost as a weapon.')}
+DISPLAY_NAMES={'Crown':'Gold Orb','Titan':'Giant Orb','Rush':'Caffeine','Mist':'Smoke Bomb',
+               'Slick':'Banana Peel','Spark':'Lightning','Veil':'Ghost Sheet','Flare':'Chili Pepper',
+               'Quake':'Earthquake','Heart':'Extra Life','Lure':'Ghost Magnet'}
 KEYS = [(pg.K_RIGHT,pg.K_LEFT,pg.K_DOWN,pg.K_UP),
         (pg.K_d,pg.K_a,pg.K_s,pg.K_w),(pg.K_l,pg.K_j,pg.K_k,pg.K_i),
         (pg.K_KP6,pg.K_KP4,pg.K_KP2,pg.K_KP8),
@@ -51,6 +57,7 @@ class Player:
     stun: float = 0
     last: str = ''
     entry: float = 0.
+    bonus_life: bool = False
 
 class Arena:
     def __init__(self, theme):
@@ -59,7 +66,7 @@ class Arena:
         # Original narrow-stroke L/T/U wall forms, based on visual study of
         # the arcade genre, not a traced or extracted commercial maze.
         paths = [
-            [(3,3),(10,3)], [(13,3),(17,3)], [(35,3),(39,3)], [(42,3),(51,3)],
+            [(3,3),(10,3)], [(15,3),(15,3)], [(35,3),(35,3)], [(42,3),(51,3)],
             [(13,7),(19,7),(19,3),(31,3),(31,7),(38,7)],
             [(3,7),(6,7)], [(9,7),(10,7)], [(42,7),(46,7)], [(50,7),(53,7)],
             [(3,15),(3,11),(10,11)], [(6,15),(17,15)], [(13,11),(20,11)],
@@ -112,7 +119,7 @@ class Arena:
             if changed:
                 nodes-=ends; edges=[e for e in edges if not ({e[0],e[1]} & ends)]
         self.lanes=set().union(*(e[2] for e in edges))
-        self.entries=[(5,29),(53,1),(41,1),(5,1),(17,29),(29,29),(17,1),(53,29)]
+        self.entries=[(5,29),(53,29),(53,1),(5,1),(17,29),(29,29),(41,1),(17,1)]
         self.spawns=[(x,0 if y==1 else ROWS-1) for x,y in self.entries]
         self.gate_owner={c:i for i,c in enumerate(self.spawns)}
         self.portals=(9,25)
@@ -152,15 +159,24 @@ class Match:
         self.arena = Arena(theme%4)
         self.dots = set(self.arena.lanes) - set(self.arena.entries)
         self.items, self.traps = {}, {}
+        self.smoke={}; self.quake=0.; self.bump_cooldowns={}
+        self.zaps=[]
         self.item_directions={}
+        self.item_clock=self.item_walk_clock=0.
         for p in self.players:
             p.pos = self.arena.spawns[p.idx]
             p.safe, p.direction, p.wanted = 2.5, (0,1) if p.pos[1]==0 else (0,-1), (0,0)
-            p.entry=.8
+            p.entry=.8; p.stun=0.; p.clock=0.
             p.effects.clear()
         exits=[c for c in ((21,17),(33,17),(25,13),(29,21),(21,13)) if c in self.arena.floor]
-        self.foes = [exits[i%len(exits)] for i in range(4)]
-        self.foe_stun = 2.5
+        self.foes = [(24+i*2,17) for i in range(4)]
+        self.foe_modes=['house']*4
+        self.foe_release=[.9+i*.6 for i in range(4)]
+        self.foe_carriers={}
+        self.foe_ticks=[0.]*4
+        self.foe_zapped=[0.]*4
+        self.foe_stun = 0.
+        self.foe_clock=0.
         for c in ((1,1),(COLS-2,1),(1,ROWS-2),(COLS-2,ROWS-2)):
             if c in self.arena.floor: self.items[c]='Crown'
         for anchor in ((COLS//2,9),(COLS//2,21)):
@@ -169,17 +185,100 @@ class Match:
         for name in self.rng.sample([k for k in ITEMS if k not in ('Crown','Titan')],3): self.spawn_item(name)
 
     def spawn_item(self, name=None):
+        if len(self.items)>=MAX_ITEMS: return
         cells = sorted(self.arena.lanes - set(self.items) - {p.pos for p in self.players})
         if cells: self.items[self.rng.choice(cells)] = name or self.rng.choice(list(ITEMS))
+
+    def reset_foe(self, index, returning=True):
+        self.foe_carriers.pop(index,None)
+        self.foe_modes[index]='eyes' if returning else 'house'
+        self.foe_release[index]=1.2
+        if not returning: self.foes[index]=(24+index*2,17)
+
+    def next_toward(self, start, goal):
+        queue=deque([(start,None)]); seen={start}
+        while queue:
+            cell,first=queue.popleft()
+            if cell==goal: return first or start
+            for d in DIRS:
+                nxt=self.arena.step(cell,d)
+                if nxt in self.arena.lanes and nxt not in seen:
+                    seen.add(nxt); queue.append((nxt,first or nxt))
+        return start
+
+    def sync_carriers(self):
+        for i,owner in list(self.foe_carriers.items()):
+            holder=self.players[owner]
+            if holder.lives<=0 or not self.active(holder,'Lure'):
+                self.reset_foe(i)
+            else:
+                candidate=self.arena.step(holder.pos,holder.direction)
+                self.foes[i]=candidate if candidate in self.arena.lanes else holder.pos
+
+    def update_foes(self, dt):
+        self.sync_carriers()
+        self.foe_clock+=dt
+        self.foe_stun=max(0,self.foe_stun-dt)
+        for i in range(len(self.foes)):
+            self.foe_release[i]=max(0,self.foe_release[i]-dt)
+            self.foe_ticks[i]+=dt
+            self.foe_zapped[i]=max(0,self.foe_zapped[i]-dt)
+        if self.foe_clock<.16: return
+        self.foe_clock=0
+        for i,f in enumerate(self.foes):
+            mode=self.foe_modes[i]
+            if mode=='carried':
+                holder=self.players[self.foe_carriers[i]]
+                if holder.lives<=0 or not self.active(holder,'Lure'):
+                    self.reset_foe(i)
+                else:
+                    candidate=self.arena.step(holder.pos,holder.direction)
+                    self.foes[i]=candidate if candidate in self.arena.lanes else holder.pos
+                continue
+            if mode=='house':
+                if self.foe_release[i]>0: continue
+                self.foe_modes[i]='leaving'
+                mode='leaving'
+            if mode=='leaving':
+                x,y=f
+                if x!=27: self.foes[i]=(x+(1 if x<27 else -1),y)
+                elif y>13: self.foes[i]=(x,y-1)
+                else: self.foe_modes[i]='roaming'
+                continue
+            if mode=='entering':
+                x,y=f; home=24+i*2
+                if y<17: self.foes[i]=(x,y+1)
+                elif x!=home: self.foes[i]=(x+(1 if x<home else -1),y)
+                else:
+                    self.foe_modes[i]='house'; self.foe_release[i]=1.2
+                continue
+            if mode=='eyes':
+                if f==(27,13):
+                    self.foe_modes[i]='entering'
+                else: self.foes[i]=self.next_toward(f,(27,13))
+                continue
+            slow=2 if self.quake>0 else 1
+            if any(distance(f,c)<=2 for c in self.smoke): slow*=2
+            if self.foe_stun>0 or self.foe_zapped[i]>0 or self.foe_ticks[i]<.16*slow: continue
+            self.foe_ticks[i]=0.
+            targets=[p for p in self.players if p.lives>0 and p.pos in self.arena.lanes
+                     and not self.active(p,'Veil')]
+            options=[self.arena.step(f,d) for d in DIRS if self.arena.step(f,d) in self.arena.lanes]
+            if not options: continue
+            if targets and self.rng.random()<.7:
+                target=min(targets,key=lambda p:distance(p.pos,f))
+                options.sort(key=lambda c:distance(c,target.pos),reverse=self.active(target,'Crown') or self.active(target,'Titan'))
+                self.foes[i]=options[0]
+            else: self.foes[i]=self.rng.choice(options)
 
     def active(self,p,key): return p.effects.get(key,0)>0
 
     def hurt(self,p):
-        if p.lives<=0 or p.safe>0 or self.active(p,'Veil') or self.active(p,'Titan'): return False
+        if p.lives<=0 or p.safe>0 or self.active(p,'Titan'): return False
         p.lives -= 1
         p.pos, p.safe = self.arena.spawns[p.idx], 3.
         p.direction, p.wanted = (0,0),(0,0)
-        p.entry=.8
+        p.entry=.8; p.stun=0.; p.clock=0.
         p.effects.clear()
         return True
 
@@ -187,31 +286,104 @@ class Match:
         p.score += 75
         p.last = name
         if name == 'Heart': p.lives = min(5,p.lives+1)
-        elif name in ('Spark','Quake'):
-            self.foe_stun = 2.
+        elif name=='Spark':
+            self.zaps.append((p.pos,.5))
             for q in self.players:
-                if q is not p: q.stun = 2.
-            if name == 'Quake': self.foes = [self.rng.choice(sorted(self.arena.lanes)) for _ in self.foes]
-        elif name == 'Flare':
+                if q is not p and distance(q.pos,p.pos)<=8: q.stun=2.
             for i,f in enumerate(self.foes):
-                if distance(p.pos,f)<=4:
-                    p.score+=200
-                    self.foes[i]=self.rng.choice(sorted(self.arena.lanes))
-            for q in self.players:
-                if q is not p and distance(p.pos,q.pos)<=4 and self.hurt(q): p.score+=300
-        elif name == 'Slick':
-            self.traps[p.pos]=(p.idx,10.)
+                if distance(f,p.pos)<=8: self.foe_zapped[i]=2.
+        elif name=='Quake': self.quake=5.
+        elif name=='Slick': p.effects[name]=2.
+        elif name=='Flare': p.effects[name]=3.
         else: p.effects[name]=7.
 
-    def combat(self,previous=None):
+    def fire_cells(self, p):
+        cells=[]; c=p.pos
+        if p.direction==(0,0): return cells
+        for _ in range(5):
+            c=self.arena.step(c,p.direction)
+            if c not in self.arena.lanes: break
+            cells.append(c)
+        return cells
+
+    def apply_fire(self):
+        for p in self.players:
+            if p.lives<=0 or not self.active(p,'Flare'): continue
+            cells=self.fire_cells(p)
+            for i,f in enumerate(self.foes):
+                if f in cells and self.foe_modes[i]=='roaming':
+                    p.score+=200; self.reset_foe(i)
+            for q in self.players:
+                if q is not p and q.pos in cells and self.hurt(q): p.score+=300
+
+    def bump(self,p,q,previous):
+        pair=tuple(sorted((p.idx,q.idx)))
+        crossed=previous and previous[p.idx]!=previous[q.idx] and previous[p.idx]==q.pos and previous[q.idx]==p.pos
+        if crossed:
+            # Rewind a head-on swap before applying the outward impulse.
+            p.pos,q.pos=previous[p.idx],previous[q.idx]
+            for actor in (p,q):
+                reverse=(-actor.direction[0],-actor.direction[1])
+                other=q if actor is p else p
+                cell=self.arena.step(actor.pos,reverse)
+                if self.arena.can_enter(cell,actor) and cell!=other.pos: actor.pos=cell
+                actor.direction=actor.wanted=reverse; actor.stun=.12
+            self.bump_cooldowns[pair]=.28
+            return
+        if pair in self.bump_cooldowns and p.pos!=q.pos: return
+        self.bump_cooldowns[pair]=.28
+        occupied={r.pos for r in self.players if r.lives>0}
+        for actor,other in ((p,q),(q,p)):
+            options=[self.arena.step(actor.pos,d) for d in DIRS
+                     if self.arena.can_enter(self.arena.step(actor.pos,d),actor)
+                     and self.arena.step(actor.pos,d) not in occupied]
+            if not options: continue
+            chosen=max(options,key=lambda c:distance(c,other.pos))
+            actor.direction=(chosen[0]-actor.pos[0],chosen[1]-actor.pos[1])
+            if abs(actor.direction[0])>1: actor.direction=(-1 if actor.direction[0]>0 else 1,0)
+            actor.wanted=actor.direction; actor.pos=chosen; actor.stun=.12
+            occupied.add(chosen)
+
+    def separate_overlaps(self):
+        # Resolve a crowd without leaving multiple living bodies in one cell.
+        occupied=set()
+        for p in self.players:
+            if p.lives<=0: continue
+            if p.pos in occupied:
+                queue=deque([p.pos]); seen={p.pos}
+                while queue:
+                    c=queue.popleft()
+                    if c not in occupied:
+                        p.pos=c; p.stun=max(p.stun,.12); break
+                    for d in DIRS:
+                        nxt=self.arena.step(c,d)
+                        if self.arena.can_enter(nxt,p) and nxt not in seen:
+                            seen.add(nxt); queue.append(nxt)
+            occupied.add(p.pos)
+
+    def award_score_lives(self):
+        for p in self.players:
+            if p.score>=10000 and not p.bonus_life:
+                p.bonus_life=True
+                if p.lives>0: p.lives=min(5,p.lives+1)
+
+    def combat(self,previous=None,old_foes=None):
         for p in self.players:
             if p.lives<=0: continue
             for i,f in enumerate(self.foes):
-                if p.pos!=f: continue
-                if self.active(p,'Veil') or p.safe>0: continue
+                crossed=previous and old_foes and previous[p.idx]==f and p.pos==old_foes[i]
+                if (p.pos!=f and not crossed) or self.foe_modes[i] in ('eyes','entering','house','leaving'): continue
+                if self.foe_modes[i]=='carried':
+                    owner=self.foe_carriers[i]
+                    if self.players[owner].lives<=0 or not self.active(self.players[owner],'Lure'):
+                        self.reset_foe(i); continue
+                    if owner!=p.idx and self.hurt(p): self.players[owner].score+=300
+                    continue
+                if self.active(p,'Lure'):
+                    self.foe_carriers[i]=p.idx; self.foe_modes[i]='carried'; continue
                 if self.active(p,'Crown') or self.active(p,'Titan'):
-                    p.score += 400 if self.active(p,'Lure') else 200
-                    self.foes[i] = self.rng.choice(sorted(self.arena.lanes))
+                    p.score += 200
+                    self.reset_foe(i)
                 else: self.hurt(p)
         for i,p in enumerate(self.players):
             for q in self.players[i+1:]:
@@ -222,12 +394,19 @@ class Match:
                 b = self.active(q,'Titan')
                 if a and not b and self.hurt(q): p.score+=300
                 if b and not a and self.hurt(p): q.score+=300
+                if a==b: self.bump(p,q,previous)
+        self.separate_overlaps()
 
     def update(self,dt):
         if self.over or self.paused: return []
         sounds=[]
         self.time=max(0,self.time-dt)
         previous=[p.pos for p in self.players]
+        old_foes=list(self.foes)
+        self.quake=max(0,self.quake-dt)
+        self.smoke={c:t-dt for c,t in self.smoke.items() if t>dt}
+        self.zaps=[(c,t-dt) for c,t in self.zaps if t>dt]
+        self.bump_cooldowns={pair:t-dt for pair,t in self.bump_cooldowns.items() if t>dt}
         for p in self.players:
             p.safe=max(0,p.safe-dt); p.stun=max(0,p.stun-dt)
             for k in list(p.effects):
@@ -242,10 +421,17 @@ class Match:
                 continue
             p.entry=0
             p.clock+=dt
-            speed=.065 if self.active(p,'Rush') else (.14 if self.active(p,'Titan') else .10)
+            speed=.065 if self.active(p,'Rush') else .10
+            if self.active(p,'Slick'): speed=.055
+            if self.quake>0: speed*=2
             if p.clock>=speed:
                 p.clock=0
-                if self.arena.can_enter(self.arena.step(p.pos,p.wanted),p): p.direction=p.wanted
+                if self.active(p,'Slick'):
+                    if not self.arena.can_enter(self.arena.step(p.pos,p.direction),p) or p.direction==(0,0):
+                        options=[d for d in DIRS if self.arena.can_enter(self.arena.step(p.pos,d),p)]
+                        if options: p.direction=self.rng.choice(options)
+                elif self.arena.can_enter(self.arena.step(p.pos,p.wanted),p): p.direction=p.wanted
+                if self.active(p,'Mist') and p.pos in self.arena.lanes: self.smoke[p.pos]=2.5
                 if self.arena.can_enter(self.arena.step(p.pos,p.direction),p): p.pos=self.arena.step(p.pos,p.direction)
                 if p.pos in self.dots:
                     self.dots.remove(p.pos); p.score+=10; sounds.append('dot')
@@ -253,30 +439,21 @@ class Match:
                     self.collect(p,self.items.pop(p.pos)); sounds.append('power')
                 if p.pos in self.traps and self.traps[p.pos][0]!=p.idx:
                     p.stun=1.5; del self.traps[p.pos]
-        self.foe_clock+=dt; self.foe_stun=max(0,self.foe_stun-dt)
-        if self.foe_clock>.19 and self.foe_stun<=0:
-            self.foe_clock=0
-            targets=[p for p in self.players if p.lives>0 and not self.active(p,'Mist') and not self.active(p,'Veil')]
-            for i,f in enumerate(self.foes):
-                options=[self.arena.step(f,d) for d in DIRS if self.arena.step(f,d) in self.arena.lanes]
-                if not options: continue
-                if targets and self.rng.random()<.7:
-                    target=min(targets,key=lambda p:distance(p.pos,f)-(12 if self.active(p,'Lure') else 0))
-                    options.sort(key=lambda c:distance(c,target.pos),reverse=self.active(target,'Crown') or self.active(target,'Titan'))
-                    self.foes[i]=options[0]
-                else: self.foes[i]=self.rng.choice(options)
+        self.update_foes(dt)
         lives=sum(p.lives for p in self.players)
-        self.combat(previous)
+        self.combat(previous,old_foes)
+        self.apply_fire()
+        self.award_score_lives()
         if sum(p.lives for p in self.players)<lives: sounds.append('hurt')
         for cell,(owner,t) in list(self.traps.items()):
             if t<=dt: del self.traps[cell]
             else: self.traps[cell]=(owner,t-dt)
         self.item_clock+=dt
-        if self.item_clock>=3:
+        if self.item_clock>=SPAWN_INTERVAL:
             self.item_clock=0
-            if len(self.items)<12: self.spawn_item()
+            if len(self.items)<MAX_ITEMS: self.spawn_item()
         self.item_walk_clock+=dt
-        if self.item_walk_clock>=.24:
+        if self.item_walk_clock>=ITEM_STEP_INTERVAL:
             self.item_walk_clock=0
             moved={}; directions={}
             occupied=set(self.items)
@@ -297,6 +474,7 @@ class Match:
                 if p.lives>0: p.score+=500
             self.stage+=1
             self.new_arena(self.arena.theme+1)
+            self.award_score_lives()
             sounds.append('power')
         return sounds
 
@@ -411,26 +589,32 @@ class App:
             # Thin enclosure and colored border stations, leaving the maze dominant.
             dx,dy,dw,dh=g.arena.den
             gate=pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10)
-            pg.draw.line(self.canvas,(224,211,255),(gate.centerx-20,gate.top),(gate.centerx+20,gate.top),2)
+            pg.draw.rect(self.canvas,(0,0,4),gate,border_radius=4)
+            pg.draw.rect(self.canvas,accent,gate,2,border_radius=4)
+            door_x=center((27,15))[0]
+            pg.draw.rect(self.canvas,(0,0,4),(door_x-20,gate.top-12,40,16))
+            pg.draw.line(self.canvas,(224,211,255),(door_x-19,gate.top),(door_x+19,gate.top),2)
             for idx,spawn in enumerate(g.arena.spawns):
                 sx=center(spawn)[0]
                 upper=spawn[1]<ROWS//2
-                by=TOP-22 if upper else TOP+ROWS*TILE-13
-                # Actual border pocket, open at its maze-facing end.
-                box=pg.Rect(sx-24,by,48,35)
+                mouth_y=TOP+4 if upper else TOP+ROWS*TILE-4
+                by=mouth_y-34 if upper else mouth_y
+                box=pg.Rect(sx-24,by,48,34)
                 pg.draw.rect(self.canvas,(0,0,4),box,border_radius=7)
                 pg.draw.rect(self.canvas,accent,box,2,border_radius=7)
-                mouth_y=box.bottom-2 if upper else box.top
-                pg.draw.rect(self.canvas,(0,0,4),(sx-21,mouth_y-2,42,6))
+                pg.draw.rect(self.canvas,accent,box.inflate(-7,-7),1,border_radius=4)
+                pg.draw.rect(self.canvas,(0,0,4),(sx-20,mouth_y-6,40,12))
                 active=idx<len(g.players)
                 color=COLORS[idx] if active else tuple(c//4 for c in COLORS[idx])
                 occupant=g.players[idx] if active else None
-                opening=occupant and occupant.lives>0 and (occupant.entry>0 or distance(occupant.pos,spawn)<=2)
-                gap=20 if opening else 0
-                for side in (-1,1):
-                    pg.draw.line(self.canvas,color,(sx+side*gap,mouth_y),(sx+side*21,mouth_y),3)
+                inward=(0,-1) if upper else (0,1)
+                visual=self.visual_positions.get(idx,center(spawn))
+                crossing=occupant and abs(visual[1]-mouth_y)<22
+                opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
+                    or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
                 if not opening:
-                    for hatch in range(-18,20,7):
+                    pg.draw.line(self.canvas,accent,(sx-20,mouth_y),(sx+20,mouth_y),2)
+                    for hatch in range(-18,19,6):
                         pg.draw.line(self.canvas,accent,(sx+hatch,mouth_y-4),(sx+hatch+4,mouth_y+3),1)
                 sy=4 if upper else TOP+ROWS*TILE+10
                 if active:
@@ -441,49 +625,106 @@ class App:
                 else: self.text('PRESS START',sx+21,sy+1,color,self.small)
             arcade_digits(self.canvas,f'{int(g.time)//60}:{int(g.time)%60:02}',W//2-36,1,(250,250,235),3)
             self.text(f'STAGE {g.stage}',W//2-30,25,accent,self.small)
-            self.canvas.set_clip(pg.Rect(OX,TOP-22,COLS*TILE,ROWS*TILE+44))
+            # Tunnel necks project beyond the board, as in the cabinet footage.
+            for row in g.arena.portals:
+                cy=center((0,row))[1]
+                for side in (-1,1):
+                    edge=OX if side<0 else OX+COLS*TILE
+                    for dy in (-27,-23,23,27):
+                        pg.draw.line(self.canvas,accent,(edge,cy+dy),(edge+side*26,cy+dy),1)
+            self.canvas.set_clip(pg.Rect(OX-28,TOP-32,COLS*TILE+56,ROWS*TILE+64))
+            self.canvas.set_clip(pg.Rect(OX,TOP,COLS*TILE,ROWS*TILE))
+            for c,life in g.smoke.items():
+                cx,cy=center(c)
+                fog=pg.Surface((70,62),pg.SRCALPHA)
+                for n in range(4):
+                    pg.draw.circle(fog,(150,163,180,int(65*min(1,life))),
+                        (18+n*10,30+round(math.sin(self.animation_time*3+n)*7)),15)
+                self.canvas.blit(fog,(cx-35,cy-31))
+            for c,life in g.zaps:
+                cx,cy=center(c)
+                for n in range(8):
+                    angle=n*math.pi/4
+                    ex=cx+math.cos(angle)*100; ey=cy+math.sin(angle)*100
+                    pg.draw.lines(self.canvas,(140,230,255),False,[(cx,cy),((cx+ex)/2+8,(cy+ey)/2-8),(ex,ey)],2)
+            for p in g.players:
+                if g.active(p,'Flare'):
+                    for n,c in enumerate(g.fire_cells(p)):
+                        cx,cy=center(c)
+                        radius=max(5,16-n*2)
+                        pg.draw.circle(self.canvas,(246,82,32),(cx,cy),radius)
+                        pg.draw.circle(self.canvas,(255,225,85),(cx,cy),max(3,radius-5))
             for c in g.dots:
                 cx,cy=center(c); self.canvas.blit(dot_sprite(),(cx-3,cy-3))
             for c,(owner,_) in g.traps.items(): pg.draw.circle(self.canvas,COLORS[owner],center(c),11,2)
+            self.canvas.set_clip(pg.Rect(OX-28,TOP,COLS*TILE+56,ROWS*TILE))
             counts={}
             for c,name in sorted(g.items.items()):
                 idx=counts.get(name,0); counts[name]=idx+1; key=(name,idx)
                 target=center(c); old=self.visual_items.get(key,target)
-                if distance(old,target)>TILE*3: old=target
+                if c[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2:
+                    target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
+                elif distance(old,target)>TILE*3: old=target
                 smooth=(old[0]+(target[0]-old[0])*.3,old[1]+(target[1]-old[1])*.3)
+                if c[1] in g.arena.portals:
+                    if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
+                    elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
                 self.visual_items[key]=smooth
                 power_icon(self.canvas,tuple(map(round,smooth)),name,self.animation_time)
+                if c[1] in g.arena.portals and (smooth[0]<=OX+20 or smooth[0]>=OX+COLS*TILE-20):
+                    twin=smooth[0]+COLS*TILE if smooth[0]<OX+COLS*TILE/2 else smooth[0]-COLS*TILE
+                    power_icon(self.canvas,(round(twin),round(smooth[1])),name,self.animation_time)
+            self.canvas.set_clip(pg.Rect(OX-28,TOP-32,COLS*TILE+56,ROWS*TILE+64))
             for i,c in enumerate(g.foes):
                 target=center(c); old=self.visual_foes.get(i,target)
-                if distance(old,target)>TILE*3: old=target
+                if c[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2:
+                    target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
+                elif distance(old,target)>TILE*3: old=target
                 smooth=(old[0]+(target[0]-old[0])*.3,old[1]+(target[1]-old[1])*.3)
+                if c[1] in g.arena.portals:
+                    if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
+                    elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
                 self.visual_foes[i]=smooth
                 look=(1 if target[0]>old[0] else -1 if target[0]<old[0] else 0,
                       1 if target[1]>old[1] else -1 if target[1]<old[1] else 0)
                 edible=any(g.active(p,'Crown') or g.active(p,'Titan') for p in g.players if p.lives>0)
-                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,g.foe_stun>0,look,edible)
+                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,g.foe_stun>0,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
+                if c[1] in g.arena.portals and (smooth[0]<OX+30 or smooth[0]>OX+COLS*TILE-30):
+                    twin=smooth[0]+COLS*TILE if smooth[0]<OX+30 else smooth[0]-COLS*TILE
+                    foe(self.canvas,(round(twin),round(smooth[1])),COLORS[(3,1,2,5)[i%4]],self.animation_time,
+                        False,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
             for p in g.players:
                 if p.lives<=0: continue
                 target=center(p.pos)
                 if p.pos==g.arena.spawns[p.idx]:
                     target=(target[0],TOP-5 if p.pos[1]==0 else TOP+ROWS*TILE+5)
                 old=self.visual_positions.get(p.idx,target)
-                if distance(old,target)>TILE*3: old=target
+                wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
+                if wrap: target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
+                elif distance(old,target)>TILE*3: old=target
                 smooth=(old[0]+(target[0]-old[0])*.38,old[1]+(target[1]-old[1])*.38)
+                if p.pos[1] in g.arena.portals:
+                    if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
+                    elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
                 self.visual_positions[p.idx]=smooth
                 cx,cy=map(round,smooth); r=36 if g.active(p,'Titan') else 17
-                if g.active(p,'Rush'):
+                if g.active(p,'Rush') or g.active(p,'Slick'):
                     for n in range(1,4):
                         pg.draw.circle(self.canvas,tuple(v//(n*4) for v in COLORS[p.idx]),
                                        (cx-p.direction[0]*n*12,cy-p.direction[1]*n*12),max(2,9-n*2))
                 muncher(self.canvas,(cx,cy),COLORS[p.idx],p.direction,self.animation_time+p.idx,r,
                         g.active(p,'Crown') or g.active(p,'Titan'),p.safe>0,150 if g.active(p,'Veil') else 255)
+                if p.pos[1] in g.arena.portals and (cx<=OX+r+9 or cx>=OX+COLS*TILE-r-9):
+                    twin=cx+COLS*TILE if cx<OX+COLS*TILE/2 else cx-COLS*TILE
+                    muncher(self.canvas,(twin,cy),COLORS[p.idx],p.direction,self.animation_time+p.idx,r,
+                            g.active(p,'Crown') or g.active(p,'Titan'),p.safe>0,150 if g.active(p,'Veil') else 255)
                 delta=p.score-self.score_memory.get(p.idx,p.score)
                 if delta>10: self.popups.append([str(delta),cx,cy-r,1.,COLORS[p.idx]])
                 self.score_memory[p.idx]=p.score
                 if p.stun>0:
                     self.text('* *',cx-12,cy-r-14,(255,255,230),self.small)
                 if g.active(p,'Lure'): power_icon(self.canvas,(cx,cy-r-12),'Lure',self.animation_time,22)
+            self.canvas.set_clip(pg.Rect(OX,TOP,COLS*TILE,ROWS*TILE))
             for popup in self.popups[:]:
                 label,px,py,life,color=popup
                 arcade_digits(self.canvas,label,px-14,round(py),color,2)
@@ -502,7 +743,7 @@ class App:
             self.text('POWER FIELD GUIDE',105,55,(104,242,209),self.big)
             for i,(name,(code,desc)) in enumerate(ITEMS.items()):
                 power_icon(self.canvas,(125,140+i*43),name,self.animation_time,42)
-                self.text(f'{name}: {desc}',165,130+i*43)
+                self.text(f'{DISPLAY_NAMES[name]}: {desc}',165,130+i*43)
             self.text('F1 closes. Guide pauses play. Titans bite rivals; equal powers are safe.',105,617)
             self.text('3 starting lives. 3-minute score attack. Clearing dots rotates arenas.',105,653)
         sw,sh=self.screen.get_size(); factor=min(sw/W,sh/H)

@@ -1,2 +1,2 @@
-Visual revision 4 — single-lane corridors and functional player gates
+Revision 5 — reference audits and adversarial QA fixes
 2026-11-08

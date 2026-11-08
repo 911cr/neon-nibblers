@@ -1,0 +1,21 @@
+name: Game bug or reference mismatch
+description: Report a playable bug or an observed reference difference.
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include player count, map, controls and steps.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result and evidence
+      description: For fidelity reports, include a source link and timestamp.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Version, operating system and controllers

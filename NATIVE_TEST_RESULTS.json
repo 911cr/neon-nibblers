@@ -1,57 +1,57 @@
 [
   {
     "players": 1,
-    "frames": 900,
-    "elapsed_seconds": 14.926,
-    "average_fps": 60.3,
+    "frames": 1800,
+    "elapsed_seconds": 29.835,
+    "average_fps": 60.33,
     "scores": [
-      1720
+      4015
     ],
     "lives": [
-      3
+      2
     ],
     "stage": 1
   },
   {
     "players": 2,
-    "frames": 900,
-    "elapsed_seconds": 14.982,
-    "average_fps": 60.07,
+    "frames": 1800,
+    "elapsed_seconds": 29.845,
+    "average_fps": 60.31,
     "scores": [
-      745,
-      2355
+      2205,
+      2705
     ],
     "lives": [
-      1,
+      3,
       3
     ],
     "stage": 1
   },
   {
     "players": 8,
-    "frames": 900,
-    "elapsed_seconds": 14.971,
-    "average_fps": 60.12,
+    "frames": 1800,
+    "elapsed_seconds": 29.902,
+    "average_fps": 60.2,
     "scores": [
-      1045,
-      1720,
-      620,
-      605,
-      185,
-      1420,
-      430,
-      1480
+      3360,
+      1760,
+      1835,
+      2965,
+      2730,
+      2175,
+      1990,
+      2020
     ],
     "lives": [
       1,
       1,
-      2,
-      2,
+      1,
+      1,
       3,
       2,
       2,
-      2
+      4
     ],
-    "stage": 1
+    "stage": 2
   }
 ]

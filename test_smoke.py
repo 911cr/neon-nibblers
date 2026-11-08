@@ -33,9 +33,10 @@ class Smoke(unittest.TestCase):
             before=p.score; g.collect(p,name)
             self.assertGreaterEqual(p.score,before+75)
             if name=='Heart': self.assertEqual(p.lives,4)
-            elif name=='Slick': self.assertIn(p.pos,g.traps)
-            elif name in ('Spark','Quake'): self.assertEqual(q.stun,2)
-            elif name=='Flare': self.assertEqual(q.lives,2)
+            elif name=='Slick': self.assertEqual(p.effects['Slick'],2)
+            elif name=='Spark': self.assertEqual(q.stun,2)
+            elif name=='Quake': self.assertEqual(g.quake,5)
+            elif name=='Flare': self.assertEqual(p.effects['Flare'],3)
             else: self.assertGreater(p.effects[name],0)
 
     def test_combat_respawn_and_immunity(self):
@@ -44,7 +45,7 @@ class Smoke(unittest.TestCase):
         p.effects['Titan']=7
         g.combat(); self.assertEqual(q.lives,2); self.assertEqual(p.score,300)
         g.hurt(q); self.assertEqual(q.lives,2)
-        q.safe=0; q.effects['Veil']=7; g.hurt(q); self.assertEqual(q.lives,2)
+        q.safe=0; q.effects['Veil']=7; g.hurt(q); self.assertEqual(q.lives,1)
 
     def test_stage_and_end(self):
         g=Match(8,seed=1); g.dots.clear(); g.update(.01)
@@ -156,7 +157,7 @@ class Smoke(unittest.TestCase):
             p.safe=q.safe=0; p.pos=q.pos=(1,1)
             p.effects['Crown']=7
             g.combat(); self.assertEqual(q.lives,3)
-            p.effects['Titan']=7
+            p.effects['Titan']=7; p.pos=q.pos=(1,1)
             g.combat(); self.assertEqual(q.lives,2)
 
     def test_resize_preserves_aspect(self):
@@ -226,6 +227,128 @@ class Smoke(unittest.TestCase):
                 self.assertEqual(p.lives,2)
             for _ in range(49): g.update(1/60)
             self.assertTrue(all(p.pos==g.arena.entries[p.idx] for p in g.players))
+
+    def test_ghost_house_departure_and_continuous_return(self):
+        for theme in range(4):
+            g=Match(1,theme,seed=11)
+            self.assertTrue(all(15<=f[1]<=19 for f in g.foes))
+            for _ in range(90): g.update_foes(.16)
+            self.assertEqual(g.foe_modes,['roaming']*4)
+            self.assertTrue(all(f in g.arena.lanes for f in g.foes))
+            for i in range(4):
+                g.foes[i]=(25,13); g.reset_foe(i)
+            saw_enter=[False]*4; saw_house=[False]*4
+            for _ in range(100):
+                old=list(g.foes); g.update_foes(.16)
+                for i in range(4):
+                    self.assertLessEqual(abs(old[i][0]-g.foes[i][0])+abs(old[i][1]-g.foes[i][1]),1)
+                    saw_enter[i]|=g.foe_modes[i]=='entering'
+                    saw_house[i]|=g.foe_modes[i]=='house'
+                if all(saw_house): break
+            self.assertTrue(all(saw_enter)); self.assertTrue(all(saw_house))
+
+    def test_magnet_capture_weapon_and_expiry(self):
+        g=Match(2,seed=2); p,q=g.players
+        p.pos=(1,1); q.pos=(5,1); p.safe=q.safe=0
+        p.effects['Lure']=7; p.direction=(1,0)
+        g.foes=[p.pos]; g.foe_modes=['roaming']; g.foe_release=[0]; g.foe_ticks=[0]; g.foe_zapped=[0]
+        g.combat(); self.assertEqual(g.foe_modes[0],'carried'); self.assertEqual(p.lives,3)
+        g.update_foes(.17); self.assertEqual(g.foes[0],(2,1))
+        q.pos=(2,1); g.combat(); self.assertEqual(q.lives,2); self.assertEqual(p.score,300)
+        p.effects.clear(); g.update_foes(.17); self.assertEqual(g.foe_modes[0],'eyes')
+
+    def test_local_effects_and_no_wall_penetration(self):
+        g=Match(3,seed=2); p,q,r=g.players
+        p.pos=(1,1); q.pos=(3,1); r.pos=(53,29)
+        g.collect(p,'Spark'); self.assertEqual(q.stun,2); self.assertEqual(r.stun,0)
+        g.collect(p,'Mist'); p.direction=p.wanted=(1,0); p.entry=0
+        g.update(.11); self.assertIn((1,1),g.smoke)
+        g.collect(p,'Quake'); self.assertGreater(g.quake,0)
+        p.pos=(1,1); p.direction=(-1,0); p.effects['Flare']=3
+        self.assertEqual(g.fire_cells(p),[])
+        p.direction=(1,0); self.assertEqual(g.fire_cells(p),[(2,1),(3,1),(4,1),(5,1),(6,1)])
+        q.pos=(3,1); q.safe=0; g.apply_fire(); self.assertEqual(q.lives,2)
+
+    def test_normal_bumps_bonus_life_and_crossing_ghost(self):
+        g=Match(2,seed=2); p,q=g.players; g.foes=[]
+        p.pos=q.pos=(5,1); p.safe=q.safe=0
+        g.combat(); self.assertNotEqual(p.pos,q.pos)
+        self.assertEqual((p.lives,q.lives),(3,3)); self.assertEqual((p.score,q.score),(0,0))
+        p.score=10000; g.update(.01); self.assertEqual(p.lives,4)
+        g.update(.01); self.assertEqual(p.lives,4)
+        g.foes=[(1,1)]; g.foe_modes=['roaming']; p.pos=(2,1); p.safe=0
+        g.combat([(1,1),q.pos],[(2,1)]); self.assertEqual(p.lives,3)
+
+    def test_spawn_clocks_reset_between_arenas(self):
+        g=Match(8,seed=9); g.item_clock=2.9; g.item_walk_clock=.23
+        g.new_arena(1)
+        self.assertEqual(g.item_clock,0); self.assertEqual(g.item_walk_clock,0)
+        self.assertTrue(all(c in g.arena.lanes for c in g.items))
+
+    def test_carried_ghost_cannot_attack_after_expiry_or_death(self):
+        for expired in (True,False):
+            g=Match(2); p,q=g.players; p.pos=(1,1); q.pos=(2,1); p.direction=(1,0)
+            p.effects['Lure']=7; q.safe=0
+            g.foes=[q.pos]; g.foe_modes=['carried']; g.foe_carriers={0:0}
+            if expired: p.effects.clear()
+            else: p.lives=0
+            g.combat(); self.assertEqual(q.lives,3); self.assertEqual(p.score,0)
+            self.assertEqual(g.foe_modes[0],'eyes')
+        g=Match(1); p=g.players[0]; p.pos=(1,1); p.safe=2; p.effects['Crown']=7
+        g.foes=[p.pos]; g.foe_modes=['roaming']
+        g.combat(); self.assertEqual(p.score,200); self.assertEqual(p.lives,3)
+
+    def test_speed_skid_quake_and_local_smoke(self):
+        def ready():
+            g=Match(1,seed=4); g.items.clear(); g.foes=[]
+            p=g.players[0]; p.pos=(1,1); p.entry=0; p.direction=p.wanted=(1,0)
+            return g,p
+        normal,p=ready(); normal.update(.07); self.assertEqual(p.pos,(1,1))
+        fast,p=ready(); p.effects['Rush']=7; fast.update(.07); self.assertEqual(p.pos,(2,1))
+        slow,p=ready(); slow.quake=5; slow.update(.11); self.assertEqual(p.pos,(1,1))
+        skid,p=ready(); p.effects['Slick']=2; p.wanted=(0,1); skid.update(.06)
+        self.assertEqual(p.pos,(2,1))
+        for smoke in (False,True):
+            g=Match(1,seed=1); g.foes=[(5,1)]; g.foe_modes=['roaming']; g.foe_ticks=[0]; g.foe_release=[0]; g.foe_zapped=[0]
+            if smoke: g.smoke[(5,1)]=2
+            g.update_foes(.17)
+            self.assertEqual(g.foes[0]==(5,1),smoke)
+
+    def test_adversarial_crowds_crossings_and_gate_reset(self):
+        g=Match(8); g.foes=[]; g.items.clear()
+        for p in g.players: p.pos=(5,1); p.entry=0; p.safe=0
+        g.combat(); self.assertEqual(len({p.pos for p in g.players}),8)
+        g.players[0].pos=g.players[1].pos=(5,1)
+        g.combat(); self.assertEqual(len({p.pos for p in g.players}),8)
+        g=Match(2); g.foes=[]; g.items.clear(); p,q=g.players
+        p.pos=(1,1); q.pos=(2,1); p.entry=q.entry=0; p.safe=q.safe=0
+        p.direction=p.wanted=(1,0); q.direction=q.wanted=(-1,0)
+        g.update(.11)
+        self.assertEqual(p.direction,(-1,0)); self.assertEqual(q.direction,(1,0))
+        self.assertLess(p.pos[0],q.pos[0])
+        p.stun=2; p.clock=.09; p.safe=0; g.hurt(p)
+        self.assertEqual((p.stun,p.clock),(0,0))
+        for _ in range(49): g.update(1/60)
+        self.assertEqual(p.pos,g.arena.entries[0])
+        p.stun=2; p.clock=.09; g.new_arena(1)
+        self.assertEqual((p.stun,p.clock),(0,0))
+        p.score=9500; g.dots.clear(); g.update(.01)
+        self.assertTrue(p.bonus_life)
+
+    def test_seam_copies_preserve_giant_and_veil(self):
+        from unittest.mock import patch
+        import game
+        app=App(); app.count=1; app.start(); p=app.match.players[0]
+        p.pos=(1,9); p.effects={'Titan':7,'Veil':7}; p.entry=0
+        calls=[]
+        original=game.muncher
+        def capture(*args,**kwargs):
+            calls.append((args,kwargs)); return original(*args,**kwargs)
+        with patch.object(game,'muncher',capture): app.draw()
+        bodies=[args for args,kwargs in calls if len(args)>5 and args[5]==36]
+        self.assertEqual(len(bodies),2)
+        self.assertTrue(all(args[8]==150 for args in bodies))
+        pg.quit()
 
 if __name__=='__main__': unittest.main(verbosity=2)
 

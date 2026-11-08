@@ -9,7 +9,8 @@ def maze_background(floor, cols, rows, tile, accent):
     # Carve a constant-width tube around the SAME graph used by movement.
     # A free-looking gap can no longer disagree with the collision map.
     raw.fill((255,255,255))
-    radius=26
+    radius=32
+    raw.set_clip(pg.Rect(6,6,size[0]-12,size[1]-12))
     for x,y in floor:
         cx,cy=x*tile+tile//2,y*tile+tile//2
         pg.draw.circle(raw,(0,0,0,0),(cx,cy),radius)
@@ -18,6 +19,13 @@ def maze_background(floor, cols, rows, tile, accent):
                 if dx: rect=(cx,cy-radius,tile,radius*2)
                 else: rect=(cx-radius,cy,radius*2,tile)
                 pg.draw.rect(raw,(0,0,0,0),rect)
+    raw.set_clip(None)
+    # The main board stays framed despite wider corridors. Carve only the real
+    # tunnel mouths and player thresholds through that frame.
+    for x,y in floor:
+        cx,cy=x*tile+tile//2,y*tile+tile//2
+        if x in (0,cols-1): pg.draw.rect(raw,(0,0,0,0),(x*tile,cy-26,tile,52))
+        if y in (0,rows-1): pg.draw.rect(raw,(0,0,0,0),(cx-20,y*tile,40,tile))
     mask=pg.mask.from_surface(raw)
     # Round exposed wall corners without changing the corridor center-lines.
     offsets=[(x,y) for x in range(-5,6) for y in range(-5,6) if x*x+y*y<=25]
@@ -81,7 +89,7 @@ def muncher(target, pos, color, direction, time, radius=15, powered=False, safe=
     if opacity<255: s.set_alpha(opacity)
     target.blit(s,s.get_rect(center=pos))
 
-def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False):
+def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False,eyes_only=False):
     x,y=pos; scale=3; mid=24*scale
     s=pg.Surface((48*scale,48*scale),pg.SRCALPHA)
     c=color
@@ -100,6 +108,7 @@ def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False):
         cc=tuple(min(255,int(v*intensity)) for v in c)
         pg.draw.line(s,cc,(xx,6*scale),(xx,39*scale))
     s.blit(mask.to_surface(setcolor=(255,255,255,255),unsetcolor=(0,0,0,0)),(0,0),special_flags=pg.BLEND_RGBA_MULT)
+    if eyes_only: s.fill((0,0,0,0))
     for ex in (18,30):
         pg.draw.ellipse(s,(248,251,255),((ex-5)*scale,17*scale,10*scale,13*scale))
         dx=direction[0]*2; dy=direction[1]*2

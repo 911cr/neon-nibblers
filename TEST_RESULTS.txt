@@ -1,15 +1,14 @@
-REVISION 4 VALIDATION — 2026-11-08
-Windows / Python 3.14.2 / pygame-ce 2.5.8
+REVISION 5 — FINAL LOCAL VALIDATION
+2026-11-08
 
-16 headless automated tests passed.
-New regression coverage: single-lane graph, no blind corridors, every movement edge sampled against drawn wall pixels; all eight gate launches, owner-only access, returns and respawns on all four maps.
-Existing coverage: complete 1/2/8 autoplay matches on four maps; movement, all powers, scoring, lives, combat, portals, transitions, menu, pause, restart, resizing and simulated controller input.
+25 headless integrated tests passed after QA fixes.
+Ten topic agents each completed initial audit plus two QA passes; relevant agents rechecked reproduced failures after fixes. No perfect commercial match certification. See QA_SUMMARY.md and repository docs/audits.
 
-Native Windows autoplay, 900 frames per mode:
-1 players: 60.3 FPS; scores [1720]; lives [3].
-2 players: 60.07 FPS; scores [745, 2355]; lives [1, 3].
-8 players: 60.12 FPS; scores [1045, 1720, 620, 605, 185, 1420, 430, 1480]; lives [1, 1, 2, 2, 3, 2, 2, 2].
+Native Windows autoplay:1800frames each, actual game render/update/audio initialization.
+1 players: 60.33 FPS, scores [4015], lives [2], stage 1.
+2 players: 60.31 FPS, scores [2205, 2705], lives [3, 3], stage 1.
+8 players: 60.2 FPS, scores [3360, 1760, 1835, 2965, 2730, 2175, 1990, 2020], lives [1, 1, 1, 1, 3, 2, 2, 4], stage 2.
 
-Actual native eight-player window inspected during active play. GIFs are fresh 12-second computer-controlled recordings, including entry through player bays. All-map montage also regenerated. These are not eight-human or physical USB tests.
+Native two-player window visually inspected during final run. Final1/2/8 GIFs regenerated from current code; all-map montage and contact sheet regenerated. Computer-controlled, not human/physical-device validation.
 
-Physical USB controllers, Linux hardware and audible sound quality remain unverified. Previous native injected-key automation was inconclusive; direct event checks pass. Visual resemblance is not identity: authored geometry, artwork, gate timing and other custom rules remain.
+Not verified: exact original maze/art/rules/timing, physical USB controllers, eight humans, Linux display/audio, audible sound quality. Remote CI results are tracked in GitHub Actions.
