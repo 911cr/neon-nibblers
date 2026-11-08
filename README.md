@@ -100,7 +100,7 @@ Spawning remains configurable custom tuning: four gold corner anchors, two green
 
 ## Verification and ongoing QA
 
-Run `python -m unittest discover -p "test*.py" -v` to include all suites; `test_smoke.py` alone runs the original29 checks. The revision-8 headless suite covers 63 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
+Run `python -m unittest discover -p "test*.py" -v` to include all suites; `test_smoke.py` alone runs the original29 checks. The revision-8 headless suite covers 72 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
 
 Ten topic agents reviewed player interactions, gates, inventory, effects, spawn policy, edges, walls, ghost starts, ghost exits and player/ghost/power interactions. Review findings distinguish code defects from unverified reference details. Follow-up QA findings are retained under docs/audits in the repository. No review consensus is a substitute for evidence of visual/mechanical identity.
 
@@ -152,3 +152,14 @@ Replay checks input commands, state fingerprints, score events and movement trac
 `docs/DX_FEATURE_PARITY.md` separates verified DX facts, observed footage, historical-only rules, unknowns and implemented tests. The six companion DX documents record history, references, maps, scoring, visuals and verification. No complete commercial map reconstruction or aligned full-field comparison is claimed. A separate research-only house crop comparison was made from released DX footage at2:00; it is not bundled as a game asset. `station_before_after_r8.png` compares our previous and current builds, not commercial footage. Separate1/2/4/8-player clips show actual computer-controlled gameplay; a locator is triggered during the1/2/8 clips.
 
 The formal application states are attract/lobby, playing, paused, guide and results (`stations.Phase`). The state table and remaining gaps are in `docs/DX_TEST_REPORT.md`. Credits, persistent high scores, a full animated attract demonstration, layered audio and a separate spectator-display mode remain unfinished. The existing three synthesized sounds and single-monitor mode remain usable.
+
+
+## Revision 9 — 2026-11-08
+
+Fixed scores/lives/start prompts overlapping gate bounds, including giant locator clearance and long score values. Cyan Circuit map revision2 opens the continuous house perimeter and separates two nearby vertical wall sections, informed by real DX footage at75/120seconds after180-degree orientation normalization. Exact coordinates remain estimated and the full DX topology is still unresolved.
+
+Preserved movement timer remainders and boundary precision: normal movement now10cells/s, caffeine15 and banana18 under the configured approximation, versus8/15/15 previously. Damage cues now follow damage events even when another player earns a life simultaneously. Lightning ignores inactive stations.
+
+72 tests pass locally on Windows and Ubuntu. New native300-frame1/2/8 runs used real Windows/X11 drivers; Windows58.39/60.27/59.93FPS; UbuntuWSLg34.49/33.64/45.20FPS under concurrent capture load. Physical controllers remain deferred. Three agents performed reference/code reviews, deeper QA and rechecks. No perfect-match claim.
+
+The separate1/2/8-player clips now show corrected Cyan Circuit,12seconds each; the montage covers allfourmaps. `hud_before_after_r9.png` and `map_before_after_r9.png` are controlled local before/after comparisons. A new reference-only figure outside the gameZIP records actual footage observations. Replay sample regenerated after timing changes.

@@ -35,3 +35,14 @@ Two targeted QA passes checked zero/partial/full counts, hotplug, fallback and t
 ## Revision 8
 
 Three focused agents performed research/code review followed by deeper adversarial passes and fix rechecks.63 total tests cover original rules, explicit maps, score/replay and independent stations. Found/fixed autoplay dot deletion without scoring, wrong-station controller availability, top-bay locator clipping and an intermediate three-outline house rendering mistake. The final house check counts actual visible contours. Source evidence, differences and next actions are maintained in the seven DX documents. Native Windows/WSLg1/2/8 runs completed; updated clips are actual simulated gameplay. No exact-DX or physical-hardware certification.
+
+
+## Revision 9 — 2026-11-08
+
+Fixed scores/lives/start prompts overlapping gate bounds, including giant locator clearance and long score values. Cyan Circuit map revision2 opens the continuous house perimeter and separates two nearby vertical wall sections, informed by real DX footage at75/120seconds after180-degree orientation normalization. Exact coordinates remain estimated and the full DX topology is still unresolved.
+
+Preserved movement timer remainders and boundary precision: normal movement now10cells/s, caffeine15 and banana18 under the configured approximation, versus8/15/15 previously. Damage cues now follow damage events even when another player earns a life simultaneously. Lightning ignores inactive stations.
+
+72 tests pass locally on Windows and Ubuntu. New native300-frame1/2/8 runs used real Windows/X11 drivers; Windows58.39/60.27/59.93FPS; UbuntuWSLg34.49/33.64/45.20FPS under concurrent capture load. Physical controllers remain deferred. Three agents performed reference/code reviews, deeper QA and rechecks. No perfect-match claim.
+
+The separate1/2/8-player clips now show corrected Cyan Circuit,12seconds each; the montage covers allfourmaps. `hud_before_after_r9.png` and `map_before_after_r9.png` are controlled local before/after comparisons. A new reference-only figure outside the gameZIP records actual footage observations. Replay sample regenerated after timing changes.

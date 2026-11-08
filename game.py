@@ -226,8 +226,8 @@ class Match:
             self.foe_release[i]=max(0,self.foe_release[i]-dt)
             self.foe_ticks[i]+=dt
             self.foe_zapped[i]=max(0,self.foe_zapped[i]-dt)
-        if self.foe_clock<.16: return
-        self.foe_clock=0
+        if self.foe_clock+1e-10<.16: return
+        self.foe_clock=max(0.,self.foe_clock-.16)%.16
         for i,f in enumerate(self.foes):
             mode=self.foe_modes[i]
             if mode=='carried':
@@ -262,8 +262,8 @@ class Match:
                 continue
             slow=2 if self.quake>0 else 1
             if any(distance(f,c)<=2 for c in self.smoke): slow*=2
-            if self.foe_stun>0 or self.foe_zapped[i]>0 or self.foe_ticks[i]<.16*slow: continue
-            self.foe_ticks[i]=0.
+            if self.foe_stun>0 or self.foe_zapped[i]>0 or self.foe_ticks[i]+1e-10<.16*slow: continue
+            self.foe_ticks[i]=max(0.,self.foe_ticks[i]-.16*slow)%(.16*slow)
             targets=[p for p in self.players if p.lives>0 and p.pos in self.arena.lanes
                      and not self.active(p,'Veil')]
             options=[self.arena.step(f,d) for d in DIRS if self.arena.step(f,d) in self.arena.lanes]
@@ -297,7 +297,7 @@ class Match:
         elif name=='Spark':
             self.zaps.append((p.pos,.5))
             for q in self.players:
-                if q is not p and distance(q.pos,p.pos)<=8: q.stun=2.
+                if q is not p and q.lives>0 and distance(q.pos,p.pos)<=8: q.stun=2.
             for i,f in enumerate(self.foes):
                 if distance(f,p.pos)<=8: self.foe_zapped[i]=2.
         elif name=='Quake': self.quake=5.
@@ -440,8 +440,8 @@ class Match:
             speed=.065 if self.active(p,'Rush') else .10
             if self.active(p,'Slick'): speed=.055
             if self.quake>0: speed*=2
-            if p.clock>=speed:
-                p.clock=0
+            if p.clock+1e-10>=speed:
+                p.clock=max(0.,p.clock-speed)%speed
                 if self.active(p,'Slick'):
                     if not self.arena.can_enter(self.arena.step(p.pos,p.direction),p) or p.direction==(0,0):
                         options=[d for d in DIRS if self.arena.can_enter(self.arena.step(p.pos,d),p)]
@@ -456,21 +456,21 @@ class Match:
                 if p.pos in self.traps and self.traps[p.pos][0]!=p.idx:
                     p.stun=1.5; del self.traps[p.pos]
         self.update_foes(dt)
-        lives=sum(p.lives for p in self.players)
+        combat_events=len(self.ledger.events)
         self.combat(previous,old_foes)
         self.apply_fire()
         self.award_score_lives()
-        if sum(p.lives for p in self.players)<lives: sounds.append('hurt')
+        if any(e['event']=='player_hurt' for e in self.ledger.events[combat_events:]): sounds.append('hurt')
         for cell,(owner,t) in list(self.traps.items()):
             if t<=dt: del self.traps[cell]
             else: self.traps[cell]=(owner,t-dt)
         self.item_clock+=dt
-        if self.item_clock>=SPAWN_INTERVAL:
-            self.item_clock=0
+        if self.item_clock+1e-10>=SPAWN_INTERVAL:
+            self.item_clock=max(0.,self.item_clock-SPAWN_INTERVAL)%SPAWN_INTERVAL
             if len(self.items)<MAX_ITEMS: self.spawn_item()
         self.item_walk_clock+=dt
-        if self.item_walk_clock>=ITEM_STEP_INTERVAL:
-            self.item_walk_clock=0
+        if self.item_walk_clock+1e-10>=ITEM_STEP_INTERVAL:
+            self.item_walk_clock=max(0.,self.item_walk_clock-ITEM_STEP_INTERVAL)%ITEM_STEP_INTERVAL
             moved={}; directions={}
             occupied=set(self.items)
             for cell,name in list(self.items.items()):
@@ -500,6 +500,16 @@ class Match:
 def add(a,b): return a[0]+b[0],a[1]+b[1]
 def distance(a,b): return abs(a[0]-b[0])+abs(a[1]-b[1])
 def center(c): return OX+c[0]*TILE+TILE//2,TOP+c[1]*TILE+TILE//2
+
+def station_hud(spawn,score=0):
+    """Reserve clearance beside each bay for every digit, life and prompt."""
+    sx=center(spawn)[0]
+    sy=4 if spawn[1]<ROWS//2 else TOP+ROWS*TILE+10
+    label=f'{score:06}'
+    scale=max(1,min(3,108//(6*len(label))))
+    return {'x':sx+50,'y':sy,'label':label,'scale':scale,
+            'score':pg.Rect(sx+50,sy,(6*len(label)-1)*scale,7*scale),
+            'lives':pg.Rect(sx+50,sy+25,48,7)}
 
 class App:
     def __init__(self, simulate_controllers=False):
@@ -722,13 +732,14 @@ class App:
                     pg.draw.line(self.canvas,GATE_HATCH,(sx-20,mouth_y),(sx+20,mouth_y),2)
                     for hatch in range(-18,19,6):
                         pg.draw.line(self.canvas,GATE_HATCH,(sx+hatch,mouth_y-4),(sx+hatch+4,mouth_y+3),1)
-                sy=4 if upper else TOP+ROWS*TILE+10
+                hud=station_hud(spawn,occupant.score if occupant else 0)
+                sx_text,sy=hud['x'],hud['y']
                 if active:
                     p=g.players[idx]
-                    arcade_digits(self.canvas,f'{p.score:06}',sx+22,sy,color,3)
-                    for life in range(p.lives): pg.draw.circle(self.canvas,color,(sx+25+life*9,sy+27),2)
-                    if p.lives<=0: self.text('OUT',sx+137,sy,color,self.small)
-                else: self.text(f'F{idx+3} / START',sx+21,sy+1,color,self.small)
+                    arcade_digits(self.canvas,hud['label'],sx_text,sy,color,hud['scale'])
+                    for life in range(p.lives): pg.draw.circle(self.canvas,color,(sx_text+3+life*9,sy+28),2)
+                    if p.lives<=0: self.text('OUT',sx_text,sy+22,color,self.small)
+                else: self.text(f'F{idx+3} / START',sx_text,sy+1,color,self.small)
             arcade_digits(self.canvas,f'{int(g.time)//60}:{int(g.time)%60:02}',W//2-36,1,(250,250,235),3)
             self.text(f'STAGE {g.stage}',W//2-30,25,accent,self.small)
             # Tunnel necks project beyond the board, as in the cabinet footage.
@@ -816,6 +827,8 @@ class App:
                 cx,cy=map(round,smooth); r=36 if g.active(p,'Titan') else 17
                 if p.locate_remaining>0:
                     ring=r+12+round(4*math.sin(self.animation_time*12))
+                    if cy<TOP+45 or cy>TOP+ROWS*TILE-45:
+                        ring=min(ring,44)  # Keep even giant locators clear of station scores.
                     pg.draw.circle(self.canvas,COLORS[p.idx],(cx,cy),ring,3)
                     below=cy-ring-23<TOP
                     label_y=cy+ring+5 if below else cy-ring-23

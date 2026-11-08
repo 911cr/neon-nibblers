@@ -1,12 +1,3 @@
-REVISION 8 — 2026-11-08
-63 automated checks: baseline29 + maps7 + ledger12 + stations15.
-Final Windows and Ubuntu test logs are retained with release verification.
-Independent agent passes found/fixed wrong-station controller count, clipped locator label, redundant house contour and autoplay dot deletion.
-Native Windows600frames1/2/8:59.54/60.08/60.16FPS.
-Native Ubuntu/WSLg600frames1/2/8:40.25/39.17/61.54FPS.
-Native runs used real display drivers and audio initialization; final house-only artwork refinement covered by final rendered tests/captures.
-Stress dummy-driver360frames:95.46renderframes/s,8giants/4ghosts/12items/121smoke/8zaps. Not nativeFPS.
-Actual App logic equal at30/60/144renderHz; deterministic input/score/movement replay verified.
-Physical controllers/audibility/eight-human acceptance deferred to production, never marked passed.
-Authored maps and unmeasured DX rules remain explicitly unverified. Research comparison does not certify exact fidelity.
-Final local Windows63/63 PASS; local Ubuntu63/63 PASS after all source changes.
+REVISION9:72 local Windows tests PASS;72 local Ubuntu tests PASS.
+All source/capture changes applied. See docs/audits/revision9_* and NATIVE_REVISION9_*.json.
+Physical controllers deferred to production; DX geometry/rule gaps remain explicitly unresolved.

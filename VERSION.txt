@@ -1,2 +1,2 @@
-Revision 8 — independent stations, score ledger, replay and explicit map catalog
+Revision 9 — HUD gate clearance, Cyan Circuit routes and gameplay timing fixes
 2026-11-08

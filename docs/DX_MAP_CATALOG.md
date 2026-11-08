@@ -29,7 +29,7 @@ The YouTube web reader failed to fetch both cabinet videos in this cycle. The ti
 | `golden-junction` | Golden Junction | 577 | Authored base | **UNKNOWN** |
 | `violet-switchback` | Violet Switchback | 589 | Authored reflected derivative | **UNKNOWN** |
 | `ember-crossroads` | Ember Crossroads | 579 | Authored reflected derivative | **UNKNOWN** |
-| `cyan-circuit` | Cyan Circuit | 575 | Authored reflected derivative plus path variant | **UNKNOWN** |
+| `cyan-circuit` | Cyan Circuit | 578 | Revision 2: local observed house-perimeter/right-wall correction; remaining authored derivative | Partial **OBSERVED DX**, exact coordinates **INFERRED** |
 
 ![Explicit authored lane graphs, station IDs and houses](images/map_catalog_v1.png)
 
@@ -52,3 +52,11 @@ The library supplies explicit `cycle`, `repeat`, and seeded `random` selection p
 Pass 1 compared every loaded lane set, entry, spawn, portal and house against the old constructor: all four exactly equal. Pass 2 tested malformed catalogs, duplicate IDs, invalid stations, unpaired portals, house overlap/out-of-bounds, illegal palette, isolated cells and deterministic selection. Added validation for undeclared exits, disconnected lanes, 2×2 dot blocks and unintended dead ends. Four dedicated `test_maps.py` tests pass; game-wide movement/render checks remain necessary after integration.
 
 No full commercial graph has been reconstructed. Highest priority: record a continuous confirmed DX session with readable full playfield, catalog distinct layouts by normalized topology, and inspect each transition frame-by-frame. Repeat across another session and different participant counts before inferring order or triggers. Issue #1 remains open.
+
+## Revision 9 / catalog version 2
+
+Freshly inspected cabinet frames at [1:15](https://www.youtube.com/watch?v=efLgejKG_ls&t=75s) and [2:00](https://www.youtube.com/watch?v=efLgejKG_ls&t=120s), with the doorway orientation normalized by rotating the camera view 180 degrees. Corrected Cyan Circuit locally: the house now has a continuous surrounding corridor; two nearby right-side walls form separate vertical islands. Exact grid dimensions remain estimates, explicitly recorded in map metadata. First three maps retain revision-7 geometry. The earlier migration equality statement applies only to catalog v1; cyan v2 deliberately changes topology.
+
+![Catalog version 2 with cyan revision 2](images/map_catalog_v2.png)
+
+See [revision-9 map QA](audits/revision9_maps.md) for changes and both validation passes, and [local before/after](images/map_before_after_r9.png). Eight map-specific tests and 29 existing smoke tests passed. This does not close the full-map reconstruction issue.

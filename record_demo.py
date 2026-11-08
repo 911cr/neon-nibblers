@@ -14,10 +14,11 @@ parser.add_argument('--quick',action='store_true',help='12-second 8-player previ
 parser.add_argument('--players',type=int,choices=range(1,9),help='Record a separate player-count demonstration')
 parser.add_argument('--simulate-controllers',action='store_true',help='Label development controller availability as simulated')
 parser.add_argument('--seconds',type=int,default=12)
+parser.add_argument('--theme',type=int,choices=range(4),default=0,help='Starting map index for a single-count capture')
 args=parser.parse_args()
 app.simulate_controllers=args.simulate_controllers
 single=args.quick or args.players is not None
-for theme in (range(1) if single else range(4)):
+for theme in ((args.theme,) if single else range(4)):
     for count in ((args.players or 8,) if single else (1,2,8)):
         app.match=Match(count,theme,seed=20+theme)
         app.reset_visuals()

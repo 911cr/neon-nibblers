@@ -36,6 +36,12 @@ First pass: verified the migration is data-only and preserves reachable routes. 
 
 This comparison uses our own revision-7 lobby as the baseline. The new per-station controls, pairing prompt, first-player P8 and ranking list are visible. The ranking panel uses assigned test scores; it is explicitly labeled a controlled scene, not a completed match. This is deliberately not labeled a commercial-game comparison. The companion `gameplay_4_player.gif` records eight seconds of actual four-player simulation (96 frames, seed 24); frames at 0, 3.3 and 6.7 seconds were visually inspected. See `audits/revision8_maps.md` for tested cases and the reproduced, corrected and rechecked locator clipping.
 
+## Revision 9 cyan topology correction
+
+![Local cyan-map correction: before and after](images/map_before_after_r9.png)
+
+Unlike the revision-8 data migration, this changes playable routes. Actual cabinet frames at [2:00](https://www.youtube.com/watch?v=efLgejKG_ls&t=120s) and [1:15](https://www.youtube.com/watch?v=efLgejKG_ls&t=75s) show the house separated from nearby branches by a corridor and distinct vertical wall islands. The view is rotated 180 degrees relative to our house entrance; the two raw-left vertical islands therefore belong on the game's right. Our revised cyan map opens the house perimeter and separates these walls. The figure above compares our old/new output; it does not pretend the estimated grid is a perspective-perfect original trace. See `audits/revision9_maps.md` for the tested change and remaining uncertainty.
+
 
 ## Fresh released-DX enclosure comparison
 

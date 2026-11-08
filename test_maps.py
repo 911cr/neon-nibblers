@@ -12,13 +12,26 @@ class MapTests(unittest.TestCase):
     def document(self):
         return json.loads(Path(__file__).with_name('maps.json').read_text(encoding='utf-8'))
 
-    def test_catalog_preserves_baseline_geometry(self):
-        # Immutable counts are migration fingerprints, not DX claims.
-        self.assertEqual([len(m.lanes) for m in catalog()], [577, 589, 579, 575])
+    def test_catalog_versions_and_authored_provenance(self):
+        # First three retain the migration baseline; cyan v2 is a local correction.
+        self.assertEqual([len(m.lanes) for m in catalog()], [577, 589, 579, 578])
+        self.assertEqual([m.revision for m in catalog()], [1, 1, 1, 2])
         self.assertEqual(len({m.lanes for m in catalog()}), 4)
         for index, spec in enumerate(catalog()):
             self.assertEqual(get_map(index + 4), spec)
             self.assertIn('not a recovered DX map', spec.provenance)
+
+    def test_cyan_house_perimeter_and_separate_vertical_walls(self):
+        spec = get_map(3)
+        perimeter = ({(x, y) for x in (21, 33) for y in range(13, 22)} |
+                     {(x, y) for x in range(21, 34) for y in (13, 21)})
+        self.assertTrue(perimeter <= spec.lanes)
+        # Two separate narrow wall islands to the right of the house, with
+        # single center-line corridors between them and around their ends.
+        self.assertFalse({(x, y) for x in range(34, 37) for y in range(10, 21)} & spec.lanes)
+        self.assertFalse({(x, y) for x in range(38, 41) for y in range(10, 25)} & spec.lanes)
+        self.assertTrue({(37, y) for y in range(9, 26)} <= spec.lanes)
+        self.assertTrue({(41, y) for y in range(9, 26)} <= spec.lanes)
 
     def test_rejects_invalid_schema_and_duplicate_maps(self):
         for doc in ({'schema_version':2}, {'schema_version':1, 'maps':[]}):
