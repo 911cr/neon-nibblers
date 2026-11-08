@@ -1,2 +1,2 @@
-Revision 7 — explicit development controller stub; real production warnings
+Revision 8 â€” independent stations, score ledger, replay and explicit map catalog
 2026-11-08

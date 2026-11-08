@@ -47,11 +47,15 @@ Three separate silent 12-second recordings are included:
 
 ## Controls
 
-Lobby: **1–8** chooses player count, **Tab** changes the starting arena, **Enter** or controller button 1 starts. Select the number of actual players; unoccupied selected player slots remain stationary in human-controlled mode.
+Lobby: **1–8** chooses player count, **Tab** changes the starting arena, **Enter** starts the quick-play preset. Select the number of actual players; unoccupied selected player slots remain stationary in human-controlled mode.
 
-During play: **P** pauses, **F1** opens/closes the power guide and pauses play, **F2** toggles sound, **Esc** returns to the lobby. At match end, Enter/button 1 restarts. Esc from the lobby exits. Resizing preserves the 16:9 image with black bars when necessary.
+During play: **P** pauses, **F1** opens/closes the power guide and pauses play, **F2** toggles sound, **Esc** returns to the lobby. At match end, Enter restarts the preset; a station Start begins a new session for that station. Esc from the lobby exits. Resizing preserves the 16:9 image with black bars when necessary.
 
-USB controllers map to P1–P8 in connection order. Use the main stick (axes 0/1) or D-pad hat; dead zone 0.35. Movement continues until a wall or buffered turn, like an arcade joystick game. Plug controllers in before starting. Hot-plug is supported, but removing one can shift later assignments; return to the lobby to check. D-pads exposed only as buttons may need OS-level remapping. No buttons are required during play.
+**Independent stations:** F3 through F10 are Start/Find for P1 through P8. Controller button 1 starts only its assigned station. An unused station can join active play; a living joined player gets a two-second locator ring, arrow and player number. Eliminated players cannot buy a free life by pressing Start. Pause/guide blocks joining and freezes the locator. These joining windows and locator timing are configurable adaptation choices: the DX Start/Find button is documented, but its detailed behavior is not yet measured.
+
+**Controller ownership:** connected controllers initially occupy free station slots. Unplugging one never shifts another controller's station. A unique model GUID can reclaim its reserved station; identical models are ambiguous and require explicit pairing. In the lobby press **Shift+F3..F10**, then the desired controller's button 1 to assign that station. An occupied station cannot be stolen; move its controller to a free station first. Assignments last for this app session, not across launches. USB enumeration is not a persistent physical identity. Production warnings check coverage of joined stations, not just total device count.
+
+Use the main stick (axes0/1) or D-pad hat; dead zone0.35. Movement continues until a wall or buffered turn. D-pads exposed only as buttons may need OS-level remapping.
 
 | Player/color | Up | Left | Down | Right |
 |---|---|---|---|---|
@@ -96,7 +100,7 @@ Spawning remains configurable custom tuning: four gold corner anchors, two green
 
 ## Verification and ongoing QA
 
-Run `python test_smoke.py`. The headless suite covers 29 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
+Run `python -m unittest discover -p "test*.py" -v` to include all suites; `test_smoke.py` alone runs the original29 checks. The revision-8 headless suite covers 63 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
 
 Ten topic agents reviewed player interactions, gates, inventory, effects, spawn policy, edges, walls, ghost starts, ghost exits and player/ghost/power interactions. Review findings distinguish code defects from unverified reference details. Follow-up QA findings are retained under docs/audits in the repository. No review consensus is a substitute for evidence of visual/mechanical identity.
 
@@ -124,6 +128,27 @@ Run `python check_controllers.py --expected 8` after connecting controllers. Mov
 
 ## Development controller stub versus production detection
 
-For development now, launch `dev_windows.bat` or `sh dev_linux.sh`. These enable `--simulate-controllers`: the availability check assumes enough controllers for the selected1�8players and displays **DEV ... SIMULATED**. It does not invent device input: use the keyboard or add `--demo` for computer-controlled gameplay. For example: `dev_windows.bat --demo --players 8`.
+For development now, launch `dev_windows.bat` or `sh dev_linux.sh`. These enable `--simulate-controllers`: the availability check assumes enough controllers for the selected1–8players and displays **DEV ... SIMULATED**. It does not invent device input: use the keyboard or add `--demo` for computer-controlled gameplay. For example: `dev_windows.bat --demo --players 8`.
 
 Normal `run_windows.bat` / `run_linux.sh` launches use real device detection. Missing controllers produce a persistent warning in the lobby and gameplay footer; a disconnect triggers a five-second notice, followed by any remaining missing-controller warning. Keyboard fallback remains available. Physical controller compatibility is deferred to production verification by user direction; simulated availability is not recorded as physical testing. `check_controllers.py` always observes real devices independently of this development option.
+
+
+## Revision 8: evidence, stations and replay
+
+The four arenas now have explicit versioned geometry in `maps.json`. Their routes are unchanged from revision7 and still authored, not recovered DX layouts. Each can be edited independently. `map_library.py` rejects disconnected paths, undeclared exits and multiple dot lanes. Default dot-clear transitions remain custom; `--progression cycle`, `repeat` or `random` selects an explicit policy.
+
+Every scoring event records simulation time, tick, player, stage, points, resulting score and context. The HUD and score popups use those events; tied scores receive equal ranks in the new results table. `score_ledger.py` centralizes the still-unverified10/75/200/300/500 values. There is no claim those match DX.
+
+```text
+python game.py --demo --players 8 --seed 42 --event-log match-events.json
+python game.py --locator-seconds 2 --progression repeat
+python replay.py record replay.json --players 8 --seconds 20 --seed 42
+python replay.py verify replay.json
+python replay.py verify replay_sample.json
+```
+
+Replay checks input commands, state fingerprints, score events and movement traces. It covers simulation joins/movement; it is not a recording of physical controllers or every UI action. Native play advances logic at60Hz independently of rendering; animation interpolation follows elapsed render time. A pre-existing autoplay bug that silently removed the current dot without scoring was fixed.
+
+`docs/DX_FEATURE_PARITY.md` separates verified DX facts, observed footage, historical-only rules, unknowns and implemented tests. The six companion DX documents record history, references, maps, scoring, visuals and verification. No complete commercial map reconstruction or aligned full-field comparison is claimed. A separate research-only house crop comparison was made from released DX footage at2:00; it is not bundled as a game asset. `station_before_after_r8.png` compares our previous and current builds, not commercial footage. Separate1/2/4/8-player clips show actual computer-controlled gameplay; a locator is triggered during the1/2/8 clips.
+
+The formal application states are attract/lobby, playing, paused, guide and results (`stations.Phase`). The state table and remaining gaps are in `docs/DX_TEST_REPORT.md`. Credits, persistent high scores, a full animated attract demonstration, layered audio and a separate spectator-display mode remain unfinished. The existing three synthesized sounds and single-monitor mode remain usable.

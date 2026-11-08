@@ -30,3 +30,8 @@ New promotional-poster evidence corrected coffee-mug, quake-plunger, blue-magnet
 The user authorizes assumed controller availability during development and requires real missing/disconnect detection in production. App defaults to real detection. Dedicated development launchers pass --simulate-controllers and visibly label the assumed count. No fake input devices are created; keyboard and autoplay remain available. Production hardware validation is deferred, not falsely marked passed.
 
 Two targeted QA passes checked zero/partial/full counts, hotplug, fallback and text layout. Fixed stale reconnect warning and added regression assertion. Current integrated suite:29 tests.
+
+
+## Revision 8
+
+Three focused agents performed research/code review followed by deeper adversarial passes and fix rechecks.63 total tests cover original rules, explicit maps, score/replay and independent stations. Found/fixed autoplay dot deletion without scoring, wrong-station controller availability, top-bay locator clipping and an intermediate three-outline house rendering mistake. The final house check counts actual visible contours. Source evidence, differences and next actions are maintained in the seven DX documents. Native Windows/WSLg1/2/8 runs completed; updated clips are actual simulated gameplay. No exact-DX or physical-hardware certification.

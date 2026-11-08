@@ -1,20 +1,12 @@
-REVISION 7 CONTROLLER MODE
-29 integrated tests pass. Production real detection, explicit development availability stub, missing/disconnect/reconnect messaging and keyboard fallback exercised. Two-pass QA found/fixed stale reconnect notice. Physical hardware testing deferred to production by user direction.
-
-Historical platform validation:
-REVISION 6 — VALIDATION
-2026-11-08
-
-27 automated tests passed on local Windows/Python3.14 and Ubuntu/Python3.12.
-New checks: diagnostic ignores neutral controller input; gate hatching remains yellow on every maze theme.
-
-Real Ubuntu/WSLg X11 runs, audio initialized44100Hz stereo:
-1 player1800frames52.85FPS;2players1800frames38.16FPS;8players1800frames59.72FPS.
-Final revised artwork/gate build also ran120 real-display eight-player frames. This short startup sample36.24FPS is not a benchmark.
-See LINUX_NATIVE_TEST_RESULTS.json and LINUX_FINAL_RENDER_CHECK.json.
-
-Windows native gameplay was validated in revision5 at~60FPS; these numbers remain in NATIVE_TEST_RESULTS.json. Current27 tests and regenerated recordings exercise the revised rendering.
-
-Physical controllers detected:0. CONTROLLER_TEST_STATUS.json explicitly does NOT pass. check_controllers.py is ready for actual device input and hotplug checks. Audible sound requires listener confirmation; audio initialization alone is not proof.
-
-Poster icon and gate-color corrections independently rechecked. Six broad fidelity/hardware issues remain open: no fabricated perfect-match or zero-issues claim.
+REVISION 8 â€” 2026-11-08
+63 automated checks: baseline29 + maps7 + ledger12 + stations15.
+Final Windows and Ubuntu test logs are retained with release verification.
+Independent agent passes found/fixed wrong-station controller count, clipped locator label, redundant house contour and autoplay dot deletion.
+Native Windows600frames1/2/8:59.54/60.08/60.16FPS.
+Native Ubuntu/WSLg600frames1/2/8:40.25/39.17/61.54FPS.
+Native runs used real display drivers and audio initialization; final house-only artwork refinement covered by final rendered tests/captures.
+Stress dummy-driver360frames:95.46renderframes/s,8giants/4ghosts/12items/121smoke/8zaps. Not nativeFPS.
+Actual App logic equal at30/60/144renderHz; deterministic input/score/movement replay verified.
+Physical controllers/audibility/eight-human acceptance deferred to production, never marked passed.
+Authored maps and unmeasured DX rules remain explicitly unverified. Research comparison does not certify exact fidelity.
+Final local Windows63/63 PASS; local Ubuntu63/63 PASS after all source changes.

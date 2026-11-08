@@ -1,0 +1,15 @@
+{
+  "driver": "dummy",
+  "type": "headless render stress, not native FPS",
+  "frames": 360,
+  "seconds": 3.771,
+  "render_frames_per_second": 95.46,
+  "players": 8,
+  "ghosts": 4,
+  "items_limit": 12,
+  "simultaneous_titans": 8,
+  "smoke_cells": 121,
+  "zap_effects": 8,
+  "ledger_events": 167,
+  "physical_input": false
+}

@@ -1,0 +1,42 @@
+# DX feature parity — revision 8 working assessment
+
+Baseline: `0f9c3c98e097d2fb16b058896ba872b31783d2ed`, 29 smoke checks passed locally on 2026-11-08. Previous gameplay/screenshots preserved in `work/revision8-baseline` (local evidence, not distributed commercial media). This assessment precedes broad changes. Original branding, graphics, code and sounds remain required.
+
+Statuses are independent: **VERIFIED DX**, **OBSERVED DX**, **HISTORICAL ONLY**, **INFERRED**, **UNKNOWN** describe reference evidence; **IMPLEMENTED AND TESTED**, **BLOCKED** describe our engineering. Passing our own tests never upgrades reference confidence.
+
+| ID / subsystem | Reference behavior / evidence | Baseline implementation | Difference / priority / status | Required verification / next action |
+|---|---|---|---|---|
+| JOIN-01 stations | DX manufacturer parts list names Start/Find My Pac for eight colors; [manufacturer](https://bandainamco-am.com/collections/pac-man-battle-royale-deluxe), no timestamp, primary | Count selection starts P1..Pn together | P0; action existence VERIFIED DX; join windows UNKNOWN | Independent stations, stable identity, simultaneous starts, no eliminated-player resurrection; test explicit approximation |
+| JOIN-02 locator | Same primary evidence; animation, timing and cooldown UNKNOWN | No locator | P0 missing | Original readable highlight, configurable duration; footage needed for matching appearance |
+| LIFE-01 lifecycle | DX operation manual documents operator setup; full startup/results behavior not established | Lobby, active, pause, guide, results; 180-second score attack | P0; timer/end conditions UNKNOWN | Formal states, late join/pause/results tests; do not inherit 2011 rounds |
+| MAP-01 geometry | Prior timestamped audits: efLgejKG_ls 75/120s released DX; JSp72DKyW5U 94s mobile, not DX proof | Four runtime mirrors of authored paths | P0; OBSERVED DX thin walls, UNKNOWN full topology | Explicit versioned geometry, baseline-equivalence checks; reconstruct only from identifiable frames |
+| MAP-02 transitions | Complete repeat DX sequences not yet recovered | Dot clear awards survivors500 and advances fixed theme order | P0; UNKNOWN, implemented custom | Catalog persistence/trigger/order policy, all1..8 counts across maps |
+| SCORE-01 awards | Exact pellet/power/ghost/rival/clear values not established | 10/75/200/300/500 scattered score mutations | P0; UNKNOWN | Central event ledger, time/stage/context, deterministic replay and score reconciliation |
+| SCORE-02 ranking | Individual scores supported CHOMP material; tie/end display unknown | Highest score overlay; no persisted high scores | P1 UNKNOWN details | Ranked results with ties; keep persistence/operator controls tracked |
+| GATE-01 | efLgejKG_ls75/90/120s yellow hatches on cyan pockets (prior direct inspection) | Yellow hatches, twin contours, owner-only .8s release/reentry | P1; OBSERVED DX appearance, UNKNOWN permissions/timing | Retain tests; obtain continuous death-to-release evidence; issue2 |
+| POWER-01 inventory | CHOMP promotional poster and published11-category list (see reference evidence) | All11 original procedural icons/effects | P1 IMPLEMENTED AND TESTED; descriptions do not verify edge cases | Full interaction matrix and measured sequences; issue4 |
+| POWER-02 timing/spawns | Prior footage GhSV1oQVA6g95–101s moving peel/interior orbs, DX identity uncertain | Fixed3s/cap12, corner orbs, roaming others | P1 UNKNOWN cadence/weights/orb exception | Configurable approximations; multi-session event census; issue3 |
+| GHOST-01 | House occupancy observed mobile94s; exact DX order/AI unknown | Four ghosts, staged exit/eyes return, greedy chase | P1 UNKNOWN exact rules | Preserve lifecycle checks; collect DX start/return sequence; issue5 |
+| MOVE-01 | No calibrated DX speed/turn/bounce measurement | Tile updates, buffered turns, wrap, bump; variable render dt | P1 UNKNOWN reference values | Fixed simulation driver/replay; timing equivalence across render rates |
+| ART-01 | Slim outlined maze, shaded bodies, stations observed in prior audits | Procedural spheres/ghosts/powers, custom map silhouettes | P0 remaining topology/display differences | Sequence comparisons, not beauty-image certification; issue1 |
+| AUDIO-01 | Exact DX cues/layers unmeasured | Three synthesized tones | P2 incomplete original sound design | Layer event cues; audible review remains unverified |
+| CTRL-01 | Manufacturer station colors/order documented | Connection-order mapping shifts on unplug | P0 implementation defect | Stable per-session station ownership; explicit pairing for indistinguishable devices; mocked tests separate physical acceptance |
+| DISPLAY-01 | 75-inch central and two overhead displays documented; overhead content UNKNOWN | Single resizable window | P2 missing spectator architecture | Avoid claiming mirrors; define independent view model before optional second window |
+| OP-01 | Manual service/operator settings | No credits/settings/high-score storage | P2 partial | Research defaults/options before implementing operator configuration |
+| QA-01 | No cabinet available; physical controllers deferred by user | Windows/Linux CI, WSLg native graphics,29 tests | IMPLEMENTED AND TESTED software; BLOCKED physical acceptance | Expand1..8 all maps, native captures, replay, maximum-load timing; issue6 production validation |
+
+Architecture: `Arena` owns lanes/bays/portals; `Match` mutates rules/timers/players/ghosts; `App` handles SDL devices, menu events, rendering and synthesized sounds; `arcade_art.py` draws independently authored assets. Tests cover internal rules, not DX identity. Existing audit history and all six open GitHub issues were inspected; no issue is closed solely because its code runs.
+
+## After implementation and critical review
+
+| IDs | Revision8 change/status | Verification and before/after evidence | Remaining next action |
+|---|---|---|---|
+| JOIN-01/02, CTRL-01 | **IMPLEMENTED AND TESTED** independent starts, sparse identities, locator, per-session stable bindings, explicit pairing |15 station checks; local before/after `station_before_after_r8.png`; wrong-station availability bug fixed; top-bay locator clipping fixed/rechecked | DX join windows and locator dimensions/timing **UNKNOWN**; physical acceptance deferred |
+| SCORE-01/02 | **IMPLEMENTED AND TESTED** central ledger, separate score popups, tied rankings, deterministic traces/replay |12 ledger tests; sample720-frame replay; rendering cannot mutate score/state; autoplay dot-deletion defect fixed | Exact DX awards, bonus repetition and results/high-score behavior **UNKNOWN** |
+| MAP-01/02 | **IMPLEMENTED AND TESTED** explicit versioned geometry and progression modes |7 map tests, all1–8counts×4maps, baseline route equivalence and64 locator cases | Geometry remains authored and visually different; continuous DX map census still required |
+| MOVE-01 | **IMPLEMENTED AND TESTED**60Hz application logic and elapsed-time visual interpolation |Same state/events at30/60/144Hz; pause/guide freeze checks | Commercial speeds, bounce magnitudes and turn timing **UNKNOWN** |
+| ART-01/GHOST-01 | Two explicit enclosure contours after actual-pixel review caught redundant background overlap; freshly inspected DX video75/120s |All-theme contour/doorway pixel check; actual new reference screenshot retained as research evidence; separate annotated house comparison | Exact house proportions, ghost appearance/AI and complete maze still differ/unknown |
+| LIFE-01 | Explicit state dispatch and transition table; **IMPLEMENTED AND TESTED** adaptation |Repeated simultaneous starts, last-moment joins, results/rematch, elimination and pause tested | Credit/join policy not verified DX; full attract instructional sequence missing |
+| QA-01 |63 checks; new native Windows/Ubuntu1/2/8 renders, stress scenario and updated clips |See DX_TEST_REPORT and latest TEST_RESULTS.txt for actual run outcomes; three agents plus fix/retest passes | No physical or exact-fidelity certification |
+
+Fresh source at15seconds of [released DX footage](https://www.youtube.com/watch?v=efLgejKG_ls&t=15s) shows an animated power-up instructional attract overlay. This makes the missing full attract sequence an observed discrepancy, rather than a purely inferred polish task. Operator controls, persistent high scores, original layered audio and spectator views remain open scope. No unchanged feature in the baseline table is silently promoted to verified DX.
