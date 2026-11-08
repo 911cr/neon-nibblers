@@ -1,0 +1,11 @@
+{
+  "platform": "Windows",
+  "expected_controllers": 8,
+  "connected_at_end": 0,
+  "controllers_with_all_inputs_observed": 0,
+  "input_check_passed": false,
+  "physical_hardware_confirmation_required": true,
+  "devices": [],
+  "hotplug_events": [],
+  "elapsed_seconds": 1.16
+}

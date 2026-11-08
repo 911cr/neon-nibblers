@@ -43,3 +43,17 @@ Found a reproducible bug: p.stun survived new_arena, so a player zapped before a
 Ran additional work/qa_powerup_slowdowns.py checks: smoke ghost remains still at0.16s while outside ghost moves, affected ghost moves at0.32s; earthquake slows collector and other players; Rush+Quake uses combined cadence. ALL PASS.
 
 No additional confirmed implementation defects found in this focused pass. This is not certification of perfect commercial fidelity: exact zap lethality, carried-ghost immunity/expiry semantics, power stacking and numerical parameters remain custom/unverified.
+
+## Issue4 targeted evidence continuation — poster inspected
+
+Retrieved the full promotional power-up poster from the Game Room Shop product image into work/chomp-power-poster-reference.png and visually read it at full resolution. Source asset: https://www.gameroomshop.com/cdn/shop/files/namco-pac-man-battle-royale-chompionship-home-version-3.png?v=1701789284&width=2242 . Product source: https://www.gameroomshop.com/products/namco-pac-man-battle-royale-chompionship . This is a promotional graphic, not measured gameplay, and must not be labeled a video timestamp observation.
+
+New directly observed visual corrections: caffeine is depicted as a handled coffee mug with brown liquid, rather than a drink can; earthquake is a red plunger/detonator box with a gray T-handle, rather than seismic rings; magnet is a blue C/U form with silver tips, rather than a two-color pink/blue magnet; chili includes a flame; extra life uses white block typography. The artwork should be reauthored to these generic recognizable silhouettes, retaining original code and avoiding logo copying.
+
+The poster confirms the same high-level categories already corrected. It does NOT specify lightning kill versus stun, incidental collision under sheet, giant immunity to attacks, or what happens when magnet expires. Therefore it does not justify changing those four runtime choices or certifying them exact.
+
+A new dealer page explicitly describes lightning as stationary stun: https://themancaveauthority.com/products/pacman-battle-royale-arcade . However it also mixes last-survivor text and says earthquake affects only others, contrary to the poster's all-players description. Treat the stun sentence as weak corroboration of current provisional stun behavior, not definitive evidence. Do not import immunity or expiry from predecessor/other Pac-Man games.
+
+Footage access attempted at https://www.youtube.com/watch?v=GhSV1oQVA6g&t=100s . No event was viewed: IAB was unavailable and browser inventory empty; shared native Chrome was reserved by the gate/spawn agents, so no concurrent input was attempted. No video timestamps are asserted as observations. A fresh Deluxe candidate reported by gate agent, https://www.youtube.com/watch?v=efLgejKG_ls , also remains uninspected here.
+
+Actionable result: correct four object silhouettes and pepper flame using the actual inspected poster. Remaining behavior questions are still open; closing them requires an observable before/after collision or expiry sequence, rather than another copy of the same marketing list.

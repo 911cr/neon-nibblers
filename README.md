@@ -8,7 +8,7 @@ Requires Python 3.10+ (64-bit recommended), a graphical desktop, and internet fo
 
 **Windows:** extract the entire ZIP. Install Python with its `py` launcher enabled. Double-click `run_windows.bat`. It creates `.venv`, installs pygame-ce and launches the lobby. Double-click `watch_windows.bat` to watch eight computer-controlled players instead.
 
-**Linux:** install Python 3, pip and venv through your distribution's package manager, extract the ZIP, and run `sh run_linux.sh` in its folder. Debian/Ubuntu may require `python3-venv`. SDL-compatible display/audio drivers are needed. Linux hardware has not been tested here.
+**Linux:** install Python 3, pip and venv through your distribution's package manager, extract the ZIP, and run `sh run_linux.sh` in its folder. Debian/Ubuntu may require `python3-venv`. SDL-compatible display/audio drivers are needed. Ubuntu under WSLg has been tested with X11 graphics and audio initialization; standalone Linux hardware remains untested.
 
 **Manual setup:**
 
@@ -66,7 +66,7 @@ USB controllers map to P1–P8 in connection order. Use the main stick (axes 0/1
 
 Keyboards can block many simultaneous keys (ghosting); eight USB controllers are preferable for full multiplayer. Numpad behavior depends on Num Lock. Physical USB devices and eight simultaneous human players remain untested.
 
-## Game rules and revision 5
+## Game rules
 
 Three starting lives; one score bonus life at 10,000, and Extra Life pickups (cap 5). Highest score after 180 seconds wins; the match ends early if everyone is eliminated. The timed score-attack format, scores, durations and interaction ranges are adaptation choices, not verified commercial values.
 
@@ -96,11 +96,11 @@ Spawning remains configurable custom tuning: four gold corner anchors, two green
 
 ## Verification and ongoing QA
 
-Run `python test_smoke.py`. The headless suite covers 25 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
+Run `python test_smoke.py`. The headless suite covers 27 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
 
 Ten topic agents reviewed player interactions, gates, inventory, effects, spawn policy, edges, walls, ghost starts, ghost exits and player/ghost/power interactions. Review findings distinguish code defects from unverified reference details. Follow-up QA findings are retained under docs/audits in the repository. No review consensus is a substitute for evidence of visual/mechanical identity.
 
-Native Windows autoplay runs render 1,800 frames per count. See NATIVE_TEST_RESULTS.json and TEST_RESULTS.txt. Recordings are actual computer-controlled game runs. Physical USB controllers, eight humans, Linux hardware and audible sound quality remain unverified. Desktop-injected keys were inconclusive; direct game-event keyboard checks pass.
+Native Windows autoplay runs render 1,800 frames per count. See NATIVE_TEST_RESULTS.json and TEST_RESULTS.txt. Recordings are actual computer-controlled game runs. Ubuntu/WSLg native graphics and audio initialization passed 1/2/8-player runs. Physical USB controllers, eight humans, standalone Linux hardware and audible sound quality remain unverified. Desktop-injected keys were inconclusive; direct game-event keyboard checks pass.
 
 For captures, install Pillow and run `python record_demo.py --players 1` (or 2/8); `python record_demo.py` records all maps; `python visual_check.py` makes a contact sheet. Captures are generated deliverables, not committed to source history. Pillow is unnecessary for playing.
 
@@ -113,3 +113,11 @@ Source files: `game.py` (rules, controls and flow), `arcade_art.py` (new procedu
 ## Development
 
 Repository: https://github.com/911cr/neon-nibblers . The revision-4 tag preserves the imported baseline; later commits track fixes. GitHub Actions runs smoke checks on Windows and Linux. Open issues record unresolved reference fidelity and hardware testing.
+
+## Controller verification
+
+Run `python check_controllers.py --expected 8` after connecting controllers. Move each stick/D-pad in all four directions and press a button; Escape saves `controller_check_results.json`. For fewer devices set `--expected` to the connected count. The report records observed input and hotplug events; zero devices can never pass. This is an input check, not proof of eight-person gameplay. Current local discovery found zero controllers, so physical verification is pending connected hardware.
+
+## Additional Linux evidence
+
+`LINUX_NATIVE_TEST_RESULTS.json` records real local Ubuntu with Python3.12/pygame-ce2.5.8 runs using X11 through WSLg, with audio initialized at44.1kHz stereo. 1/2/8-player runs each rendered1800frames; observed averages52.85/38.16/59.72FPS. These are samples under concurrent desktop load, not a guaranteed framerate. Hardware audibility still needs a listener to confirm.

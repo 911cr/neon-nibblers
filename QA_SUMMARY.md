@@ -18,3 +18,9 @@ Ten separate topic agents completed an initial research audit, then the same age
 The integrated headless suite passes25 tests. Native Windows1/2/8-player autoplay and regenerated recordings use the revised build. Physical USB controllers/eight humans and native Linux graphics/audio remain unverified. Linux CI is a headless software check, not hardware validation.
 
 Detailed audit notes are in docs/audits. Some earlier sections describe old bugs and failed intermediate versions; later QA and resolution sections record the fixes. Open GitHub issues separate remaining evidence gaps from verified implementation behavior.
+
+## Revision 6 follow-up
+
+New promotional-poster evidence corrected coffee-mug, quake-plunger, blue-magnet, flaming-pepper, white1UP and shaded-orb artwork. The inventory reviewer checked all11 guide icons for readability/clipping and confirmed improved silhouettes. A released Deluxe video showed yellow gate hatching on cyan mazes, correcting the earlier theme-color inference; the gate reviewer verified the new four-theme pixel test.
+
+27 tests now pass on local Windows and Ubuntu. Actual Ubuntu X11/audio-initialized1/2/8 runs completed. Physical devices detected:0; controller verification cannot pass without hardware. No agentcertifiedexactcommercialart/rules.

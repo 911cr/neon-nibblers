@@ -1,14 +1,16 @@
-REVISION 5 — FINAL LOCAL VALIDATION
+REVISION 6 — VALIDATION
 2026-11-08
 
-25 headless integrated tests passed after QA fixes.
-Ten topic agents each completed initial audit plus two QA passes; relevant agents rechecked reproduced failures after fixes. No perfect commercial match certification. See QA_SUMMARY.md and repository docs/audits.
+27 automated tests passed on local Windows/Python3.14 and Ubuntu/Python3.12.
+New checks: diagnostic ignores neutral controller input; gate hatching remains yellow on every maze theme.
 
-Native Windows autoplay:1800frames each, actual game render/update/audio initialization.
-1 players: 60.33 FPS, scores [4015], lives [2], stage 1.
-2 players: 60.31 FPS, scores [2205, 2705], lives [3, 3], stage 1.
-8 players: 60.2 FPS, scores [3360, 1760, 1835, 2965, 2730, 2175, 1990, 2020], lives [1, 1, 1, 1, 3, 2, 2, 4], stage 2.
+Real Ubuntu/WSLg X11 runs, audio initialized44100Hz stereo:
+1 player1800frames52.85FPS;2players1800frames38.16FPS;8players1800frames59.72FPS.
+Final revised artwork/gate build also ran120 real-display eight-player frames. This short startup sample36.24FPS is not a benchmark.
+See LINUX_NATIVE_TEST_RESULTS.json and LINUX_FINAL_RENDER_CHECK.json.
 
-Native two-player window visually inspected during final run. Final1/2/8 GIFs regenerated from current code; all-map montage and contact sheet regenerated. Computer-controlled, not human/physical-device validation.
+Windows native gameplay was validated in revision5 at~60FPS; these numbers remain in NATIVE_TEST_RESULTS.json. Current27 tests and regenerated recordings exercise the revised rendering.
 
-Not verified: exact original maze/art/rules/timing, physical USB controllers, eight humans, Linux display/audio, audible sound quality. Remote CI results are tracked in GitHub Actions.
+Physical controllers detected:0. CONTROLLER_TEST_STATUS.json explicitly does NOT pass. check_controllers.py is ready for actual device input and hotplug checks. Audible sound requires listener confirmation; audio initialization alone is not proof.
+
+Poster icon and gate-color corrections independently rechecked. Six broad fidelity/hardware issues remain open: no fabricated perfect-match or zero-issues claim.

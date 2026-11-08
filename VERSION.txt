@@ -1,2 +1,2 @@
-Revision 5 — reference audits and adversarial QA fixes
+Revision 6 — poster-based icon corrections and real Ubuntu validation
 2026-11-08

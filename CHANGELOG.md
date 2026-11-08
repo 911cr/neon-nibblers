@@ -1,5 +1,13 @@
 # Changelog
 
+## Revision 6 — 2026-11-08
+
+- Correct power icon silhouettes against promotional poster, preserving original artwork.
+- Fix gate hatch to yellow across maze themes using newly inspected Deluxe footage.
+- Add honest controller-input diagnostic; zero detected devices cannot pass.
+- Run real local Ubuntu/WSLg1/2/8 graphics/audio-initialization checks and27 tests on both local OS environments.
+- Keep unverified fidelity/hardware issues open pending evidence.
+
 ## Revision 5 — 2026-11-08
 
 - Ten reference audits, two same-agent QA passes each, and targeted fix rechecks.

@@ -1,0 +1,39 @@
+[
+  {
+    "os": "Ubuntu on WSLg",
+    "python": "3.12.3",
+    "pygame": "2.5.8",
+    "display_driver": "x11",
+    "audio_initialized": true,
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "players": 8,
+    "frames": 120,
+    "elapsed_seconds": 3.311,
+    "average_fps": 36.24,
+    "scores": [
+      175,
+      215,
+      215,
+      175,
+      110,
+      245,
+      275,
+      340
+    ],
+    "lives": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 1
+  }
+]

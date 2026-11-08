@@ -350,5 +350,25 @@ class Smoke(unittest.TestCase):
         self.assertTrue(all(args[8]==150 for args in bodies))
         pg.quit()
 
+    def test_controller_observation_requires_actual_directions(self):
+        from check_controllers import observe_controls
+        record={'observed':dict.fromkeys(('left','right','up','down','button'),False)}
+        observe_controls(record,[.1,-.1],[(0,0)],[0])
+        self.assertFalse(any(record['observed'].values()))
+        for axes in ((-1,0),(1,0),(0,-1),(0,1)):
+            observe_controls(record,axes,[],[0])
+        self.assertFalse(record['observed']['button'])
+        observe_controls(record,[],[],[1])
+        self.assertTrue(all(record['observed'].values()))
+
+    def test_gate_hatch_color_is_independent_of_maze_theme(self):
+        from game import center,TOP,GATE_HATCH
+        app=App(); app.count=1
+        for theme in range(4):
+            app.theme=theme; app.start(); app.draw()
+            x=center(app.match.arena.spawns[3])[0]-18
+            self.assertEqual(tuple(app.canvas.get_at((x,TOP)))[:3],GATE_HATCH)
+        pg.quit()
+
 if __name__=='__main__': unittest.main(verbosity=2)
 

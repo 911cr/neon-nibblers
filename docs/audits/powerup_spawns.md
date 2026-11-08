@@ -39,3 +39,14 @@ Ran work/qa_powerup_spawns.py with local work/deps (pygame-ce2.5.8). PASS16 scen
 Test fixture initially tried roaming after a completed match (updates correctly stopped); replaced with fresh active match and reran successfully. This was not a game failure.
 Public spawn_item helper does not itself cap count; the production update caller guards MAX_ITEMS. Direct stress calls deliberately exceeded cap to test placement. There is no current gameplay path found that exceeds cap, but encapsulating the cap in spawn_item would be defensive if new call sites are added.
 Commercial exact cadence, spawn weights/anchors, and orb exceptions remain unknown; software tests cannot certify those.
+
+## Additional timestamped footage inspection
+Reference: JurassicVerse64, https://www.youtube.com/watch?v=GhSV1oQVA6g&t=95s . Viewed actual video through native Chrome because IAB was unavailable. This video's title says CHOMPionship Gameplay; cabinet/version identity beyond that title is not independently established as DX, so treat it as CHOMP visual evidence, not a certified DX rule table.
+
+Observed sample: one short sequence around1:35–1:41, plus a paused1:40 frame. Camera is oblique and shifts, and reflections obscure upper center; not a full spawn census.
+- Around1:35, a clearly recognizable yellow peel collectible is in the right-side interior corridor below the upper-right stack of short horizontal wall bars. In the1:40 frame it is farther up that right-side corridor, near the upper bars. This is direct visual evidence of collectible translation through the maze, not merely a stationary bob.
+- At1:40, a yellow round collectible is visible on the LEFT interior horizontal lane below the upper-left U-shaped wall; another greenish round collectible is on a RIGHT interior lane. Neither is a screen corner. This refutes treating four screen-corner gold anchors as an established universal placement rule; it does not prove where they initially spawned or whether these orb sprites moved there.
+- Multiple distinct collectible silhouettes can coexist. I could not reliably isolate a first-appearance frame from collection, movement or reflection, so no measured inter-spawn interval or complete event count is reported. No supported claim of an exact3-second interval follows from this small sample.
+- Near1:41, a pale/sheet-like trail and bright starburst appear in the right corridor, but cause and affected player cannot be identified confidently from this sample; do not use it as an effects proof.
+
+Practical consequence: current roaming behavior is directionally supported; current fixed corner layout is an adaptation choice, not a reproduced observed layout. Exact initial/map-dependent positions, distribution, cadence and persistence require additional clean continuous footage. Native browser window5771396 was handed to gate agent after inspection; no commercial media was downloaded or bundled.

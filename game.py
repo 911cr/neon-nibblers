@@ -13,6 +13,7 @@ from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits,
 W, H, TILE, TOP = 1280, 720, 20, 45
 COLS, ROWS = 59, 31
 OX = (W - COLS * TILE) // 2
+GATE_HATCH=(238,221,85)  # Yellow thresholds observed even on cyan Deluxe mazes.
 COLORS = [(255,222,45),(255,108,195),(75,226,245),(255,83,80),
           (111,235,90),(255,155,55),(185,109,255),(90,141,255)]
 DIRS = [(1,0),(-1,0),(0,1),(0,-1)]
@@ -613,9 +614,9 @@ class App:
                 opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
                     or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
                 if not opening:
-                    pg.draw.line(self.canvas,accent,(sx-20,mouth_y),(sx+20,mouth_y),2)
+                    pg.draw.line(self.canvas,GATE_HATCH,(sx-20,mouth_y),(sx+20,mouth_y),2)
                     for hatch in range(-18,19,6):
-                        pg.draw.line(self.canvas,accent,(sx+hatch,mouth_y-4),(sx+hatch+4,mouth_y+3),1)
+                        pg.draw.line(self.canvas,GATE_HATCH,(sx+hatch,mouth_y-4),(sx+hatch+4,mouth_y+3),1)
                 sy=4 if upper else TOP+ROWS*TILE+10
                 if active:
                     p=g.players[idx]
