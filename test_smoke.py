@@ -370,5 +370,46 @@ class Smoke(unittest.TestCase):
             self.assertEqual(tuple(app.canvas.get_at((x,TOP)))[:3],GATE_HATCH)
         pg.quit()
 
+    def test_development_presence_stub_does_not_fabricate_devices(self):
+        app=App(simulate_controllers=True); app.pads={}
+        for count in (1,2,8):
+            app.count=count; app.start()
+            status=app.controller_status()
+            self.assertEqual((status['actual'],status['effective'],status['missing']),(0,count,0))
+            self.assertTrue(status['simulated']); self.assertIn('SIMULATED',status['message'])
+            pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_RIGHT))
+            app.events(); self.assertEqual(app.match.players[0].wanted,(1,0))
+            app.inputs(); app.draw()
+        pg.quit()
+
+    def test_production_controller_warning_and_hotplug_recovery(self):
+        from unittest.mock import patch
+        app=App(); app.count=2; app.pads={}
+        self.assertFalse(app.controller_status()['simulated'])
+        self.assertEqual(app.controller_status()['missing'],2)
+        self.assertIn('keyboard fallback',app.controller_status()['message'])
+        class Pad:
+            def __init__(self,i): self.i=i
+            def get_instance_id(self): return self.i
+            def get_init(self): return True
+            def get_attached(self): return self.i in attached
+        attached={4,5}; pads=[Pad(4),Pad(5)]
+        with patch.object(pg.joystick,'get_count',return_value=2),patch.object(pg.joystick,'Joystick',side_effect=lambda i:pads[i]):
+            app.refresh_pads()
+        self.assertEqual(app.controller_status()['missing'],0)
+        attached={4}
+        with patch.object(pg.joystick,'get_count',return_value=1),patch.object(pg.joystick,'Joystick',return_value=pads[0]):
+            pg.event.post(pg.event.Event(pg.JOYDEVICEREMOVED,instance_id=5)); app.events()
+        status=app.controller_status()
+        self.assertTrue(status['disconnected']); self.assertEqual(status['missing'],1)
+        app.draw()
+        attached={4,5}
+        with patch.object(pg.joystick,'get_count',return_value=2),patch.object(pg.joystick,'Joystick',side_effect=lambda i:pads[i]):
+            pg.event.post(pg.event.Event(pg.JOYDEVICEADDED,device_index=1)); app.events()
+        self.assertFalse(app.controller_status()['disconnected'])
+        self.assertEqual(app.controller_status()['missing'],0)
+        self.assertEqual(app.controller_status()['actual'],2)
+        pg.quit()
+
 if __name__=='__main__': unittest.main(verbosity=2)
 

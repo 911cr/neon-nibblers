@@ -1,2 +1,2 @@
-Revision 6 — poster-based icon corrections and real Ubuntu validation
+Revision 7 — explicit development controller stub; real production warnings
 2026-11-08

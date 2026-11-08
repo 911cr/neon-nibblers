@@ -1,3 +1,7 @@
+REVISION 7 CONTROLLER MODE
+29 integrated tests pass. Production real detection, explicit development availability stub, missing/disconnect/reconnect messaging and keyboard fallback exercised. Two-pass QA found/fixed stale reconnect notice. Physical hardware testing deferred to production by user direction.
+
+Historical platform validation:
 REVISION 6 — VALIDATION
 2026-11-08
 

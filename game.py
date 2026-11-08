@@ -484,7 +484,7 @@ def distance(a,b): return abs(a[0]-b[0])+abs(a[1]-b[1])
 def center(c): return OX+c[0]*TILE+TILE//2,TOP+c[1]*TILE+TILE//2
 
 class App:
-    def __init__(self):
+    def __init__(self, simulate_controllers=False):
         pg.init()
         self.screen=pg.display.set_mode((W,H),pg.RESIZABLE)
         pg.display.set_caption('Neon Nibblers | Local Maze Battle')
@@ -496,6 +496,8 @@ class App:
         self.big=pg.font.Font(None,65)
         self.clock=pg.time.Clock(); self.running=True
         self.count=2; self.theme=0; self.match=None; self.help=False; self.muted=False
+        self.simulate_controllers=simulate_controllers
+        self.controller_notice_until=0
         self.pads={}; self.refresh_pads(); self.sounds={}
         self.demo=False; self.visual_positions={}; self.animation_time=0.
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
@@ -512,10 +514,31 @@ class App:
         except pg.error: pass
 
     def refresh_pads(self):
+        previous=set(self.pads)
         for i in range(pg.joystick.get_count()):
             joy=pg.joystick.Joystick(i)
             self.pads[joy.get_instance_id()]=joy
         self.pads={k:v for k,v in self.pads.items() if v.get_init() and v.get_attached()}
+        if previous-set(self.pads): self.controller_notice_until=pg.time.get_ticks()+5000
+        elif set(self.pads)-previous: self.controller_notice_until=0
+
+    def controller_status(self):
+        expected=self.match.count if self.match else self.count
+        actual=min(8,len(self.pads))
+        simulated=self.simulate_controllers
+        effective=expected if simulated else actual
+        missing=max(0,expected-effective)
+        disconnected=not simulated and pg.time.get_ticks()<self.controller_notice_until
+        if simulated:
+            message=f'DEV: {expected} controllers assumed connected (SIMULATED)'
+        elif disconnected:
+            message=f'Controller disconnected | {actual}/{expected} connected | keyboard fallback available'
+        elif missing:
+            message=f'Missing {missing} of {expected} controllers | {actual} connected | keyboard fallback available'
+        else:
+            message=f'{actual} controllers connected | {expected} players'
+        return {'expected':expected,'actual':actual,'effective':effective,'missing':missing,
+                'simulated':simulated,'disconnected':disconnected,'message':message}
 
     def text(self,s,x,y,color=(224,234,247),font=None):
         self.canvas.blit((font or self.font).render(str(s),True,color),(x,y))
@@ -572,7 +595,10 @@ class App:
                 muncher(self.canvas,(325+i*90,190),COLORS[i],(1,0),self.animation_time+i,25)
             self.text('NEON NIBBLERS',W//2-200,58,(255,222,72),self.big)
             self.text('A snack-sized rivalry. An oversized appetite.',W//2-185,125)
-            self.text(f'{self.count} PLAYERS  |  {len(self.pads)} controllers connected',W//2-180,242)
+            status=self.controller_status()
+            message=status['message']
+            color=(255,188,87) if status['missing'] or status['disconnected'] else (134,204,244)
+            self.text(message,(W-self.small.size(message)[0])//2,242,color,self.small)
             self.text('Press 1-8 to choose players. TAB changes starting arena.',W//2-245,280)
             self.text('Arena: '+THEMES[self.theme][0],W//2-125,317,COLORS[self.theme])
             self.text('ENTER or controller button 1 to start',W//2-160,365)
@@ -733,7 +759,10 @@ class App:
                 if popup[3]<=0: self.popups.remove(popup)
             self.canvas.set_clip(None)
             footer='AUTOPLAY - COMPUTER PLAYERS' if self.demo else 'LOCAL ARCADE BATTLE'
-            self.text(footer+'   |   F1 guide  P pause  F2 sound  ESC lobby',OX,H-12,(127,138,162),self.micro)
+            status=self.controller_status()
+            message=footer+' | '+status['message']+' | F1 guide  P pause  F2 sound  ESC lobby'
+            color=(255,188,87) if status['missing'] or status['disconnected'] else (127,168,198)
+            self.text(message,OX,H-12,color,self.micro)
             if g.paused: self.overlay('PAUSED','Press P to continue')
             if g.over:
                 best=max(p.score for p in g.players)
@@ -808,9 +837,10 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--frames',type=int,default=0,help='Exit after N frames (smoke checks).')
     parser.add_argument('--players',type=int,choices=range(1,9),help='Start immediately with 1-8 players.')
+    parser.add_argument('--simulate-controllers',action='store_true',help='Development only: assume controller availability; label it simulated. Does not generate input.')
     parser.add_argument('--demo',action='store_true',help='Computer-controlled attract demo; defaults to 8 players.')
     args=parser.parse_args()
-    app=App()
+    app=App(simulate_controllers=args.simulate_controllers)
     app.demo=args.demo
     if args.demo and not args.players: args.players=8
     if args.players: app.count=args.players; app.start()

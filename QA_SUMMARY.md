@@ -24,3 +24,9 @@ Detailed audit notes are in docs/audits. Some earlier sections describe old bugs
 New promotional-poster evidence corrected coffee-mug, quake-plunger, blue-magnet, flaming-pepper, white1UP and shaded-orb artwork. The inventory reviewer checked all11 guide icons for readability/clipping and confirmed improved silhouettes. A released Deluxe video showed yellow gate hatching on cyan mazes, correcting the earlier theme-color inference; the gate reviewer verified the new four-theme pixel test.
 
 27 tests now pass on local Windows and Ubuntu. Actual Ubuntu X11/audio-initialized1/2/8 runs completed. Physical devices detected:0; controller verification cannot pass without hardware. No agentcertifiedexactcommercialart/rules.
+
+## Revision 7 controller acceptance scope
+
+The user authorizes assumed controller availability during development and requires real missing/disconnect detection in production. App defaults to real detection. Dedicated development launchers pass --simulate-controllers and visibly label the assumed count. No fake input devices are created; keyboard and autoplay remain available. Production hardware validation is deferred, not falsely marked passed.
+
+Two targeted QA passes checked zero/partial/full counts, hotplug, fallback and text layout. Fixed stale reconnect warning and added regression assertion. Current integrated suite:29 tests.

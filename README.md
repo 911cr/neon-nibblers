@@ -96,7 +96,7 @@ Spawning remains configurable custom tuning: four gold corner anchors, two green
 
 ## Verification and ongoing QA
 
-Run `python test_smoke.py`. The headless suite covers 27 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
+Run `python test_smoke.py`. The headless suite covers 29 tests, including complete 1/2/8-player simulations on four maps, all 11 powers, combat/crossings, bumping, ghost house departure/continuous return, carried-ghost expiry/death, smoke/skid/speed/quake, gate launch/return/respawn, one-line corridors, every movement edge against wall pixels, tunnels, arena transitions, menu/pause/rematch, resize and simulated eight-controller assignment.
 
 Ten topic agents reviewed player interactions, gates, inventory, effects, spawn policy, edges, walls, ghost starts, ghost exits and player/ghost/power interactions. Review findings distinguish code defects from unverified reference details. Follow-up QA findings are retained under docs/audits in the repository. No review consensus is a substitute for evidence of visual/mechanical identity.
 
@@ -121,3 +121,9 @@ Run `python check_controllers.py --expected 8` after connecting controllers. Mov
 ## Additional Linux evidence
 
 `LINUX_NATIVE_TEST_RESULTS.json` records real local Ubuntu with Python3.12/pygame-ce2.5.8 runs using X11 through WSLg, with audio initialized at44.1kHz stereo. 1/2/8-player runs each rendered1800frames; observed averages52.85/38.16/59.72FPS. These are samples under concurrent desktop load, not a guaranteed framerate. Hardware audibility still needs a listener to confirm.
+
+## Development controller stub versus production detection
+
+For development now, launch `dev_windows.bat` or `sh dev_linux.sh`. These enable `--simulate-controllers`: the availability check assumes enough controllers for the selected1–8players and displays **DEV ... SIMULATED**. It does not invent device input: use the keyboard or add `--demo` for computer-controlled gameplay. For example: `dev_windows.bat --demo --players 8`.
+
+Normal `run_windows.bat` / `run_linux.sh` launches use real device detection. Missing controllers produce a persistent warning in the lobby and gameplay footer; a disconnect triggers a five-second notice, followed by any remaining missing-controller warning. Keyboard fallback remains available. Physical controller compatibility is deferred to production verification by user direction; simulated availability is not recorded as physical testing. `check_controllers.py` always observes real devices independently of this development option.

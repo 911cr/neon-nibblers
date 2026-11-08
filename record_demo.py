@@ -12,8 +12,10 @@ frames=[]
 parser=argparse.ArgumentParser()
 parser.add_argument('--quick',action='store_true',help='12-second 8-player preview')
 parser.add_argument('--players',type=int,choices=(1,2,8),help='Record a separate player-count demonstration')
+parser.add_argument('--simulate-controllers',action='store_true',help='Label development controller availability as simulated')
 parser.add_argument('--seconds',type=int,default=12)
 args=parser.parse_args()
+app.simulate_controllers=args.simulate_controllers
 single=args.quick or args.players is not None
 for theme in (range(1) if single else range(4)):
     for count in ((args.players or 8,) if single else (1,2,8)):

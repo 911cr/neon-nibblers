@@ -1,5 +1,13 @@
 # Changelog
 
+## Revision 7 — 2026-11-08
+
+- Add explicit development controller-availability stub and development launchers.
+- Keep production detection real, with missing/disconnect warnings and keyboard fallback.
+- Clear stale disconnect messages on reconnection.
+-29 integrated tests and two-pass targeted QA with fix recheck.
+- Physical validation deferred to production; simulations are visibly labeled.
+
 ## Revision 6 — 2026-11-08
 
 - Correct power icon silhouettes against promotional poster, preserving original artwork.
