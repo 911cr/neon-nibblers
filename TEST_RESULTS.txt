@@ -1,3 +1,4 @@
-REVISION9:72 local Windows tests PASS;72 local Ubuntu tests PASS.
-All source/capture changes applied. See docs/audits/revision9_* and NATIVE_REVISION9_*.json.
-Physical controllers deferred to production; DX geometry/rule gaps remain explicitly unresolved.
+REVISION10:92 Windows tests PASS;92 Ubuntu tests PASS.
+All4maps ×1/2/8 native render scenarios completed (12 perOS); see NATIVE_REVISION10_*.json.
+Ten audioQA tests use actual dummy mixer; physical audibility/controller acceptance unverified.
+Allmap route/pixel checks and three-agent two-pass reviews documented.

@@ -1,2 +1,2 @@
-Revision 9 — HUD gate clearance, Cyan Circuit routes and gameplay timing fixes
+Revision10 — all-map visual review, simultaneous pickup/expiry fixes and original event audio
 2026-11-08

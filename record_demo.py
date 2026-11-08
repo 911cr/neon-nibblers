@@ -15,10 +15,11 @@ parser.add_argument('--players',type=int,choices=range(1,9),help='Record a separ
 parser.add_argument('--simulate-controllers',action='store_true',help='Label development controller availability as simulated')
 parser.add_argument('--seconds',type=int,default=12)
 parser.add_argument('--theme',type=int,choices=range(4),default=0,help='Starting map index for a single-count capture')
+parser.add_argument('--tour',action='store_true',help='Show every map for the selected player count; --seconds is time per map')
 args=parser.parse_args()
 app.simulate_controllers=args.simulate_controllers
 single=args.quick or args.players is not None
-for theme in ((args.theme,) if single else range(4)):
+for theme in (range(4) if args.tour or not single else (args.theme,)):
     for count in ((args.players or 8,) if single else (1,2,8)):
         app.match=Match(count,theme,seed=20+theme)
         app.reset_visuals()

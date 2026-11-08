@@ -5,13 +5,13 @@ import math
 import random
 import argparse
 from collections import deque
-from array import array
 from dataclasses import dataclass, field
 import pygame as pg
 from score_ledger import ScoreLedger, DEFAULT_SCORES
 from stations import Phase, phase_for, StationBindings
 from map_library import get_map, next_map_index
 from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite
+from arcade_audio import ArcadeAudio
 
 W, H, TILE, TOP = 1280, 720, 20, 45
 COLS, ROWS = 59, 31
@@ -218,14 +218,22 @@ class Match:
                 candidate=self.arena.step(holder.pos,holder.direction)
                 self.foes[i]=candidate if candidate in self.arena.lanes else holder.pos
 
-    def update_foes(self, dt):
-        self.sync_carriers()
+    @staticmethod
+    def countdown(value, dt):
+        remaining=value-dt
+        return remaining if remaining>1e-10 else 0.
+
+    def age_foes(self,dt):
         self.foe_clock+=dt
-        self.foe_stun=max(0,self.foe_stun-dt)
+        self.foe_stun=self.countdown(self.foe_stun,dt)
         for i in range(len(self.foes)):
-            self.foe_release[i]=max(0,self.foe_release[i]-dt)
+            self.foe_release[i]=self.countdown(self.foe_release[i],dt)
             self.foe_ticks[i]+=dt
-            self.foe_zapped[i]=max(0,self.foe_zapped[i]-dt)
+            self.foe_zapped[i]=self.countdown(self.foe_zapped[i],dt)
+
+    def update_foes(self, dt, age=True):
+        self.sync_carriers()
+        if age: self.age_foes(dt)
         if self.foe_clock+1e-10<.16: return
         self.foe_clock=max(0.,self.foe_clock-.16)%.16
         for i,f in enumerate(self.foes):
@@ -313,6 +321,14 @@ class Match:
             if c not in self.arena.lanes: break
             cells.append(c)
         return cells
+
+    def collect_contacts(self,sounds):
+        """A moving item can touch a stationary/stunned player too."""
+        for p in self.players:
+            if p.lives>0 and p.pos in self.items:
+                self.collect(p,self.items.pop(p.pos))
+                self.item_directions.pop(p.pos,None)
+                sounds.append('power')
 
     def apply_fire(self):
         for p in self.players:
@@ -416,21 +432,25 @@ class Match:
         if not math.isfinite(dt) or dt < 0: raise ValueError('dt must be finite and non-negative')
         self.elapsed += dt; self.tick += 1
         sounds=[]
-        self.time=max(0,self.time-dt)
+        self.time=self.countdown(self.time,dt)
         previous=[p.pos for p in self.players]
         old_foes=list(self.foes)
-        self.quake=max(0,self.quake-dt)
-        self.smoke={c:t-dt for c,t in self.smoke.items() if t>dt}
-        self.zaps=[(c,t-dt) for c,t in self.zaps if t>dt]
-        self.bump_cooldowns={pair:t-dt for pair,t in self.bump_cooldowns.items() if t>dt}
+        self.quake=self.countdown(self.quake,dt)
+        self.smoke={c:self.countdown(t,dt) for c,t in self.smoke.items() if t>dt+1e-10}
+        self.zaps=[(c,self.countdown(t,dt)) for c,t in self.zaps if t>dt+1e-10]
+        self.bump_cooldowns={pair:self.countdown(t,dt) for pair,t in self.bump_cooldowns.items() if t>dt+1e-10}
+        # Age everybody before any pickup. Newly applied powers must not lose
+        # a tick just because the recipient has a higher station number.
+        self.age_foes(dt)
         for p in self.players:
-            p.safe=max(0,p.safe-dt); p.stun=max(0,p.stun-dt)
+            p.safe=self.countdown(p.safe,dt); p.stun=self.countdown(p.stun,dt)
             for k in list(p.effects):
-                p.effects[k]-=dt
+                p.effects[k]=self.countdown(p.effects[k],dt)
                 if p.effects[k]<=0: del p.effects[k]
+        for p in self.players:
             if p.lives<=0 or p.stun>0: continue
             if p.entry>0 and p.pos==self.arena.spawns[p.idx]:
-                p.entry=max(0,p.entry-dt)
+                p.entry=self.countdown(p.entry,dt)
                 if p.entry==0:
                     p.pos=self.arena.entries[p.idx]
                     p.direction=(0,1) if p.pos[1]==1 else (0,-1)
@@ -451,11 +471,12 @@ class Match:
                 if self.arena.can_enter(self.arena.step(p.pos,p.direction),p): p.pos=self.arena.step(p.pos,p.direction)
                 if p.pos in self.dots:
                     self.dots.remove(p.pos); self.award(p, 'dot'); sounds.append('dot')
-                if p.pos in self.items:
-                    self.collect(p,self.items.pop(p.pos)); sounds.append('power')
                 if p.pos in self.traps and self.traps[p.pos][0]!=p.idx:
                     p.stun=1.5; del self.traps[p.pos]
-        self.update_foes(dt)
+        # Resolve pickups after all simultaneous player movement. A lightning
+        # pickup cannot cancel only the movement of later-numbered stations.
+        self.collect_contacts(sounds)
+        self.update_foes(dt,age=False)
         combat_events=len(self.ledger.events)
         self.combat(previous,old_foes)
         self.apply_fire()
@@ -484,6 +505,8 @@ class Match:
                         target=self.arena.step(cell,direction)
                 moved[target]=name; directions[target]=direction
             self.items=moved; self.item_directions=directions
+            self.collect_contacts(sounds)
+            self.award_score_lives()
         if self.time<=0 or not any(p.lives>0 for p in self.players):
             self.over=True
             self.ledger.append(self, 'match_end', reason='time' if self.time<=0 else 'elimination', rankings=self.rankings())
@@ -534,16 +557,7 @@ class App:
         self.demo=False; self.visual_positions={}; self.animation_time=0.
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
         self.micro=pg.font.Font(None,16)
-        try:
-            if not pg.mixer.get_init(): pg.mixer.init(44100,-16,1)
-            rate,_,channels=pg.mixer.get_init()
-            for name,freq,dur in [('dot',640,.035),('power',980,.18),('hurt',140,.22)]:
-                samples=array('h')
-                for i in range(int(rate*dur)):
-                    v=int(3500*math.sin(2*math.pi*freq*i/rate)*(1-i/(rate*dur)))
-                    samples.extend([v]*channels)
-                self.sounds[name]=pg.mixer.Sound(buffer=samples)
-        except pg.error: pass
+        self.audio=ArcadeAudio();self.sounds=self.audio.sounds
 
     def refresh_pads(self):
         previous=set(self.pads)
@@ -629,7 +643,9 @@ class App:
                 elif self.match: self.match=None
                 else: self.running=False
             elif e.key==pg.K_F1: self.help=not self.help
-            elif e.key==pg.K_F2: self.muted=not self.muted
+            elif e.key==pg.K_F2:
+                self.muted=not self.muted
+                if self.muted:self.audio.silence()
             elif e.key==pg.K_RETURN and (not self.match or self.match.over): self.start()
             elif e.key==pg.K_p and self.match: self.match.paused=not self.match.paused
             elif not self.match:
@@ -742,6 +758,7 @@ class App:
                 else: self.text(f'F{idx+3} / START',sx_text,sy+1,color,self.small)
             arcade_digits(self.canvas,f'{int(g.time)//60}:{int(g.time)%60:02}',W//2-36,1,(250,250,235),3)
             self.text(f'STAGE {g.stage}',W//2-30,25,accent,self.small)
+            self.text(THEMES[g.arena.theme][0],W//2+55,25,accent,self.micro)
             # Tunnel necks project beyond the board, as in the cabinet footage.
             for row in g.arena.portals:
                 cy=center((0,row))[1]
@@ -905,7 +922,7 @@ class App:
         while self.fixed_accumulator+1e-10>=1/60:
             if self.demo: steer_demo(self.match)
             for p in self.match.players:
-                p.locate_remaining=max(0,p.locate_remaining-1/60)
+                p.locate_remaining=self.match.countdown(p.locate_remaining,1/60)
             sounds.extend(self.match.update(1/60))
             self.fixed_accumulator-=1/60
         return sounds
@@ -930,9 +947,7 @@ class App:
             if self.match:
                 if not self.demo: self.inputs()
                 sounds=self.advance(dt)
-                if not self.muted:
-                    for name in set(sounds):
-                        if name in self.sounds: self.sounds[name].play()
+                self.audio.consume(self.match.ledger,self.muted)
             self.draw(dt); n+=1
             if frames and n>=frames: break
         pg.quit()

@@ -60,3 +60,11 @@ Freshly inspected cabinet frames at [1:15](https://www.youtube.com/watch?v=efLge
 ![Catalog version 2 with cyan revision 2](images/map_catalog_v2.png)
 
 See [revision-9 map QA](audits/revision9_maps.md) for changes and both validation passes, and [local before/after](images/map_before_after_r9.png). Eight map-specific tests and 29 existing smoke tests passed. This does not close the full-map reconstruction issue.
+
+## Revision 10: review of every current map
+
+All four current maps were compared with the retained actual 1:15/2:00 DX frames for visible house, gate, corridor and wall-style details. This is not a recovered four-map commercial catalog. The detailed [per-map matrix and two-pass review](audits/revision10_all_maps.md) names the corresponding evidence and remaining mismatch for Golden, Violet, Ember and Cyan separately.
+
+Every map already had a complete house-perimeter route (missing-cell counts 0/0/0/0). No unsupported geometry changes were made. Load-time validation now prevents any map from losing that route; ten map tests pass, covering all 1–8 participant counts and stage transitions on every map. Renderer styling adds an inner outline to broad wall interiors, directly motivated by the observed rectangular island; extension to broad bent shapes is explicitly inferred. All 29 existing smoke tests, including route-pixel checks, pass. Map counts and revisions remain unchanged.
+
+New video observation was unavailable in this cycle because the native-browser URL safety check stopped further UI access. Prior captured frames were used and are identified as retained evidence. Full layouts, palette independence and progression remain unresolved.

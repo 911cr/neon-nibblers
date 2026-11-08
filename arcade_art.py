@@ -54,6 +54,22 @@ def maze_background(floor, cols, rows, tile, accent):
         result.blit(glow,offset,special_flags=pg.BLEND_RGB_ADD)
     result.blit(mask.to_surface(setcolor=(1,2,8),unsetcolor=(0,0,0,0)),(0,0))
     result.blit(edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
+    # Broad wall islands have a second inset contour, as visible on the
+    # rectangular DX island in the retained 1:15 reference. Erosion removes
+    # thin capsules and the frame from this pass, preserving their silhouette.
+    broad=mask.copy()
+    for offset in ((12,0),(-12,0),(0,12),(0,-12),(9,9),(-9,9),(9,-9),(-9,-9)):
+        shifted=pg.mask.Mask(size);shifted.draw(mask,offset)
+        broad=broad.overlap_mask(shifted,(0,0))
+    filtered=pg.mask.Mask(size)
+    for component in broad.connected_components(500):filtered.draw(component,(0,0))
+    broad=filtered
+    core=broad.copy()
+    for offset in ((1,0),(-1,0),(0,1),(0,-1)):
+        shifted=pg.mask.Mask(size);shifted.draw(broad,offset)
+        core=core.overlap_mask(shifted,(0,0))
+    inset=broad.copy();inset.erase(core,(0,0))
+    result.blit(inset.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
     return result
 
 @lru_cache(maxsize=64)

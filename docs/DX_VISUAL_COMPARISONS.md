@@ -42,6 +42,12 @@ This comparison uses our own revision-7 lobby as the baseline. The new per-stati
 
 Unlike the revision-8 data migration, this changes playable routes. Actual cabinet frames at [2:00](https://www.youtube.com/watch?v=efLgejKG_ls&t=120s) and [1:15](https://www.youtube.com/watch?v=efLgejKG_ls&t=75s) show the house separated from nearby branches by a corridor and distinct vertical wall islands. The view is rotated 180 degrees relative to our house entrance; the two raw-left vertical islands therefore belong on the game's right. Our revised cyan map opens the house perimeter and separates these walls. The figure above compares our old/new output; it does not pretend the estimated grid is a perspective-perfect original trace. See `audits/revision9_maps.md` for the tested change and remaining uncertainty.
 
+## Revision 10: all four maps, broad-wall styling
+
+![Every map before/after the broad-wall contour change](images/all_maps_before_after_r10.png)
+
+Each row uses identical local geometry and frame state, comparing revision-9 rendering with revision-10 rendering. All four were separately reviewed against retained DX frame details. Violet's broad rectangle provides the clearest observed-style correction: its inner outline is now distinct from its outer outline, as on the rectangular island visible at 1:15. Applying this treatment to broad bent walls is an inferred style choice, not a measured commercial match. Thin capsules, ghost-house contours and gates are unchanged. See [the per-map evidence/difference matrix and pixel checks](audits/revision10_all_maps.md). No fresh video or exact four-map DX correspondence is claimed.
+
 
 ## Fresh released-DX enclosure comparison
 

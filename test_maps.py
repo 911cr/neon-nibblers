@@ -33,6 +33,35 @@ class MapTests(unittest.TestCase):
         self.assertTrue({(37, y) for y in range(9, 26)} <= spec.lanes)
         self.assertTrue({(41, y) for y in range(9, 26)} <= spec.lanes)
 
+    def test_every_map_house_loop_and_door_are_traversable(self):
+        from game import Arena, DIRS
+        for index, spec in enumerate(catalog()):
+            with self.subTest(map=spec.id):
+                x, y, width, height = spec.den
+                left, right, top, bottom = x-2, x+width+1, y-2, y+height+1
+                loop = ([(xx, top) for xx in range(left, right+1)] +
+                        [(right, yy) for yy in range(top+1, bottom+1)] +
+                        [(xx, bottom) for xx in range(right-1, left-1, -1)] +
+                        [(left, yy) for yy in range(bottom-1, top-1, -1)])
+                a = Arena(index)
+                for source, target in zip(loop, loop[1:]):
+                    self.assertIn(source, a.lanes)
+                    direction = (target[0]-source[0], target[1]-source[1])
+                    self.assertIn(direction, DIRS)
+                    self.assertEqual(a.step(source, direction), target)
+                self.assertIn((x+width//2, top), a.lanes)
+
+    def test_each_map_rejects_removed_house_door_approach(self):
+        for index in range(len(catalog())):
+            doc = self.document()
+            raw = doc['maps'][index]
+            x, y, width, _ = raw['den']
+            door_x, approach_y = x+width//2, y-2
+            row = raw['lane_rows'][approach_y]
+            raw['lane_rows'][approach_y] = row[:door_x]+'#'+row[door_x+1:]
+            with self.subTest(map=raw['id']), self.assertRaises(ValueError):
+                parse_catalog(doc)
+
     def test_rejects_invalid_schema_and_duplicate_maps(self):
         for doc in ({'schema_version':2}, {'schema_version':1, 'maps':[]}):
             with self.assertRaises(ValueError): parse_catalog(doc)

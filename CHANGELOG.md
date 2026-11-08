@@ -38,3 +38,9 @@
 ## Revision 4 baseline
 
 Imported original-code Pygame local1–8-player game with shared corridor/navigation graph, colored characters,11 power categories, four maps, controller/keyboard controls, gates and16 smoke tests.
+
+## Revision10 — 2026-11-08
+- All-four-map reference matrix and house-route validation; broad-wall inset contours.
+- Fix station-order lightning bias, effect-expiry float tails and stationary/stunned roaming-item pickups.
+- Add ten original event sounds with independent channels, immediate mute and graceful mixer failure.
+-92 tests, native1/2/8 on all4maps for bothOS, regenerated all-map gameplay tours/replay. Physicalcontrollers deferred; complete DX layout correspondence remains unverified.

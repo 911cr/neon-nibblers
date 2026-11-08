@@ -91,6 +91,14 @@ def parse_catalog(document):
             raise ValueError(f'{ident}: ghost house outside field')
         if any((xx, yy) in lanes for xx in range(x, x+width) for yy in range(y, y+height)):
             raise ValueError(f'{ident}: ghost house overlaps public lanes')
+        # Each authored map promises a playable one-line route around its house.
+        # This prevents new layouts from recreating the cyan merged-wall defect.
+        # The two-cell inset is our geometry convention, not a recovered DX size.
+        left, right, top, bottom = x-2, x+width+1, y-2, y+height+1
+        perimeter = ({(xx, yy) for xx in (left, right) for yy in range(top, bottom+1)} |
+                     {(xx, yy) for xx in range(left, right+1) for yy in (top, bottom)})
+        if not perimeter <= lanes:
+            raise ValueError(f'{ident}: incomplete ghost-house perimeter route')
         accent = tuple(raw['accent'])
         if len(accent) != 3 or any(type(v) is not int or not 0 <= v <= 255 for v in accent):
             raise ValueError(f'{ident}: invalid accent')
