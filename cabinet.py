@@ -1,0 +1,104 @@
+"""Local operator configuration, credits and high scores for our adaptation."""
+import json
+import os
+from pathlib import Path
+import time
+import math
+
+DEFAULTS={'starting_lives':3,'bonus_threshold':10000,'match_seconds':180,
+          'free_play':True,'attract_sound':True,'fill_bots':True}
+
+def atomic_json(path,value):
+    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+    temporary=path.with_name(path.name+'.tmp')
+    temporary.write_text(json.dumps(value,indent=2),encoding='utf-8')
+    temporary.replace(path)
+
+def data_directory():
+    if os.environ.get('NEON_NIBBLERS_DATA'):return Path(os.environ['NEON_NIBBLERS_DATA'])
+    if os.name=='nt':return Path(os.environ.get('LOCALAPPDATA',Path.home()))/'NeonNibblers'
+    return Path(os.environ.get('XDG_DATA_HOME',Path.home()/'.local/share'))/'neon-nibblers'
+
+class CabinetStore:
+    def __init__(self,directory=None):
+        self.directory=Path(directory) if directory is not None else data_directory()
+        self.path=self.directory/'cabinet.json';self.error=''
+        self.settings=dict(DEFAULTS);self.credits=0;self.high_scores=[];self.recorded=set()
+        try:
+            raw=json.loads(self.path.read_text(encoding='utf-8'))
+            self.settings=self.validate(raw.get('settings',{}))
+            self.credits=max(0,min(999,int(raw.get('credits',0))))
+            for row in raw.get('high_scores',[])[:20]:
+                if isinstance(row,dict) and type(row.get('score')) is int and row['score']>=0:
+                    stamp=float(row.get('time',0))
+                    if not math.isfinite(stamp):raise ValueError('Invalid score timestamp')
+                    name=''.join(c for c in str(row.get('name','PLAYER')) if c.isprintable())[:24] or 'PLAYER'
+                    self.high_scores.append({'name':name,
+                        'score':row['score'],'player_id':max(1,min(8,int(row.get('player_id',1)))),
+                        'time':stamp})
+            self.high_scores.sort(key=lambda r:(-r['score'],r['time']))
+            self.recorded=set(str(x) for x in raw.get('recorded',[])[:100])
+        except FileNotFoundError:pass
+        except (OSError,ValueError,TypeError,AttributeError):
+            self.settings=dict(DEFAULTS);self.credits=0;self.high_scores=[];self.recorded=set()
+            self.error='Saved cabinet data could not be read; defaults are active.'
+
+    @staticmethod
+    def validate(settings):
+        result=dict(DEFAULTS)
+        for key,low,high in [('starting_lives',1,5),('bonus_threshold',0,1000000),('match_seconds',30,1800)]:
+            value=settings.get(key,result[key])
+            if type(value) is not int or not low<=value<=high:raise ValueError('Invalid '+key)
+            result[key]=value
+        for key in ('free_play','attract_sound','fill_bots'):
+            value=settings.get(key,result[key])
+            if type(value) is not bool:raise ValueError('Invalid '+key)
+            result[key]=value
+        return result
+
+    def save(self):
+        try:
+            atomic_json(self.path,{'schema_version':1,'settings':self.settings,'credits':self.credits,
+                'high_scores':self.high_scores[:20],'recorded':sorted(self.recorded)[-100:]})
+            self.error='';return True
+        except OSError:
+            self.error='Cabinet data could not be saved. Check the data-folder permissions.';return False
+
+    def configure(self,settings):
+        previous=self.settings;self.settings=self.validate(settings)
+        if self.save():return True
+        self.settings=previous;return False
+
+    def add_credit(self):
+        previous=self.credits;self.credits=min(999,self.credits+1)
+        if self.save():return True
+        self.credits=previous;return False
+
+    def pay(self,count):
+        if type(count) is not int or not 1<=count<=8:raise ValueError('Station count must be1..8')
+        if self.settings['free_play']:return True
+        if self.credits<count:return False
+        previous=self.credits;self.credits-=count
+        if self.save():return True
+        self.credits=previous;return False
+
+    def record(self,match,token):
+        if not match.over or token in self.recorded:return False
+        return self.record_rows(match.rankings(),token)
+
+    def record_rows(self,rows,token):
+        if token in self.recorded:return False
+        previous=list(self.high_scores)
+        now=time.time()
+        for row in rows:
+            self.high_scores.append({'name':f"P{row['player_id']}",'score':row['score'],
+                                    'player_id':row['player_id'],'time':now})
+        self.high_scores.sort(key=lambda r:(-r['score'],r['time']))
+        self.high_scores=self.high_scores[:20];self.recorded.add(token)
+        if self.save():return True
+        self.high_scores=previous;self.recorded.discard(token);return False
+
+def spectator_view(match,phase,map_name=''):
+    return {'schema_version':1,'updated':time.time(),'phase':phase,'map':map_name,
+            'stage':match.stage if match else 0,'remaining':match.time if match else 0,
+            'ranking':match.rankings() if match else []}

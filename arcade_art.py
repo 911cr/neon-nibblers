@@ -1,15 +1,14 @@
-"""Original procedural arcade art. No commercial sprites, logos or traced maps."""
+"""Original procedural arcade art. No commercial sprites, logos or source code."""
 import math
 from functools import lru_cache
 import pygame as pg
 
-def maze_background(floor, cols, rows, tile, accent):
+def maze_background(floor, cols, rows, tile, accent,radius=32):
     size=(cols*tile,rows*tile)
     raw=pg.Surface(size,pg.SRCALPHA)
     # Carve a constant-width tube around the SAME graph used by movement.
     # A free-looking gap can no longer disagree with the collision map.
     raw.fill((255,255,255))
-    radius=32
     raw.set_clip(pg.Rect(6,6,size[0]-12,size[1]-12))
     for x,y in floor:
         cx,cy=x*tile+tile//2,y*tile+tile//2
@@ -28,9 +27,11 @@ def maze_background(floor, cols, rows, tile, accent):
         if y in (0,rows-1): pg.draw.rect(raw,(0,0,0,0),(cx-20,y*tile,40,tile))
     mask=pg.mask.from_surface(raw)
     # Round exposed wall corners without changing the corridor center-lines.
-    offsets=[(x,y) for x in range(-5,6) for y in range(-5,6) if x*x+y*y<=25]
+    corner=2 if radius<30 else 5
+    offsets=[(x,y) for x in range(-corner,corner+1) for y in range(-corner,corner+1) if x*x+y*y<=corner*corner]
     core=mask.copy()
-    for offset in ((5,0),(-5,0),(0,5),(0,-5),(4,3),(-4,3),(4,-3),(-4,-3)):
+    erosion=((2,0),(-2,0),(0,2),(0,-2),(1,1),(-1,1),(1,-1),(-1,-1)) if corner==2 else ((5,0),(-5,0),(0,5),(0,-5),(4,3),(-4,3),(4,-3),(-4,-3))
+    for offset in erosion:
         shifted=pg.mask.Mask(size); shifted.draw(mask,offset)
         core=core.overlap_mask(shifted,(0,0))
     rounded=pg.mask.Mask(size)
@@ -54,6 +55,10 @@ def maze_background(floor, cols, rows, tile, accent):
         result.blit(glow,offset,special_flags=pg.BLEND_RGB_ADD)
     result.blit(mask.to_surface(setcolor=(1,2,8),unsetcolor=(0,0,0,0)),(0,0))
     result.blit(edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
+    # The reconstructed A/B layouts use ordinary single-contour capsules.
+    # Preserve their two outer edges; do not add an inner rectangle merely
+    # because a long narrow wall happens to exceed the old area threshold.
+    if radius<30:return result
     # Broad wall islands have a second inset contour, as visible on the
     # rectangular DX island in the retained 1:15 reference. Erosion removes
     # thin capsules and the frame from this pass, preserving their silhouette.
@@ -72,11 +77,11 @@ def maze_background(floor, cols, rows, tile, accent):
     result.blit(inset.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
     return result
 
-@lru_cache(maxsize=64)
-def sphere(color,radius):
-    """Newly computed sphere lighting, supersampled for smooth silhouettes."""
-    scale=3; r=radius*scale; mid=(radius+9)*scale
-    s=pg.Surface((mid*2,mid*2),pg.SRCALPHA)
+@lru_cache(maxsize=32)
+def _sphere_template(color):
+    """One high-resolution lighting calculation per original character color."""
+    r=108;mid=r
+    s=pg.Surface((r*2+1,r*2+1),pg.SRCALPHA)
     for yy in range(-r,r+1):
         for xx in range(-r,r+1):
             nx,ny=xx/r,yy/r
@@ -87,6 +92,14 @@ def sphere(color,radius):
             gloss=max(0,-.28*nx-.4*ny+.87*nz)**35*.75
             rgb=tuple(min(255,int(v*lit+255*gloss)) for v in color)
             s.set_at((mid+xx,mid+yy),(*rgb,255))
+    return s
+
+@lru_cache(maxsize=256)
+def sphere(color,radius):
+    scale=3;r=radius*scale;mid=(radius+9)*scale
+    s=pg.Surface((mid*2,mid*2),pg.SRCALPHA)
+    body=pg.transform.smoothscale(_sphere_template(color),(r*2+1,r*2+1))
+    s.blit(body,(mid-r,mid-r))
     return s
 
 def muncher(target, pos, color, direction, time, radius=15, powered=False, safe=False,opacity=255):

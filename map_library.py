@@ -1,4 +1,4 @@
-"""Versioned, explicit authored arenas; none is a verified DX reconstruction.
+"""Versioned explicit arenas with authored and observed-topology provenance.
 
 Geometry uses lane center-lines, not wall-fill pixels. Rendering and collision
 consume the same cells. Map edits are data edits, independent of presentation.
@@ -23,6 +23,7 @@ class MapSpec:
     portals: tuple
     den: tuple
     provenance: str
+    lane_radius: int = 32
 
 
 def parse_catalog(document):
@@ -100,10 +101,13 @@ def parse_catalog(document):
         if not perimeter <= lanes:
             raise ValueError(f'{ident}: incomplete ghost-house perimeter route')
         accent = tuple(raw['accent'])
+        lane_radius = raw.get('lane_radius', 32)
+        if type(lane_radius) is not int or not 17 <= lane_radius <= 36:
+            raise ValueError(f'{ident}: invalid rendered lane radius')
         if len(accent) != 3 or any(type(v) is not int or not 0 <= v <= 255 for v in accent):
             raise ValueError(f'{ident}: invalid accent')
         specs.append(MapSpec(ident, raw['revision'], raw['name'], accent, cols, rows,
-                             lanes, entries, spawns, portals, den, raw['provenance']))
+                             lanes, entries, spawns, portals, den, raw['provenance'], lane_radius))
     if not specs:
         raise ValueError('Empty map catalog')
     return tuple(specs)

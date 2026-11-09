@@ -93,7 +93,7 @@ class GameplayQA(unittest.TestCase):
                     app.count=count;app.theme=theme;app.start()
                     for value in (0,999999,999999999):
                         for p in app.match.players:
-                            p.effects={'Titan':7};p.locate_remaining=2;p.score=value
+                            p.effects={'Titan':7};p.locate_remaining=2 if p.joined else 0;p.score=value
                         expected={(center(app.match.arena.spawns[p.idx])[0],
                                    TOP-5 if app.match.arena.spawns[p.idx][1]==0
                                    else TOP+ROWS*TILE+5) for p in app.match.players}

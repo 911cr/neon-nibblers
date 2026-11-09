@@ -1,0 +1,44 @@
+[
+  {
+    "human_stations": 1,
+    "ai_stations": 7,
+    "video": "gameplay_1_player.mp4",
+    "full_decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues",
+    "profiles": 4,
+    "observed_route_families": 2,
+    "final_capsule_contours": true
+  },
+  {
+    "human_stations": 2,
+    "ai_stations": 6,
+    "video": "gameplay_2_player.mp4",
+    "full_decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues",
+    "profiles": 4,
+    "observed_route_families": 2,
+    "final_capsule_contours": true
+  },
+  {
+    "human_stations": 8,
+    "ai_stations": 0,
+    "video": "gameplay_8_player.mp4",
+    "full_decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues",
+    "profiles": 4,
+    "observed_route_families": 2,
+    "final_capsule_contours": true
+  }
+]

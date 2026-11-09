@@ -32,7 +32,7 @@ def main():
     cues=[]
     try:
         for theme in range(4):
-            app.match=Match(args.players,theme,seed=20+theme);app.reset_visuals();cursor=0
+            app.count=args.players;app.theme=theme;app.seed=20+theme;app.start();cursor=0
             for tick in range(args.seconds*60):
                 if tick==120:app.station_action(0)
                 app.advance(1/60);app.draw(1/60)

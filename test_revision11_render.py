@@ -35,7 +35,7 @@ class RenderQA(unittest.TestCase):
 
     def test_local_ghost_stun_matches_on_both_tunnel_images(self):
         a=self.app;g=a.match
-        g.foes[0]=(0,9);g.foe_modes[0]='roaming';g.foe_zapped[0]=1
+        g.foes[0]=(0,g.arena.portals[0]);g.foe_modes[0]='roaming';g.foe_zapped[0]=1
         calls=[];original=game.foe
         def capture(*args,**kwargs):
             if args[2]==game.COLORS[3]:calls.append(args)
@@ -98,6 +98,30 @@ class RenderQA(unittest.TestCase):
                     self.assertTrue(footer)
                     self.assertTrue(all(game.pg.Rect(0,0,game.W,game.H).contains(rect) for rect in footer))
 
+    def test_timer_and_station_scores_have_disjoint_actual_draw_bounds(self):
+        a=self.app
+        original=game.arcade_digits
+        for theme in range(4):
+            for count in (1,2,8):
+                a.theme=theme;a.count=count;a.start()
+                for score in (999999,123456789):
+                    for player in a.match.players:player.score=score
+                    rectangles=[]
+                    def capture(surface,text,x,y,color,scale=3):
+                        # Actual bitmap digits occupy five columns, with one blank
+                        # column between characters (including the timer colon).
+                        rectangles.append((str(text),game.pg.Rect(x,y,(6*len(str(text))-1)*scale,7*scale)))
+                        return original(surface,text,x,y,color,scale)
+                    with patch.object(game,'arcade_digits',capture):a.draw(0)
+                    timers=[rect for label,rect in rectangles if ':' in label]
+                    scores=[rect for label,rect in rectangles if label==f'{score:06}']
+                    self.assertEqual(len(timers),1)
+                    self.assertEqual(len(scores),count)
+                    for rect in scores:
+                        self.assertFalse(rect.colliderect(timers[0]),(theme,count,score,rect,timers[0]))
+                        self.assertTrue(game.pg.Rect(0,0,game.W,game.H).contains(rect))
+                    self.assertTrue(game.pg.Rect(0,0,game.W,game.TOP).contains(timers[0]))
+
     def test_fire_and_zap_animate_then_freeze_and_remain_clipped(self):
         a=self.app;g=a.match;p=g.players[0]
         p.pos=(5,9);p.direction=(1,0);p.effects={'Flare':3}
@@ -134,7 +158,8 @@ class RenderQA(unittest.TestCase):
             self.assertEqual(g.fire_cells(p),[])
             with patch.object(game,'fire_plume') as plume:a.draw(0)
             plume.assert_not_called()
-            for cell,direction in (((58,9),(1,0)),((0,9),(-1,0))):
+            row=g.arena.portals[0]
+            for cell,direction in (((game.COLS-1,row),(1,0)),((0,row),(-1,0))):
                 p.pos=cell;p.direction=direction;p.effects={};a.visual_positions={}
                 a.draw(0)
                 middle=game.pg.Rect(game.OX+200,game.center(cell)[1]-28,game.COLS*game.TILE-400,56)

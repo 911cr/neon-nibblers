@@ -1,2 +1,2 @@
-Revision11 — animation quality, independent palettes and HD gameplay captures
+Revision12 — observed maze families, AI opponents and complete software lifecycle features
 2026-11-08

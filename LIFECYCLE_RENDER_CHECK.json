@@ -1,0 +1,20 @@
+{
+  "test": "Eight actors grow and shrink, real drawing on SDL dummy surface",
+  "physical_display": false,
+  "frames": 60,
+  "mean_draw_ms": 4.44,
+  "max_draw_ms": 8.612,
+  "p95_draw_ms": 6.471,
+  "template_cache": "CacheInfo(hits=104, misses=8, maxsize=32, currsize=8)",
+  "size_cache": "CacheInfo(hits=377, misses=112, maxsize=256, currsize=112)",
+  "final_radii": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ]
+}

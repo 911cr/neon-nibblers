@@ -54,8 +54,9 @@ class FixedStepper:
         return sounds
 
 
-def record(count=8, theme=0, seed=42, frames=1200, progression='cycle'):
-    match = Match(count, theme, seed, progression=progression)
+def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots=False,rules=None):
+    match = Match(count, theme, seed, progression=progression,rules=rules)
+    if fill_bots:match.fill_vacancies()
     commands = []
     checkpoints = []
     movement = []
@@ -67,9 +68,9 @@ def record(count=8, theme=0, seed=42, frames=1200, progression='cycle'):
             checkpoints.append({'frame': frame + 1, 'digest': digest(match)})
         if (frame + 1) % 6 == 0 or frame + 1 == frames:
             movement.append(movement_sample(match))
-    return {'schema_version': 1, 'step': STEP,
+    return {'schema_version': 1, 'step': STEP,'fill_bots':fill_bots,
             'initial': {'count': count, 'theme': theme, 'seed': seed,
-                        'score_values': match.score_values, 'progression': progression},
+                          'score_values': match.score_values, 'progression': progression,'rules':match.rules},
             'commands': commands, 'checkpoints': checkpoints, 'movement_trace': movement,
             'events': match.ledger.events, 'final_digest': digest(match)}
 
@@ -78,6 +79,7 @@ def replay(document):
     if document.get('schema_version') != 1 or document.get('step') != STEP:
         raise ValueError('Unsupported replay schema or simulation step')
     match = Match(**document['initial'])
+    if document.get('fill_bots',False):match.fill_vacancies()
     checkpoints = {item['frame']: item['digest'] for item in document.get('checkpoints', [])}
     movement = {item['tick']: item for item in document.get('movement_trace', [])}
     for frame, command in enumerate(document['commands'], 1):
@@ -111,10 +113,11 @@ def main():
     parser.add_argument('--theme', type=int, choices=range(4), default=0)
     parser.add_argument('--seconds', type=float, default=20)
     parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--fill-bots',action='store_true',help='Fill vacant stations with AI opponents.')
     args = parser.parse_args()
     if args.action == 'record':
         if not 0 < args.seconds <= 180: parser.error('Seconds must be in (0, 180]')
-        data = record(args.players, args.theme, args.seed, round(args.seconds * 60))
+        data = record(args.players, args.theme, args.seed, round(args.seconds * 60),fill_bots=args.fill_bots)
         args.path.write_text(json.dumps(data, indent=2), encoding='utf-8')
     else:
         data = json.loads(args.path.read_text(encoding='utf-8'))

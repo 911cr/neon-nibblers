@@ -18,6 +18,7 @@ class LedgerTests(unittest.TestCase):
             p.entry = p.safe = p.stun = 0
             p.direction = p.wanted = (0, 0)
         g.foe_modes = ['house'] * 4
+        g.dots.difference_update(p.pos for p in g.players)
         return g
 
     def check_total(self, g):
@@ -208,7 +209,7 @@ class LedgerTests(unittest.TestCase):
             self.assertEqual(app.match.tick, 1)
             self.assertAlmostEqual(player.locate_remaining, app.locator_seconds-1/60)
             self.assertEqual([p.idx for p in app.match.players if p.joined], [7])
-            self.assertTrue(all(p.lives == 0 and p.score == 0
+            self.assertTrue(all(p.bot and p.lives == app.match.rules['starting_lives'] and p.score == 0
                                 for p in app.match.players if not p.joined))
         finally: pg.quit()
 

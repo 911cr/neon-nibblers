@@ -21,8 +21,7 @@ app.simulate_controllers=args.simulate_controllers
 single=args.quick or args.players is not None
 for theme in (range(4) if args.tour or not single else (args.theme,)):
     for count in ((args.players or 8,) if single else (1,2,8)):
-        app.match=Match(count,theme,seed=20+theme)
-        app.reset_visuals()
+        app.count=count;app.theme=theme;app.seed=20+theme;app.start()
         # Capture 6 simulation seconds per scenario at 12 frames per second.
         for tick in range(args.seconds*60 if single else 360):
             if tick==120:

@@ -1,5 +1,7 @@
 """Headless integration and deterministic rule checks. No controller required."""
 import os
+from pathlib import Path
+os.environ['NEON_NIBBLERS_DATA']=str(Path.cwd()/'work'/'automated-test-profile')
 os.environ['SDL_VIDEODRIVER']='dummy'
 os.environ['SDL_AUDIODRIVER']='dummy'
 import unittest
@@ -14,7 +16,7 @@ class Smoke(unittest.TestCase):
             while todo:
                 c=todo.pop()
                 for d in DIRS:
-                    n=add(c,d)
+                    n=a.step(c,d)
                     if n in a.floor and n not in seen: seen.add(n); todo.append(n)
             self.assertEqual(seen,a.floor)
 
@@ -118,7 +120,8 @@ class Smoke(unittest.TestCase):
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_0+count))
             app.events(); self.assertEqual(app.count,count)
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_RETURN))
-            app.events(); self.assertEqual(len(app.match.players),count)
+            app.events(); self.assertEqual(sum(p.joined for p in app.match.players),count)
+            self.assertEqual(len(app.match.players),8)
             app.match.players[0].pos=(1,1)
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_RIGHT))
             app.events(); app.match.update(.16)
@@ -152,8 +155,9 @@ class Smoke(unittest.TestCase):
         for theme in range(4):
             g=Match(2,theme,seed=4); g.items.clear(); g.foes=[]
             p,q=g.players
-            p.pos=(0,9); p.direction=p.wanted=(-1,0)
-            g.update(.11); self.assertEqual(p.pos,(COLS-1,9))
+            row=g.arena.portals[0]
+            p.pos=(0,row); p.direction=p.wanted=(-1,0)
+            g.update(.11); self.assertEqual(p.pos,(COLS-1,row))
             p.safe=q.safe=0; p.pos=q.pos=(1,1)
             p.effects['Crown']=7
             g.combat(); self.assertEqual(q.lives,3)
@@ -186,7 +190,7 @@ class Smoke(unittest.TestCase):
         pg.init()
         for theme in range(4):
             arena=Arena(theme)
-            art=maze_background(arena.floor,COLS,ROWS,TILE,THEMES[theme][1])
+            art=maze_background(arena.floor,COLS,ROWS,TILE,THEMES[theme][1],arena.lane_radius)
             for x,y in arena.lanes:
                 self.assertFalse(all(c in arena.lanes for c in ((x+1,y),(x,y+1),(x+1,y+1))),
                                  'A two-lane open square must never be generated')
@@ -231,12 +235,14 @@ class Smoke(unittest.TestCase):
     def test_ghost_house_departure_and_continuous_return(self):
         for theme in range(4):
             g=Match(1,theme,seed=11)
-            self.assertTrue(all(15<=f[1]<=19 for f in g.foes))
+            self.assertEqual(tuple(g.foes),g.arena.homes)
+            dx,dy,dw,dh=g.arena.den
+            self.assertTrue(all(dx<=x<dx+dw and dy<=y<dy+dh for x,y in g.foes))
             for _ in range(90): g.update_foes(.16)
             self.assertEqual(g.foe_modes,['roaming']*4)
             self.assertTrue(all(f in g.arena.lanes for f in g.foes))
             for i in range(4):
-                g.foes[i]=(25,13); g.reset_foe(i)
+                g.foes[i]=g.arena.exit; g.reset_foe(i)
             saw_enter=[False]*4; saw_house=[False]*4
             for _ in range(100):
                 old=list(g.foes); g.update_foes(.16)
@@ -339,7 +345,8 @@ class Smoke(unittest.TestCase):
         from unittest.mock import patch
         import game
         app=App(); app.count=1; app.start(); p=app.match.players[0]
-        p.pos=(1,9); p.effects={'Titan':7,'Veil':7}; p.entry=0
+        p.pos=(1,app.match.arena.portals[0]); p.effects={'Titan':7,'Veil':7}; p.entry=0
+        app.draw(.25)  # Allow the new presentation-only growth tween to finish.
         calls=[]
         original=game.muncher
         def capture(*args,**kwargs):

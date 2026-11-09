@@ -1,3 +1,22 @@
+# DX map catalog — revision 12 current status
+
+Two layouts are now independently reconstructed from complete, same-camera DX spectator-screen frames. All four selectable profiles use these two families with original palettes; unsupported authored maze geometries have been retired. **This is not the full commercial catalog, and geometry is quantized rather than pixel-exact.**
+
+| Slot / ID | Current name / revision | Lane cells | Tunnel rows | Evidence |
+|---|---|---:|---|---|
+| 0 / golden-junction | Golden Archway / 3 | 582 | 5,25 | Observed family A at1:08; original gold palette |
+| 1 / violet-switchback | Violet Crosscurrent / 3 | 569 | 17 | Observed topology B at [1:13](https://www.youtube.com/watch?v=-cNOhumVZ74&t=73s); violet palette is original |
+| 2 / ember-crossroads | Ember Crosscurrent / 3 | 569 | 17 | Observed family B at1:13; original ember palette |
+| 3 / cyan-circuit | Cyan Archway / 3 | 582 | 5,25 | Observed topology A at [1:08](https://www.youtube.com/watch?v=-cNOhumVZ74&t=68s) |
+
+Both observed layouts use den `(25,15,9,5)`, top and bottom bay columns `6,20,38,52`, and a 26px rendered lane radius. Both source layouts appear cyan; color does not identify topology. The source changes from lower-left counter 8 to 9 between these frames. The exact transition trigger, dwell interval, full number/order of maps, map names and color policy remain unverified. These are not inferred from the counter alone.
+
+Independent manual wall-center traces were converted to explicit single-line corridor graphs, then checked against normalized source frames. Original art/code remain procedural. No commercial screenshot is included in the runnable app. Camera perspective, estimated screen corners and movement-grid quantization introduce coordinate uncertainty. Local glare hides the upper endpoint of the wall immediately left of the house and the house doorway; those portions are inferred from adjoining contours and complementary frames. See `audits/revision12_maps.md` for both QA passes and remaining differences.
+
+---
+
+## Historical catalog and investigation (superseded counts retained below)
+
 # DX map research and the authored map catalog
 
 Updated 2026-11-08. Baseline: `0f9c3c98e097d2fb16b058896ba872b31783d2ed` (revision 7).

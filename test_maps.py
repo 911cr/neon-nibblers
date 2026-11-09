@@ -12,26 +12,87 @@ class MapTests(unittest.TestCase):
     def document(self):
         return json.loads(Path(__file__).with_name('maps.json').read_text(encoding='utf-8'))
 
-    def test_catalog_versions_and_authored_provenance(self):
-        # First three retain the migration baseline; cyan v2 is a local correction.
-        self.assertEqual([len(m.lanes) for m in catalog()], [577, 589, 579, 578])
-        self.assertEqual([m.revision for m in catalog()], [1, 1, 1, 2])
-        self.assertEqual(len({m.lanes for m in catalog()}), 4)
+    def test_catalog_versions_and_explicit_provenance(self):
+        self.assertEqual([len(m.lanes) for m in catalog()], [582, 569, 569, 582])
+        self.assertEqual([m.revision for m in catalog()], [3, 3, 3, 3])
+        self.assertEqual(len({m.lanes for m in catalog()}), 2)
         for index, spec in enumerate(catalog()):
             self.assertEqual(get_map(index + 4), spec)
-            self.assertIn('not a recovered DX map', spec.provenance)
+            self.assertIn('Independent topology reconstruction', spec.provenance)
+            self.assertIn('Not an exact commercial map', spec.provenance)
+            self.assertEqual(spec.lane_radius, 26)
+        self.assertEqual(get_map(0).lanes, get_map(3).lanes)
+        self.assertEqual(get_map(1).lanes, get_map(2).lanes)
+        records = self.document()['maps']
+        self.assertEqual([r['layout_family'] for r in records],
+                         ['observed-A', 'observed-B', 'observed-B', 'observed-A'])
+        self.assertEqual(len({tuple(r['accent']) for r in records}), 4)
 
-    def test_cyan_house_perimeter_and_separate_vertical_walls(self):
-        spec = get_map(3)
-        perimeter = ({(x, y) for x in (21, 33) for y in range(13, 22)} |
-                     {(x, y) for x in range(21, 34) for y in (13, 21)})
-        self.assertTrue(perimeter <= spec.lanes)
-        # Two separate narrow wall islands to the right of the house, with
-        # single center-line corridors between them and around their ends.
-        self.assertFalse({(x, y) for x in range(34, 37) for y in range(10, 21)} & spec.lanes)
-        self.assertFalse({(x, y) for x in range(38, 41) for y in range(10, 25)} & spec.lanes)
-        self.assertTrue({(37, y) for y in range(9, 26)} <= spec.lanes)
-        self.assertTrue({(41, y) for y in range(9, 26)} <= spec.lanes)
+    def test_observed_layout_landmarks_and_gate_positions(self):
+        a, b = get_map(3), get_map(1)
+        self.assertEqual(a.portals, (5, 25))
+        self.assertEqual(b.portals, (17,))
+        for spec in (a, b):
+            self.assertEqual(spec.den, (25, 15, 9, 5))
+            self.assertEqual({x for x, y in spec.entries}, {6, 20, 38, 52})
+        # A: the upper central arch separates inside/outside horizontal routes.
+        self.assertNotIn((22, 5), a.lanes)
+        self.assertTrue({(x, 5) for x in range(24, 36)} <= a.lanes)
+        # B: central T divides top flow; only its flanks connect vertically.
+        self.assertNotIn((29, 5), b.lanes)
+        self.assertIn((24, 5), b.lanes)
+        self.assertIn((35, 5), b.lanes)
+        self.assertNotEqual(a.lanes, b.lanes)
+        for index in range(4):
+            record = self.document()['maps'][index]
+            self.assertTrue(record['observations'][0]['inferred_regions'])
+            self.assertIn('-cNOhumVZ74', record['observations'][0]['source'])
+
+    def test_actual_radius_keeps_visible_routes_and_thin_wall_stems(self):
+        os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
+        os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
+        import pygame as pg
+        from arcade_art import maze_background
+        from game import Arena, DIRS, TILE, COLS, ROWS
+        pg.init()
+        try:
+            backgrounds = {}
+            for index, spec in enumerate(catalog()):
+                a = Arena(index)
+                art = maze_background(a.space, COLS, ROWS, TILE, spec.accent, spec.lane_radius)
+                backgrounds[index] = art
+                # Both observed families have a single-contour upper-left capsule.
+                # A broad-island inset heuristic must not add interior rectangles.
+                contour_y = [y for y in range(40, 100)
+                             if tuple(art.get_at((150, y)))[:3] == spec.accent]
+                runs = sum(i == 0 or y != contour_y[i-1]+1
+                           for i, y in enumerate(contour_y))
+                self.assertEqual(runs, 2, (spec.id, 'extra capsule contours', contour_y))
+                for x, y in a.lanes:
+                    for direction in DIRS:
+                        nxt = a.step((x, y), direction)
+                        if nxt not in a.lanes or abs(nxt[0]-x)+abs(nxt[1]-y) != 1:
+                            continue
+                        for t in range(TILE):
+                            pixel = (x*TILE+10+direction[0]*t, y*TILE+10+direction[1]*t)
+                            self.assertEqual(tuple(art.get_at(pixel))[:3], (0, 0, 4),
+                                             (spec.id, (x, y), nxt, pixel))
+            # These narrow stems disappeared with a 26px carve plus 5px rounding.
+            # Pin both continuity and actual rendered pixels, not just graph data.
+            for index, x, y0, y1 in ((3, 440, 320, 380), (3, 740, 90, 130),
+                                      (1, 580, 100, 200)):
+                for y in range(y0, y1+1):
+                    self.assertNotEqual(tuple(backgrounds[index].get_at((x, y)))[:3], (0, 0, 4),
+                                        ('missing wall stem', index, x, y))
+        finally:
+            pg.quit()
+
+    def test_invalid_lane_radius_is_rejected(self):
+        for radius in (0, 16, 37, True, 26.5):
+            doc = self.document()
+            doc['maps'][0]['lane_radius'] = radius
+            with self.subTest(radius=radius), self.assertRaises(ValueError):
+                parse_catalog(doc)
 
     def test_every_map_house_loop_and_door_are_traversable(self):
         from game import Arena, DIRS

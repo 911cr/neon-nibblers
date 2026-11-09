@@ -1,4 +1,5 @@
-REVISION11:110 tests PASS Windows;110 tests PASS Ubuntu.
-Animation8+render10 newtests; prior92checks retained.
-All4maps ×1/2/8 native render scenarios perOS; see NATIVE_REVISION11_*.json.
-Finalvideo encode/decode and extractedZIP checks recorded separately. Physicalcontrollers productiondeferred.
+REVISION12:151 local Windows tests PASS;151 local Ubuntu tests PASS.
+12 full automated human/AI matches completed; all score totals and human rankings reconciled.
+Native1/2/8 checks on all4profiles for bothOS; native game+spectator pairs passedWindows/UbuntuWSLg.
+Lifecycle/render/cabinet/bot two-pass QA and corrected failures documented.
+Physical controllers productiondeferred. ExactDXevidence gaps documented; no blanket perfectmatchclaim.

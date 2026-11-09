@@ -40,7 +40,7 @@ class Stations(unittest.TestCase):
         self.assertEqual([r['player_id'] for r in g.rankings()],[8])
         self.app.advance(1)
         self.assertFalse(g.over)
-        self.assertTrue(all(p.lives==0 for p in g.players[:7]))
+        self.assertTrue(all(p.bot and not p.joined and p.lives>0 for p in g.players[:7]))
         self.app.draw()
 
     def test_simultaneous_start_buttons_join_every_station_once(self):
@@ -121,7 +121,7 @@ class Stations(unittest.TestCase):
         self.app.bindings=b; self.app.count=2; self.app.start()
         with patch.object(pg.key,'get_pressed',return_value=defaultdict(bool)):
             self.app.inputs()
-        self.assertEqual([p.wanted for p in self.app.match.players],[(1,0),(-1,0)])
+        self.assertEqual([p.wanted for p in self.app.match.players if p.joined],[(1,0),(-1,0)])
 
     def test_identical_guid_reconnect_requires_explicit_pair(self):
         b=self.app.bindings
@@ -227,7 +227,7 @@ class Stations(unittest.TestCase):
             marks=[tuple(self.app.canvas.get_at((left+20,y)))[:3]==accent for y in range(top-10,top+10)]
             runs=sum(mark and (i==0 or not marks[i-1]) for i,mark in enumerate(marks))
             self.assertEqual(runs,2)
-            door_x=center((27,15))[0]
+            door_x=center(g.arena.door)[0]
             self.assertEqual(tuple(self.app.canvas.get_at((door_x,top+4)))[:3],(0,0,4))
 
 if __name__=='__main__': unittest.main(verbosity=2)
