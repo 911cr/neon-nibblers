@@ -1,0 +1,410 @@
+[
+  {
+    "profile": 0,
+    "human_stations": 1,
+    "ai_stations": 7,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4747,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 14645,
+        "lives": 2
+      }
+    ]
+  },
+  {
+    "profile": 0,
+    "human_stations": 2,
+    "ai_stations": 6,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4746,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 14645,
+        "lives": 2
+      },
+      {
+        "rank": 2,
+        "player_id": 2,
+        "score": 12985,
+        "lives": 3
+      }
+    ]
+  },
+  {
+    "profile": 0,
+    "human_stations": 8,
+    "ai_stations": 0,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4740,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 5,
+        "score": 15935,
+        "lives": 5
+      },
+      {
+        "rank": 2,
+        "player_id": 1,
+        "score": 14645,
+        "lives": 2
+      },
+      {
+        "rank": 3,
+        "player_id": 2,
+        "score": 12985,
+        "lives": 3
+      },
+      {
+        "rank": 4,
+        "player_id": 7,
+        "score": 12940,
+        "lives": 4
+      },
+      {
+        "rank": 5,
+        "player_id": 8,
+        "score": 11240,
+        "lives": 4
+      },
+      {
+        "rank": 6,
+        "player_id": 3,
+        "score": 10505,
+        "lives": 4
+      },
+      {
+        "rank": 7,
+        "player_id": 6,
+        "score": 5400,
+        "lives": 0
+      },
+      {
+        "rank": 8,
+        "player_id": 4,
+        "score": 5380,
+        "lives": 0
+      }
+    ]
+  },
+  {
+    "profile": 1,
+    "human_stations": 1,
+    "ai_stations": 7,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4790,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 13820,
+        "lives": 5
+      }
+    ]
+  },
+  {
+    "profile": 1,
+    "human_stations": 2,
+    "ai_stations": 6,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4789,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 2,
+        "score": 15760,
+        "lives": 4
+      },
+      {
+        "rank": 2,
+        "player_id": 1,
+        "score": 13820,
+        "lives": 5
+      }
+    ]
+  },
+  {
+    "profile": 1,
+    "human_stations": 8,
+    "ai_stations": 0,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4783,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 5,
+        "score": 17235,
+        "lives": 5
+      },
+      {
+        "rank": 2,
+        "player_id": 2,
+        "score": 15760,
+        "lives": 4
+      },
+      {
+        "rank": 3,
+        "player_id": 1,
+        "score": 13820,
+        "lives": 5
+      },
+      {
+        "rank": 4,
+        "player_id": 7,
+        "score": 12620,
+        "lives": 4
+      },
+      {
+        "rank": 5,
+        "player_id": 8,
+        "score": 9690,
+        "lives": 0
+      },
+      {
+        "rank": 6,
+        "player_id": 6,
+        "score": 9660,
+        "lives": 0
+      },
+      {
+        "rank": 7,
+        "player_id": 4,
+        "score": 7255,
+        "lives": 0
+      },
+      {
+        "rank": 8,
+        "player_id": 3,
+        "score": 6815,
+        "lives": 0
+      }
+    ]
+  },
+  {
+    "profile": 2,
+    "human_stations": 1,
+    "ai_stations": 7,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4816,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 12830,
+        "lives": 1
+      }
+    ]
+  },
+  {
+    "profile": 2,
+    "human_stations": 2,
+    "ai_stations": 6,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4815,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 12830,
+        "lives": 1
+      },
+      {
+        "rank": 2,
+        "player_id": 2,
+        "score": 8495,
+        "lives": 0
+      }
+    ]
+  },
+  {
+    "profile": 2,
+    "human_stations": 8,
+    "ai_stations": 0,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4809,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 6,
+        "score": 19055,
+        "lives": 1
+      },
+      {
+        "rank": 2,
+        "player_id": 4,
+        "score": 14025,
+        "lives": 3
+      },
+      {
+        "rank": 3,
+        "player_id": 8,
+        "score": 13490,
+        "lives": 5
+      },
+      {
+        "rank": 4,
+        "player_id": 1,
+        "score": 12830,
+        "lives": 1
+      },
+      {
+        "rank": 5,
+        "player_id": 5,
+        "score": 12705,
+        "lives": 3
+      },
+      {
+        "rank": 6,
+        "player_id": 3,
+        "score": 8980,
+        "lives": 0
+      },
+      {
+        "rank": 7,
+        "player_id": 2,
+        "score": 8495,
+        "lives": 0
+      },
+      {
+        "rank": 8,
+        "player_id": 7,
+        "score": 7260,
+        "lives": 0
+      }
+    ]
+  },
+  {
+    "profile": 3,
+    "human_stations": 1,
+    "ai_stations": 7,
+    "ended": true,
+    "simulated_seconds": 169.8,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4507,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 14295,
+        "lives": 0
+      }
+    ]
+  },
+  {
+    "profile": 3,
+    "human_stations": 2,
+    "ai_stations": 6,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4630,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 14295,
+        "lives": 0
+      },
+      {
+        "rank": 2,
+        "player_id": 2,
+        "score": 12980,
+        "lives": 1
+      }
+    ]
+  },
+  {
+    "profile": 3,
+    "human_stations": 8,
+    "ai_stations": 0,
+    "ended": true,
+    "simulated_seconds": 180.0,
+    "stage": 8,
+    "all_eight_moved": true,
+    "events": 4624,
+    "rankings": [
+      {
+        "rank": 1,
+        "player_id": 1,
+        "score": 14295,
+        "lives": 0
+      },
+      {
+        "rank": 2,
+        "player_id": 5,
+        "score": 13635,
+        "lives": 4
+      },
+      {
+        "rank": 3,
+        "player_id": 8,
+        "score": 13545,
+        "lives": 3
+      },
+      {
+        "rank": 4,
+        "player_id": 2,
+        "score": 12980,
+        "lives": 1
+      },
+      {
+        "rank": 5,
+        "player_id": 7,
+        "score": 12960,
+        "lives": 4
+      },
+      {
+        "rank": 6,
+        "player_id": 3,
+        "score": 12650,
+        "lives": 3
+      },
+      {
+        "rank": 7,
+        "player_id": 4,
+        "score": 7640,
+        "lives": 0
+      },
+      {
+        "rank": 8,
+        "player_id": 6,
+        "score": 5600,
+        "lives": 0
+      }
+    ]
+  }
+]

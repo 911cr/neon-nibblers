@@ -1,2 +1,2 @@
-Revision12 — observed maze families, AI opponents and complete software lifecycle features
+Revision13 — rounded observed mazes, scoring accounts, safer AI, tunable powers, survival and initials
 2026-11-08

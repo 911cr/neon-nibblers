@@ -16,6 +16,8 @@ from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits,
 from arcade_audio import ArcadeAudio
 from cabinet import CabinetStore, spectator_view, atomic_json
 from presentation import LifecyclePresentation
+from gameplay_tuning import validate_tuning, load_tuning
+from arcade_ai import choose_direction
 
 W, H, TILE, TOP = 1280, 720, 20, 45
 COLS, ROWS = 59, 31
@@ -29,11 +31,11 @@ SPAWN_INTERVAL=3.0  # Custom tuning; commercial cadence is not published.
 MAX_ITEMS=12
 ITEM_STEP_INTERVAL=.24
 ITEMS = {
- 'Crown': ('CR','Hunt foes for 7s.'),
- 'Titan': ('TI','Grow giant and eat smaller rivals for 7s.'),
- 'Rush': ('RU','Move faster for 7s.'),
+ 'Crown': ('CR','Hunt foes.'),
+ 'Titan': ('TI','Grow giant and eat smaller rivals.'),
+ 'Rush': ('RU','Move faster.'),
  'Mist': ('MI','Leave a smoke trail that slows foes.'),
- 'Slick': ('SL','Skid uncontrollably for 2 seconds.'),
+ 'Slick': ('SL','Skid uncontrollably.'),
  'Spark': ('SP','Zap nearby rivals and foes.'),
  'Veil': ('VE','Ghosts cannot track you; rivals still can.'),
  'Flare': ('FL','Breathe fire down your corridor.'),
@@ -96,11 +98,12 @@ class Arena:
         return target
 
 class Match:
-    def __init__(self, count=2, theme=0, seed=None, score_values=None, progression='cycle',rules=None):
+    def __init__(self, count=2, theme=0, seed=None, score_values=None, progression='cycle',rules=None,tuning=None):
         if not 0 <= count <= 8: raise ValueError('Player count must be 0..8')
         if progression not in ('cycle', 'repeat', 'random'): raise ValueError('Unknown progression policy')
         self.progression = progression
         self.rules=CabinetStore.validate(rules or {})
+        self.tuning=validate_tuning(tuning)
         self.seed = seed if seed is not None else random.SystemRandom().randrange(2**63)
         self.rng = random.Random(self.seed)
         self.elapsed = 0.; self.tick = 0
@@ -118,7 +121,7 @@ class Match:
         self.players = [Player(i,(0,0),lives=self.rules['starting_lives']) for i in range(count)]
         self.new_arena(theme)
         self.ledger.append(self, 'match_start', seed=self.seed, count=count,
-                           theme=theme, score_values=self.score_values, progression=progression,rules=self.rules)
+                           theme=theme, score_values=self.score_values, progression=progression,rules=self.rules,tuning=self.tuning)
 
     def award(self, player, event, **context):
         """One score mutation path, shared by HUD totals, traces and replay checks."""
@@ -217,14 +220,14 @@ class Match:
         self.foe_stun = 0.
         self.foe_clock=0.
         for c in ((1,1),(COLS-2,1),(1,ROWS-2),(COLS-2,ROWS-2)):
-            if c in self.arena.floor: self.items[c]='Crown'
+            if c in self.arena.floor and len(self.items)<self.tuning['max_items']: self.items[c]='Crown'
         for anchor in ((COLS//2,9),(COLS//2,21)):
             c=min(self.arena.lanes,key=lambda c:(distance(c,anchor),c))
-            self.items[c]='Titan'
+            if len(self.items)<self.tuning['max_items']:self.items[c]='Titan'
         for name in self.rng.sample([k for k in ITEMS if k not in ('Crown','Titan')],3): self.spawn_item(name)
 
     def spawn_item(self, name=None):
-        if len(self.items)>=MAX_ITEMS: return
+        if len(self.items)>=self.tuning['max_items']: return
         cells = sorted(self.arena.lanes - set(self.items) - {p.pos for p in self.players})
         if cells: self.items[self.rng.choice(cells)] = name or self.rng.choice(list(ITEMS))
 
@@ -270,8 +273,9 @@ class Match:
     def update_foes(self, dt, age=True):
         self.sync_carriers()
         if age: self.age_foes(dt)
-        if self.foe_clock+1e-10<.16: return
-        self.foe_clock=max(0.,self.foe_clock-.16)%.16
+        interval=self.tuning['ghost_step_seconds']
+        if self.foe_clock+1e-10<interval: return
+        self.foe_clock=max(0.,self.foe_clock-interval)%interval
         for i,f in enumerate(self.foes):
             mode=self.foe_modes[i]
             if mode=='carried':
@@ -304,10 +308,10 @@ class Match:
                     self.foe_modes[i]='entering'
                 else: self.foes[i]=self.next_toward(f,self.arena.exit)
                 continue
-            slow=2 if self.quake>0 else 1
-            if any(distance(f,c)<=2 for c in self.smoke): slow*=2
-            if self.foe_stun>0 or self.foe_zapped[i]>0 or self.foe_ticks[i]+1e-10<.16*slow: continue
-            self.foe_ticks[i]=max(0.,self.foe_ticks[i]-.16*slow)%(.16*slow)
+            slow=self.tuning['quake_multiplier'] if self.quake>0 else 1
+            if any(distance(f,c)<=self.tuning['smoke_radius'] for c in self.smoke): slow*=self.tuning['smoke_multiplier']
+            if self.foe_stun>0 or self.foe_zapped[i]>0 or self.foe_ticks[i]+1e-10<interval*slow: continue
+            self.foe_ticks[i]=max(0.,self.foe_ticks[i]-interval*slow)%(interval*slow)
             targets=[p for p in self.players if p.lives>0 and p.pos in self.arena.lanes
                      and not self.active(p,'Veil')]
             options=[self.arena.step(f,d) for d in DIRS if self.arena.step(f,d) in self.arena.lanes]
@@ -332,7 +336,9 @@ class Match:
         return True
 
     def collect(self,p,name):
-        self.award(p, 'pickup', power=name)
+        duration=self.tuning['durations'].get(name,0.)
+        self.award(p, 'pickup', power=name, duration=duration,
+                   expires_at=round(self.elapsed+duration,9) if duration else None)
         p.last = name
         if name == 'Heart':
             old_lives = p.lives
@@ -341,18 +347,16 @@ class Match:
         elif name=='Spark':
             self.zaps.append((p.pos,.5))
             for q in self.players:
-                if q is not p and q.lives>0 and distance(q.pos,p.pos)<=8: q.stun=2.
+                if q is not p and q.lives>0 and distance(q.pos,p.pos)<=self.tuning['spark_radius']: q.stun=duration
             for i,f in enumerate(self.foes):
-                if distance(f,p.pos)<=8: self.foe_zapped[i]=2.
-        elif name=='Quake': self.quake=5.
-        elif name=='Slick': p.effects[name]=2.
-        elif name=='Flare': p.effects[name]=3.
-        else: p.effects[name]=7.
+                if distance(f,p.pos)<=self.tuning['spark_radius']: self.foe_zapped[i]=duration
+        elif name=='Quake': self.quake=duration
+        elif name!='Heart': p.effects[name]=duration
 
     def fire_cells(self, p):
         cells=[]; c=p.pos
         if p.direction==(0,0): return cells
-        for _ in range(5):
+        for _ in range(self.tuning['flame_cells']):
             c=self.arena.step(c,p.direction)
             if c not in self.arena.lanes: break
             cells.append(c)
@@ -493,9 +497,9 @@ class Match:
                 continue
             p.entry=0
             p.clock+=dt
-            speed=.065 if self.active(p,'Rush') else .10
-            if self.active(p,'Slick'): speed=.055
-            if self.quake>0: speed*=2
+            speed=self.tuning['rush_step_seconds'] if self.active(p,'Rush') else self.tuning['player_step_seconds']
+            if self.active(p,'Slick'): speed=self.tuning['slick_step_seconds']
+            if self.quake>0: speed*=self.tuning['quake_multiplier']
             if p.clock+1e-10>=speed:
                 p.clock=max(0.,p.clock-speed)%speed
                 if self.active(p,'Slick'):
@@ -503,7 +507,7 @@ class Match:
                         options=[d for d in DIRS if self.arena.can_enter(self.arena.step(p.pos,d),p)]
                         if options: p.direction=self.rng.choice(options)
                 elif self.arena.can_enter(self.arena.step(p.pos,p.wanted),p): p.direction=p.wanted
-                if self.active(p,'Mist') and p.pos in self.arena.lanes: self.smoke[p.pos]=2.5
+                if self.active(p,'Mist') and p.pos in self.arena.lanes: self.smoke[p.pos]=self.tuning['smoke_seconds']
                 if self.arena.can_enter(self.arena.step(p.pos,p.direction),p): p.pos=self.arena.step(p.pos,p.direction)
                 if p.pos in self.dots:
                     self.dots.remove(p.pos); self.award(p, 'dot'); sounds.append('dot')
@@ -522,12 +526,14 @@ class Match:
             if t<=dt: del self.traps[cell]
             else: self.traps[cell]=(owner,t-dt)
         self.item_clock+=dt
-        if self.item_clock+1e-10>=SPAWN_INTERVAL:
-            self.item_clock=max(0.,self.item_clock-SPAWN_INTERVAL)%SPAWN_INTERVAL
-            if len(self.items)<MAX_ITEMS: self.spawn_item()
+        spawn_interval=self.tuning['spawn_seconds']
+        if self.item_clock+1e-10>=spawn_interval:
+            self.item_clock=max(0.,self.item_clock-spawn_interval)%spawn_interval
+            if len(self.items)<self.tuning['max_items']: self.spawn_item()
         self.item_walk_clock+=dt
-        if self.item_walk_clock+1e-10>=ITEM_STEP_INTERVAL:
-            self.item_walk_clock=max(0.,self.item_walk_clock-ITEM_STEP_INTERVAL)%ITEM_STEP_INTERVAL
+        item_interval=self.tuning['item_step_seconds']
+        if self.item_walk_clock+1e-10>=item_interval:
+            self.item_walk_clock=max(0.,self.item_walk_clock-item_interval)%item_interval
             moved={}; directions={}
             occupied=set(self.items)
             for cell,name in list(self.items.items()):
@@ -543,9 +549,9 @@ class Match:
             self.items=moved; self.item_directions=directions
             self.collect_contacts(sounds)
             self.award_score_lives()
-        if self.time<=0 or not any(p.joined and p.lives>0 for p in self.players):
+        if self.rules['match_seconds']>0 and self.time<=0 or not any(p.joined and p.lives>0 for p in self.players):
             self.over=True
-            self.ledger.append(self, 'match_end', reason='time' if self.time<=0 else 'elimination', rankings=self.rankings())
+            self.ledger.append(self, 'match_end', reason='time' if self.rules['match_seconds']>0 and self.time<=0 else 'elimination', rankings=self.rankings())
         elif not self.dots:
             for p in self.players:
                 if p.lives>0: self.award(p, 'stage_clear')
@@ -590,12 +596,14 @@ class App:
         self.fixed_accumulator=0.; self.ledger_cursor=0
         self.locator_seconds=2.0  # Original timing unknown; configurable approximation.
         self.seed=None; self.progression='cycle'; self.pair_error=''
+        self.tuning=validate_tuning()
+        self.untimed=False
         self.palette_override=None  # Presentation is independent of maze topology.
         self.cabinet=cabinet if cabinet is not None else CabinetStore()
         self.operator_open=False;self.operator_index=0;self.operator_draft={}
         self.status_notice='';self.scores_open=False;self.idle_time=0.
         self.session_id=str(uuid.uuid4());self.spectator_path=None;self.publish_clock=0.
-        self.pending_results=[];self.next_save_retry=0.
+        self.pending_results=[];self.next_save_retry=0.;self.name_entry=None
         self.presentation=LifecyclePresentation()
         self.demo=False; self.visual_positions={}; self.animation_time=0.
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
@@ -653,7 +661,7 @@ class App:
         if needs_join and not self.cabinet.pay(1):
             self.status_notice='Insert credit: press C in the lobby.';return
         if self.phase in (Phase.ATTRACT,Phase.RESULTS):
-            self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.cabinet.settings)
+            self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning)
             self.session_id=str(uuid.uuid4())
             self.reset_visuals()
         if idx>=len(self.match.players) or not self.match.players[idx].joined:
@@ -670,6 +678,9 @@ class App:
             if e.type in (pg.KEYDOWN,pg.JOYBUTTONDOWN,pg.MOUSEBUTTONDOWN):
                 self.idle_time=0.;self.attract_page=None
             if e.type==pg.QUIT: self.running=False
+            if self.name_entry is not None:
+                if e.type==pg.KEYDOWN:self.name_entry_event(e)
+                continue
             if self.operator_open:
                 if e.type==pg.KEYDOWN:self.operator_event(e.key)
                 continue
@@ -685,6 +696,8 @@ class App:
                 elif iid in self.bindings.by_instance:
                     self.station_action(self.bindings.by_instance[iid])
             if e.type!=pg.KEYDOWN: continue
+            if e.key==pg.K_n and self.match and self.match.over:
+                self.begin_name_entry();continue
             if e.key==pg.K_F11 and (not self.match or self.match.over):
                 self.operator_open=True;self.operator_draft=dict(self.cabinet.settings);continue
             if e.key==pg.K_c and not self.match:
@@ -725,11 +738,16 @@ class App:
         self.save_result()
         if not self.cabinet.pay(self.count):
             self.status_notice=f'{self.count} credits needed. Press C in the lobby.';return False
-        self.match=Match(self.count,self.theme,seed=self.seed,progression=self.progression,rules=self.cabinet.settings); self.help=False
+        self.match=Match(self.count,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning); self.help=False
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
-        self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice=''
+        self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice='';self.name_entry=None
         self.reset_visuals()
         return True
+
+    def match_rules(self):
+        rules=dict(self.cabinet.settings)
+        if self.untimed:rules['match_seconds']=0
+        return rules
 
     def save_result(self,force=True):
         queued={token for rows,token in self.pending_results}
@@ -742,10 +760,56 @@ class App:
             else:
                 self.status_notice=self.cabinet.error;self.next_save_retry=time.monotonic()+1;break
 
+    def begin_name_entry(self):
+        self.save_result()
+        self.help=False
+        if self.session_id not in self.cabinet.recorded:
+            self.status_notice='Scores are not saved yet. Check storage, then press N to retry.';return
+        rows=[row for row in self.cabinet.high_scores if row.get('session')==self.session_id]
+        if not rows:
+            self.status_notice='No score from this match qualified for the saved top 20.';return
+        self.name_entry={'rows':rows,'index':0,'letters':list('AAA'),'cursor':0,'error':''}
+        self.status_notice=''
+
+    def name_entry_event(self,event):
+        entry=self.name_entry
+        if event.key==pg.K_ESCAPE:
+            self.name_entry=None;self.status_notice='Initials entry closed. Saved scores are retained.';return
+        if event.key==pg.K_RETURN:
+            row=entry['rows'][entry['index']]
+            if not self.cabinet.rename_score(self.session_id,row['player_id'],''.join(entry['letters'])):
+                entry['error']=self.cabinet.error;return
+            entry['index']+=1
+            if entry['index']==len(entry['rows']):
+                self.name_entry=None;self.status_notice='Initials saved.';return
+            entry.update(letters=list('AAA'),cursor=0,error='');return
+        if event.key in (pg.K_LEFT,pg.K_RIGHT):
+            entry['cursor']=(entry['cursor']+(1 if event.key==pg.K_RIGHT else -1))%3
+        elif event.key in (pg.K_UP,pg.K_DOWN):
+            i=entry['cursor'];entry['letters'][i]=chr(65+(ord(entry['letters'][i])-65+(1 if event.key==pg.K_UP else -1))%26)
+        elif event.key==pg.K_BACKSPACE:
+            entry['cursor']=max(0,entry['cursor']-1);entry['letters'][entry['cursor']]='A'
+        else:
+            char=getattr(event,'unicode','').upper()
+            if len(char)==1 and char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+                entry['letters'][entry['cursor']]=char;entry['cursor']=min(2,entry['cursor']+1)
+
+    def draw_name_entry(self):
+        entry=self.name_entry;row=entry['rows'][entry['index']]
+        panel=pg.Surface((900,410));panel.fill((9,18,32));self.canvas.blit(panel,(190,155))
+        self.text('NEON NIBBLERS | INITIALS',270,185,(104,242,209),self.big)
+        self.text(f"P{row['player_id']}   {row['score']:06}   Entry {entry['index']+1}/{len(entry['rows'])}",390,260,COLORS[row['player_id']-1])
+        for i,char in enumerate(entry['letters']):
+            self.text(char,510+i*90,315,(255,225,90),self.big)
+            if i==entry['cursor']:pg.draw.line(self.canvas,(104,242,209),(508+i*90,377),(553+i*90,377),3)
+        self.text('Type A-Z | arrows select/change | Backspace corrects',340,420,font=self.small)
+        self.text('ENTER saves this name | ESC closes without saving this draft',300,455,font=self.small)
+        if entry['error']:self.text(entry['error'],245,505,(255,155,110),self.small)
+
     def operator_event(self,key):
         fields=list(self.cabinet.settings)
         choices={'starting_lives':[1,2,3,4,5],'bonus_threshold':[0,5000,10000,20000,50000],
-                 'match_seconds':[60,90,120,180,300,600],
+                 'match_seconds':[0,60,90,120,180,300,600],
                  'free_play':[False,True],'attract_sound':[False,True],'fill_bots':[False,True]}
         if key==pg.K_ESCAPE:self.operator_open=False
         elif key in (pg.K_UP,pg.K_DOWN):self.operator_index=(self.operator_index+(1 if key==pg.K_DOWN else -1))%len(fields)
@@ -764,7 +828,7 @@ class App:
         pg.draw.rect(self.canvas,(80,210,230),panel,2,border_radius=14)
         self.text('OPERATOR SETTINGS',310,155,(255,225,90),self.big)
         names={'starting_lives':'Starting lives','bonus_threshold':'Bonus life score (0 disables)',
-               'match_seconds':'Match duration in seconds','free_play':'Free play','attract_sound':'Attract sound','fill_bots':'AI in vacant stations'}
+               'match_seconds':'Time limit (0 = no limit)','free_play':'Free play','attract_sound':'Attract sound','fill_bots':'AI in vacant stations'}
         for index,(name,value) in enumerate(self.operator_draft.items()):
             color=(255,230,100) if index==self.operator_index else (220,230,245)
             display=('ON' if value else 'OFF') if type(value) is bool else value
@@ -792,8 +856,13 @@ class App:
         self.text('POWER-UP SPOTLIGHT',390,285,(255,225,90),self.big)
         power_icon(self.canvas,(640,405),name,self.animation_time,96)
         label=DISPLAY_NAMES[name];self.text(label,640-self.big.size(label)[0]//2,465,(110,240,220),self.big)
-        desc=ITEMS[name][1];self.text(desc,640-self.font.size(desc)[0]//2,530)
+        desc=self.power_description(name);self.text(desc,640-self.font.size(desc)[0]//2,530)
         self.text('Press a station Start or Enter to play',480,575,(255,225,90),self.small)
+
+    def power_description(self,name):
+        tuning=self.match.tuning if self.match else self.tuning
+        duration=tuning['durations'].get(name)
+        return ITEMS[name][1]+(f' ({duration:g}s)' if duration is not None else '')
 
     def reset_visuals(self):
         self.fixed_accumulator=0.; self.ledger_cursor=0
@@ -896,7 +965,7 @@ class App:
             gate=pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10)
             # Replace the carved-background house edge before drawing its two
             # explicit contours; otherwise background + overlay creates three.
-            pg.draw.rect(self.canvas,(0,0,4),gate.inflate(18,18))
+            pg.draw.rect(self.canvas,(0,0,4),gate.inflate(28,28))
             pg.draw.rect(self.canvas,(0,0,4),gate,border_radius=4)
             pg.draw.rect(self.canvas,accent,gate,2,border_radius=4)
             pg.draw.rect(self.canvas,accent,gate.inflate(-8,-8),1,border_radius=3)
@@ -935,8 +1004,10 @@ class App:
                 else: self.text(f'F{idx+3} / START',sx_text,sy+1,color,self.small)
             top_bays=sorted(c[0] for c in g.arena.spawns if c[1]==0)
             status_center=round((center((top_bays[1],0))[0]+158+center((top_bays[2],0))[0]-28)/2)
-            timer=f'{int(g.time)//60}:{int(g.time)%60:02}'
-            arcade_digits(self.canvas,timer,status_center-len(timer)*9,1,(250,250,235),3)
+            if g.rules['match_seconds']:
+                timer=f'{int(g.time)//60}:{int(g.time)%60:02}'
+                arcade_digits(self.canvas,timer,status_center-len(timer)*9,1,(250,250,235),3)
+            else:self.text('LIFE SURVIVAL',status_center-self.micro.size('LIFE SURVIVAL')[0]//2,8,(250,250,235),self.micro)
             stage_label=f'S{g.stage} | {THEMES[g.arena.theme][0]}'
             self.text(stage_label,status_center-self.micro.size(stage_label)[0]//2,27,accent,self.micro)
             # Tunnel necks project beyond the board, as in the cabinet footage.
@@ -1082,18 +1153,20 @@ class App:
             color=(255,188,87) if status['missing'] or status['disconnected'] else (127,168,198)
             self.text(message,OX,H-12,color,self.micro)
             if g.paused: self.overlay('PAUSED','Press P to continue')
-            if g.over:
+            if g.over and self.name_entry is None:
                 self.draw_results()
         if self.help:
             panel=pg.Surface((1160,650)); panel.fill((12,18,31)); self.canvas.blit(panel,(60,35))
             self.text('POWER FIELD GUIDE',105,55,(104,242,209),self.big)
             for i,(name,(code,desc)) in enumerate(ITEMS.items()):
                 power_icon(self.canvas,(125,140+i*43),name,self.animation_time,42)
-                self.text(f'{DISPLAY_NAMES[name]}: {desc}',165,130+i*43)
+                self.text(f'{DISPLAY_NAMES[name]}: {self.power_description(name)}',165,130+i*43)
             self.text('F1 closes. Guide pauses play. Titans bite rivals; equal powers are safe.',105,617)
             rules=self.match.rules if self.match else self.cabinet.settings
-            self.text(f"Lives {rules['starting_lives']} | Time {rules['match_seconds']}s | Dot clearance advances the selected map policy.",105,653)
+            mode=f"Time {rules['match_seconds']}s" if rules['match_seconds'] else 'No time limit'
+            self.text(f"Lives {rules['starting_lives']} | {mode} | Dot clearance advances the selected map policy.",105,653)
         if self.operator_open:self.draw_operator()
+        if self.name_entry is not None:self.draw_name_entry()
         sw,sh=self.screen.get_size(); factor=min(sw/W,sh/H)
         size=(max(1,round(W*factor)),max(1,round(H*factor)))
         scaled=pg.transform.smoothscale(self.canvas,size)
@@ -1134,7 +1207,8 @@ class App:
             idx=row['player_id']-1
             self.text(f"{row['rank']:>2}   P{idx+1}",365,210+i*39,COLORS[idx])
             arcade_digits(self.canvas,f"{row['score']:06}",565,210+i*39,COLORS[idx],3)
-        self.text('ENTER replay preset  |  F3-F10 new station  |  ESC lobby',340,575,font=self.small)
+        self.text('ENTER replay preset | F3-F10 new station | N initials | ESC lobby',300,575,font=self.small)
+        if self.status_notice:self.text(self.status_notice,250,610,(255,200,110),self.small)
 
     def run(self,frames=0):
         n=0
@@ -1173,30 +1247,12 @@ class App:
         pg.quit()
 
 def steer_demo(g,only_bots=False):
-    """Greedy breadth-first navigation for a visible, reproducible attract demo."""
+    """Original deterministic navigation for bots and the reproducible demo."""
     for p in g.players:
         if only_bots and not p.bot:continue
         if p.lives<=0: continue
-        nearby={c for c in g.items if distance(c,p.pos)<=14}
-        goals=nearby or set(g.dots)
-        if g.active(p,'Crown') or g.active(p,'Titan'):
-            edible={c for i,c in enumerate(g.foes) if i<len(g.foe_modes) and g.foe_modes[i]=='roaming'}
-            if edible:goals=edible
-        if g.active(p,'Titan'):
-            goals.update(q.pos for q in g.players if q is not p and q.lives>0 and q.safe<=0 and not g.active(q,'Titan'))
-        goals.discard(p.pos)
-        queue=deque([(p.pos,None)]); seen={p.pos}
-        # Different rotations keep the bots from always choosing identical paths.
         directions=DIRS[p.idx%4:]+DIRS[:p.idx%4]
-        while queue:
-            cell,first=queue.popleft()
-            if cell in goals:
-                p.wanted=first
-                break
-            for d in directions:
-                nxt=g.arena.step(cell,d)
-                if g.arena.can_enter(nxt,p) and nxt not in seen:
-                    seen.add(nxt); queue.append((nxt,first or d))
+        p.wanted=choose_direction(g,p,directions)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
@@ -1212,9 +1268,15 @@ if __name__=='__main__':
     parser.add_argument('--spectator-state',help='Publish an optional local spectator feed JSON file.')
     parser.add_argument('--data-dir',help='Directory for local operator settings, credits and high scores.')
     parser.add_argument('--arena',type=int,choices=range(4),default=3,help='Starting visual profile; four profiles use two reconstructed layouts.')
+    parser.add_argument('--tuning',help='JSON overrides for explicitly approximate power timings, speeds, ranges and item cadence.')
+    parser.add_argument('--untimed',action='store_true',help='Play until all humans lose their lives; optional inferred DX-style survival mode.')
     args=parser.parse_args()
     if not math.isfinite(args.locator_seconds) or not 0<args.locator_seconds<=10: parser.error('Locator duration must be in (0,10].')
     app=App(simulate_controllers=args.simulate_controllers,cabinet=CabinetStore(args.data_dir))
+    app.untimed=args.untimed
+    if args.tuning:
+        try:app.tuning=load_tuning(args.tuning)
+        except (OSError,ValueError,TypeError) as error:parser.error(str(error))
     app.spectator_path=args.spectator_state
     app.theme=args.arena
     app.seed=args.seed; app.progression=args.progression; app.locator_seconds=args.locator_seconds

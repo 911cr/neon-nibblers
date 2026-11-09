@@ -87,6 +87,48 @@ class MapTests(unittest.TestCase):
         finally:
             pg.quit()
 
+    def test_observed_capsule_end_is_round_without_losing_wall_body(self):
+        os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
+        import pygame as pg
+        from arcade_art import maze_background
+        from game import Arena
+        pg.init()
+        try:
+            for index, spec in enumerate(catalog()):
+                a = Arena(index)
+                art = maze_background(a.space, 59, 31, 20, spec.accent, spec.lane_radius)
+                # A top-left corner must recede; its rounded side midpoint and
+                # long straight upper edge remain. Both source families show this.
+                self.assertNotEqual(tuple(art.get_at((60, 56)))[:3], spec.accent)
+                self.assertEqual(tuple(art.get_at((56, 70)))[:3], spec.accent)
+                self.assertEqual(tuple(art.get_at((150, 56)))[:3], spec.accent)
+                self.assertEqual(tuple(art.get_at((150, 70)))[:3], (1, 2, 8))
+        finally:
+            pg.quit()
+
+    def test_actual_app_house_has_only_two_border_contours(self):
+        os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
+        os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
+        import pygame as pg
+        from game import App, Match, OX, TOP, TILE
+        app = App()
+        try:
+            for index, spec in enumerate(catalog()):
+                app.match = Match(8, index, seed=1)
+                app.reset_visuals()
+                app.draw()
+                dx, dy, dw, dh = spec.den
+                box = pg.Rect(OX+dx*TILE+5, TOP+dy*TILE+5, dw*TILE-10, dh*TILE-10)
+                scans = ([(box.centerx, y) for y in range(box.bottom-12, box.bottom+15)],
+                         [(x, box.bottom-20) for x in range(box.left-15, box.left+12)])
+                for points in scans:
+                    hits = [i for i, point in enumerate(points)
+                            if tuple(app.canvas.get_at(point))[:3] == spec.accent]
+                    runs = sum(i == 0 or n != hits[i-1]+1 for i, n in enumerate(hits))
+                    self.assertEqual(runs, 2, (spec.id, 'house third contour', hits))
+        finally:
+            pg.quit()
+
     def test_invalid_lane_radius_is_rejected(self):
         for radius in (0, 16, 37, True, 26.5):
             doc = self.document()

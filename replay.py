@@ -54,8 +54,8 @@ class FixedStepper:
         return sounds
 
 
-def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots=False,rules=None):
-    match = Match(count, theme, seed, progression=progression,rules=rules)
+def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots=False,rules=None,tuning=None):
+    match = Match(count, theme, seed, progression=progression,rules=rules,tuning=tuning)
     if fill_bots:match.fill_vacancies()
     commands = []
     checkpoints = []
@@ -70,7 +70,7 @@ def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots
             movement.append(movement_sample(match))
     return {'schema_version': 1, 'step': STEP,'fill_bots':fill_bots,
             'initial': {'count': count, 'theme': theme, 'seed': seed,
-                          'score_values': match.score_values, 'progression': progression,'rules':match.rules},
+                          'score_values': match.score_values, 'progression': progression,'rules':match.rules,'tuning':match.tuning},
             'commands': commands, 'checkpoints': checkpoints, 'movement_trace': movement,
             'events': match.ledger.events, 'final_digest': digest(match)}
 
@@ -114,10 +114,13 @@ def main():
     parser.add_argument('--seconds', type=float, default=20)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--fill-bots',action='store_true',help='Fill vacant stations with AI opponents.')
+    parser.add_argument('--tuning',help='JSON gameplay tuning overrides, captured completely in the replay.')
     args = parser.parse_args()
     if args.action == 'record':
         if not 0 < args.seconds <= 180: parser.error('Seconds must be in (0, 180]')
-        data = record(args.players, args.theme, args.seed, round(args.seconds * 60),fill_bots=args.fill_bots)
+        from gameplay_tuning import load_tuning
+        data = record(args.players, args.theme, args.seed, round(args.seconds * 60),fill_bots=args.fill_bots,
+                      tuning=load_tuning(args.tuning) if args.tuning else None)
         args.path.write_text(json.dumps(data, indent=2), encoding='utf-8')
     else:
         data = json.loads(args.path.read_text(encoding='utf-8'))

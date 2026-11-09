@@ -15,6 +15,7 @@ def read_feed(path):
         if value.get('schema_version')!=1 or not isinstance(value.get('ranking'),list):return None
         if type(value.get('updated')) not in (int,float) or not math.isfinite(value['updated']):return None
         if type(value.get('remaining')) not in (int,float) or not math.isfinite(value['remaining']) or not 0<=value['remaining']<=86400:return None
+        if 'timed' in value and type(value['timed']) is not bool:return None
         if type(value.get('stage')) is not int or not 0<=value['stage']<=100000:return None
         if value.get('phase') not in ('attract','playing','paused','guide','results'):return None
         if not isinstance(value.get('map',''),str):return None
@@ -41,7 +42,8 @@ def draw_scoreboard(surface,feed,now=None):
     phase=str(feed.get('phase','')).upper()
     text(('FEED DISCONNECTED  |  ' if stale else '')+phase,w*.08,h*.15,(255,170,95) if stale else (110,235,215),small)
     remaining=max(0,int(feed.get('remaining',0)))
-    text(f"{feed.get('map','')}   STAGE {feed.get('stage',0)}   {remaining//60}:{remaining%60:02}",w*.08,h*.21,f=small)
+    timer=f'{remaining//60}:{remaining%60:02}' if feed.get('timed',True) else 'LIFE SURVIVAL'
+    text(f"{feed.get('map','')}   STAGE {feed.get('stage',0)}   {timer}",w*.08,h*.21,f=small)
     rows=feed['ranking']
     if not rows:text('Press Start at a station to join.',w*.1,h*.4)
     for i,row in enumerate(rows):

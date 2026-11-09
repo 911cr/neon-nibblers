@@ -1,0 +1,27 @@
+{
+  "durations": {
+    "Crown": 7.0,
+    "Titan": 7.0,
+    "Rush": 7.0,
+    "Mist": 7.0,
+    "Slick": 2.0,
+    "Spark": 2.0,
+    "Veil": 7.0,
+    "Flare": 3.0,
+    "Quake": 5.0,
+    "Lure": 7.0
+  },
+  "spawn_seconds": 3.0,
+  "item_step_seconds": 0.24,
+  "player_step_seconds": 0.1,
+  "rush_step_seconds": 0.065,
+  "slick_step_seconds": 0.055,
+  "ghost_step_seconds": 0.16,
+  "spark_radius": 8,
+  "flame_cells": 5,
+  "smoke_seconds": 2.5,
+  "smoke_radius": 2,
+  "quake_multiplier": 2.0,
+  "smoke_multiplier": 2.0,
+  "max_items": 12
+}

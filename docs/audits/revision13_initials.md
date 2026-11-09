@@ -1,0 +1,9 @@
+# Optional results initials
+
+Research reported alphabetical name entry after final death at9:45 in source43DcDXxEgzk. This implementation is an original optional keyboard flow, not a recovered cabinet entry timer or controller scheme.
+
+Results autosave immediately under P1..P8 as before. N explicitly opens initials editing for current-session entries that qualified for the saved top20. Type three A-Z letters, use left/right to select and up/down to change, Backspace to correct; Enter saves one human entry and advances; Escape discards the current draft and closes. Previously saved names remain saved. Ordinary Enter/F3-F10 restart remains immediate unless the optional editor is open. Results display a clear notice when scores are not saved or none qualified.
+
+Each new high-score row carries its session token. Renaming uses session plus player identity, never score or rank, so ties, duplicate scores and old sessions cannot be misnamed. Legacy schema1 rows without tokens still load and display. Failed atomic rename restores the complete in-memory row list; disk retains the previous file. The editor stays open for retry. Existing pending-result autosave retry survives immediate restart unchanged.
+
+Two critical passes: ten dedicated tests passed in2.197s. Coverage includes two/eight qualifiers, partial top20 qualification, tied scores from other sessions and legacy rows, failed write/reload/retry, failed write then cancel, pending results plus immediate restart, controls and explicit editor blocking, no qualifiers/invalid initials, already-saved names preserved on later cancel, N remaining a player control during gameplay, and text bounds within the panel. Visual capture initials_entry.png uses eight original game actors and a scripted result to show the original editor; it is not cabinet footage. Visual review removed an underlying replay prompt while the editor is active to avoid conflicting Enter instructions.

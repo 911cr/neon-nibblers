@@ -16,8 +16,10 @@ parser.add_argument('--simulate-controllers',action='store_true',help='Label dev
 parser.add_argument('--seconds',type=int,default=12)
 parser.add_argument('--theme',type=int,choices=range(4),default=0,help='Starting map index for a single-count capture')
 parser.add_argument('--tour',action='store_true',help='Show every map for the selected player count; --seconds is time per map')
+parser.add_argument('--untimed',action='store_true',help='Show the optional life-survival mode.')
 args=parser.parse_args()
 app.simulate_controllers=args.simulate_controllers
+app.untimed=args.untimed
 single=args.quick or args.players is not None
 for theme in (range(4) if args.tour or not single else (args.theme,)):
     for count in ((args.players or 8,) if single else (1,2,8)):

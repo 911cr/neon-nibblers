@@ -27,9 +27,17 @@ class ScoreLedger:
                                       indent=2), encoding='utf-8')
 
     def totals(self):
+        """Current station accounts; joining starts a fresh human score account.
+
+        Preserve prior bot awards in history without carrying their points into
+        the replacement human account or emitting fictitious negative awards.
+        """
         totals = {}
         for event in self.events:
             if event['player_id'] is not None:
                 idx = event['player_id']
-                totals[idx] = totals.get(idx, 0) + event['delta']
+                if event['event'] == 'station_join':
+                    totals[idx] = event['score']
+                else:
+                    totals[idx] = totals.get(idx, 0) + event['delta']
         return totals

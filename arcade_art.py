@@ -43,6 +43,43 @@ def maze_background(floor, cols, rows, tile, accent,radius=32):
                 for yy in range(y*tile,(y+1)*tile):
                     for xx in range(x*tile,(x+1)*tile):
                         if mask.get_at((xx,yy)): rounded.set_at((xx,yy))
+    if radius < 30:
+        # Larger convex corners are visible on the observed connected branches.
+        # Opening them alone would erase narrow stems, so restore only long
+        # removed features; small corner chips stay removed and rounded.
+        smooth_core = rounded.copy()
+        for offset in ((12,0),(-12,0),(0,12),(0,-12),(8,8),(-8,8),(8,-8),(-8,-8)):
+            shifted = pg.mask.Mask(size); shifted.draw(rounded, offset)
+            smooth_core = smooth_core.overlap_mask(shifted, (0,0))
+        smooth = pg.mask.Mask(size)
+        for xx in range(-12,13):
+            for yy in range(-12,13):
+                if xx*xx+yy*yy <= 144:
+                    smooth.draw(smooth_core, (xx,yy))
+        smooth = smooth.overlap_mask(rounded, (0,0))
+        removed = rounded.copy(); removed.erase(smooth, (0,0))
+        for component in removed.connected_components():
+            box = component.get_bounding_rects()[0]
+            if max(box.size) > 28:
+                smooth.draw(component, (0,0))
+        rounded = smooth
+    # Observed A/B isolated bars have capsule ends, rather than square tips.
+    # Restrict this to straight narrow islands: connected hooks, the frame and
+    # house footprint keep their collision-derived contours and thin stems.
+    if radius < 30:
+        for component in rounded.connected_components(20):
+            bounds = component.get_bounding_rects()[0]
+            short, long = min(bounds.size), max(bounds.size)
+            if (bounds.left <= tile or bounds.top <= tile or
+                    bounds.right >= size[0]-tile or bounds.bottom >= size[1]-tile):
+                continue
+            if not (4 <= short <= 40 and long >= short*2 and
+                    component.count() >= bounds.width*bounds.height*.90):
+                continue
+            capsule = pg.Surface(size, pg.SRCALPHA)
+            pg.draw.rect(capsule, (255,255,255), bounds, border_radius=short//2)
+            rounded.erase(component, (0,0))
+            rounded.draw(pg.mask.from_surface(capsule).overlap_mask(component, (0,0)), (0,0))
     mask=rounded
     inner=mask.copy()
     for offset in ((2,0),(-2,0),(0,2),(0,-2)):

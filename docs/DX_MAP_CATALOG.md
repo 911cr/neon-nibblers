@@ -1,4 +1,4 @@
-# DX map catalog � revision 12 current status
+# DX map catalog — revision 12 current status
 
 Two layouts are now independently reconstructed from complete, same-camera DX spectator-screen frames. All four selectable profiles use these two families with original palettes; unsupported authored maze geometries have been retired. **This is not the full commercial catalog, and geometry is quantized rather than pixel-exact.**
 
@@ -32,7 +32,7 @@ Rendering consumes `arena.space`, the same center-line graph used for collision.
 | ID | Source/version and time | Observation / evidence status | Limitation and next action |
 |---|---|---|---|
 | MAP-DX-01 | [Released DX cabinet footage](https://www.youtube.com/watch?v=efLgejKG_ls&t=75s), 1:15, 1:30, 2:00 | **OBSERVED DX**, inherited revision-6 frame review: cyan walls/pockets with yellow gate hatches | Edited camera views do not establish layout order, full graph, or transition cause. Find an unobstructed continuous session spanning two transitions. |
-| MAP-CAB-02 | [CHOMPionship cabinet footage](https://www.youtube.com/watch?v=GhSV1oQVA6g&t=57s), 0:57 and 1:35–1:40 | **OBSERVED**, inherited review: single dot paths, border pockets, roaming interior pickups | Exact cabinet configuration/software not established; do not label every detail DX. Obtain a full unobstructed frame and station count. |
+| MAP-CAB-02 | [CHOMPionship cabinet footage](https://www.youtube.com/watch?v=GhSV1oQVA6g&t=57s), 0:57 and 1:35â€“1:40 | **OBSERVED**, inherited review: single dot paths, border pockets, roaming interior pickups | Exact cabinet configuration/software not established; do not label every detail DX. Obtain a full unobstructed frame and station count. |
 | MAP-PROJ-03 | [Mobile/projector presentation](https://www.youtube.com/watch?v=JSp72DKyW5U&t=94s), 1:34 | **OBSERVED**, inherited review: thin rounded wall branches, occupied central house | Supporting visual reference only; not proof of DX layout, timing, display surroundings, or map sequence. |
 | MAP-HIST-04 | [Manufacturer original Battle Royale description](https://bandainamco-am.com/collections/pac-man-battle-royale), no video timestamp | **HISTORICAL ONLY**: eating food or all dots refreshes the dot/power pattern | This says reset, not necessarily geometry change, and concerns the earlier four-player game. Do not import as DX rules. |
 | MAP-DX-05 | [Current manufacturer DX collection](https://bandainamco-am.com/collections/pac-man-battle-royale-deluxe), read 2026-11-08 | **VERIFIED DX** parts identity; no maze-transition description found | Cannot recover map catalog or triggers from a parts listing. |
@@ -41,7 +41,7 @@ The YouTube web reader failed to fetch both cabinet videos in this cycle. The ti
 
 ## Explicit authored database, version 1
 
-`maps.json` now stores each map as explicit 59×31 lane rows, eight entry/spawn pairs, paired portal rows, ghost-house rectangle, palette, identity, revision and provenance. `map_library.py` validates the records and exposes immutable `MapSpec` records. Runtime mirroring is unnecessary; individual geometry can now be corrected and reviewed without changing the other records. Migration preserves every lane, bay, portal and house coordinate from revision 7. **This extraction is an engineering foundation, not a fidelity improvement or a recovered DX catalog.**
+`maps.json` now stores each map as explicit 59Ã—31 lane rows, eight entry/spawn pairs, paired portal rows, ghost-house rectangle, palette, identity, revision and provenance. `map_library.py` validates the records and exposes immutable `MapSpec` records. Runtime mirroring is unnecessary; individual geometry can now be corrected and reviewed without changing the other records. Migration preserves every lane, bay, portal and house coordinate from revision 7. **This extraction is an engineering foundation, not a fidelity improvement or a recovered DX catalog.**
 
 | Map ID | Name | Lane cells | Origin | DX topology status |
 |---|---|---:|---|---|
@@ -61,14 +61,14 @@ The library supplies explicit `cycle`, `repeat`, and seeded `random` selection p
 | Trigger | Empty dot set, if match still active | **UNKNOWN** |
 | Order | Four authored variants in cyclic order by default | **UNKNOWN** |
 | Geometry/color independence | Data records separately store geometry and palette; current four profiles remain paired | **UNKNOWN** |
-| Player-count dependency | Same map for 1–8 participants | **UNKNOWN** |
+| Player-count dependency | Same map for 1â€“8 participants | **UNKNOWN** |
 | Preserved | Logical participants, lives, score, remaining time, bonus-life flag | **UNKNOWN** |
 | Reset | Positions, effects, movement clocks, ghost state, dots/items/smoke/quake and spawn clocks | **UNKNOWN** |
 | Completion award | Authored survivor bonus, currently 500 | **UNKNOWN** |
 
 ## Validation and critical second pass
 
-Pass 1 compared every loaded lane set, entry, spawn, portal and house against the old constructor: all four exactly equal. Pass 2 tested malformed catalogs, duplicate IDs, invalid stations, unpaired portals, house overlap/out-of-bounds, illegal palette, isolated cells and deterministic selection. Added validation for undeclared exits, disconnected lanes, 2×2 dot blocks and unintended dead ends. Four dedicated `test_maps.py` tests pass; game-wide movement/render checks remain necessary after integration.
+Pass 1 compared every loaded lane set, entry, spawn, portal and house against the old constructor: all four exactly equal. Pass 2 tested malformed catalogs, duplicate IDs, invalid stations, unpaired portals, house overlap/out-of-bounds, illegal palette, isolated cells and deterministic selection. Added validation for undeclared exits, disconnected lanes, 2Ã—2 dot blocks and unintended dead ends. Four dedicated `test_maps.py` tests pass; game-wide movement/render checks remain necessary after integration.
 
 No full commercial graph has been reconstructed. Highest priority: record a continuous confirmed DX session with readable full playfield, catalog distinct layouts by normalized topology, and inspect each transition frame-by-frame. Repeat across another session and different participant counts before inferring order or triggers. Issue #1 remains open.
 
@@ -84,21 +84,40 @@ See [revision-9 map QA](audits/revision9_maps.md) for changes and both validatio
 
 All four current maps were compared with the retained actual 1:15/2:00 DX frames for visible house, gate, corridor and wall-style details. This is not a recovered four-map commercial catalog. The detailed [per-map matrix and two-pass review](audits/revision10_all_maps.md) names the corresponding evidence and remaining mismatch for Golden, Violet, Ember and Cyan separately.
 
-Every map already had a complete house-perimeter route (missing-cell counts 0/0/0/0). No unsupported geometry changes were made. Load-time validation now prevents any map from losing that route; ten map tests pass, covering all 1–8 participant counts and stage transitions on every map. Renderer styling adds an inner outline to broad wall interiors, directly motivated by the observed rectangular island; extension to broad bent shapes is explicitly inferred. All 29 existing smoke tests, including route-pixel checks, pass. Map counts and revisions remain unchanged.
+Every map already had a complete house-perimeter route (missing-cell counts 0/0/0/0). No unsupported geometry changes were made. Load-time validation now prevents any map from losing that route; ten map tests pass, covering all 1â€“8 participant counts and stage transitions on every map. Renderer styling adds an inner outline to broad wall interiors, directly motivated by the observed rectangular island; extension to broad bent shapes is explicitly inferred. All 29 existing smoke tests, including route-pixel checks, pass. Map counts and revisions remain unchanged.
 
 New video observation was unavailable in this cycle because the native-browser URL safety check stopped further UI access. Prior captured frames were used and are identified as retained evidence. Full layouts, palette independence and progression remain unresolved.
 
 
-## Revision 11 — animation, proportions and fresh DX reference review
+## Revision 11 â€” animation, proportions and fresh DX reference review
 
 Fresh real DX footage was viewed safely through normal browser navigation after using a new tab with a verified address. New60/65/124/135second research captures and the report are recorded in audits/revision11_reference.md; camera edits/glare prevent exact cycle timing and a complete commercial map catalog. Distinct house-side geometry appears with the same cyan palette. Palette selection is now independent of layout: F12 cycles wall colors during play, or use `--palette 0..3`. This changes presentation only, not match logic or routes; default progression remains our approximation.
 
 Fixed the left-facing eye/light flip, missing individual ghost stun feedback and tunnel copies, sorted-item animation identity jumps, short respawn/stage cache slides, and animation continuing during pause/guide/results. All11 power icons now use cached3x procedural artwork and position-independent bob phase. Fire is a continuous layered animated plume with a pale core, clipped to reachable corridor endpoints and split correctly at tunnels. Lightning arcs animate. Exact DX art proportions and timing are still unverified.
 
-110 tests cover artwork/time samples, direction, icon sizes16–96px, ghost states, HUD/tunnels, effects, pause/results, respawn, item tracking,720/1080 resizing and palette changes without logic mutation. Two agent QA passes included discovered clipping and freeze regressions followed by corrections. Native1/2/8 render samples cover every map on Windows and Ubuntu/WSLg. These are short graphics checks, not hardware or performance certification; the final plume styling is also checked by the final render suite and recordings. Physical controllers remain deferred to production.
+110 tests cover artwork/time samples, direction, icon sizes16â€“96px, ghost states, HUD/tunnels, effects, pause/results, respawn, item tracking,720/1080 resizing and palette changes without logic mutation. Two agent QA passes included discovered clipping and freeze regressions followed by corrections. Native1/2/8 render samples cover every map on Windows and Ubuntu/WSLg. These are short graphics checks, not hardware or performance certification; the final plume styling is also checked by the final render suite and recordings. Physical controllers remain deferred to production.
 
 Each1/2/8-player GIF tours four separate6-second map scenarios (24seconds,288frames). New `gameplay_1_player.mp4`, `gameplay_2_player.mp4` and `gameplay_8_player.mp4` show the same tour at1280x720/60fps with original event audio, avoiding GIF color/frame-rate limits. They are actual computer-controlled game simulations. They do not prove a commercial stage sequence or physical-input compatibility.
 
 Optional recording tools: `python -m pip install -r requirements-capture.txt`, then `python record_video.py --players 8 --seconds 6`. They are unnecessary for playing. Native Windows encoding was tested; playback files can be viewed on Windows/Linux with an H.264/AAC player. The game remains Python/Pygame source, not a standalone executable.
 
 See animation_contact_r11.png, animation_review_r11.gif, fire_animation_r11.png and animation_world_effects.png for tested frame sequences and sizes. The matrices document finite reviewed cases; no exhaustive or perfect-commercial-match claim is made. Full DX topology, scoring/timing/AI, death/growth transitions and operator/spectator/attract systems remain unfinished.
+
+
+## Revision 13 — source measurements, rounded walls and scoring/AI corrections
+
+Fresh confirmed DX footage43DcDXxEgzk was reviewed at quarter speed and paused positions. At9:22 red144640 has four ordinary dots ahead; at9:23 the corridor is cleared and score144680. This OBSERVED DX aggregate supports10 per ordinary dot; it does not recover other score awards or multipliers. At9:23–9:34 the final-life station displays CONTINUE/COIN while AI moves, followed by alphabet/name entry by9:45. No purchased continue, restored-life policy or score retention was observed. The fresh red full-board9:34 is independently identified as existing family A, corroborating color/layout independence, not adding a third maze. Candidate power sequences were rejected as exact duration measurements because of refreshes, occlusion and transition ambiguity. See audits/revision13_reference.md.
+
+Rounded capsule ends and convex branch corners now retain narrow stems and the same validated corridor graph. Removed a faint third house underlay contour; actual-App scans require exactly two house borders on all four profiles. New comparison research images remain outside the runnable package. Exact20px quantization/hidden endpoints, source widths, full commercial catalog and progression remain unverified.
+
+Corrected ledger totals after bot-to-human takeover: historical bot awards remain recorded, while station_join starts the new score account at zero. HUD, spectator rankings and ledger agree. Tested simultaneous dot/power/ghost/rival/bonus awards, duplicate fire attackers, expiry contact, carried ownership and same-tick damage. Bot routing now uses deterministic weighted legal paths, avoiding nearby lethal ghosts/giants/carried rival weapons and actively seeking capturable ghosts with Magnet. This improves our original strategy; exact DX difficulty/targeting remains unknown.
+
+Power durations, movement intervals, ranges, slowdown multipliers and item cadence/cap are now validated per-Match tuning settings, loadable with --tuning tuning.example.json. Complete effective values and pickup duration/nominal expiry are captured in event logs/replays; quickstart and station START honor the same settings. Existing numerical defaults remain explicitly approximate. The on-screen guide reflects effective durations.
+
+Added optional --untimed life-survival mode, also operator time limit0. Default180s remains an explicit custom score-attack mode, not a certified DX limit. Untimed progression, pause, elimination, spectator labels and replay are covered; CLI mode overrides do not silently rewrite saved operator settings. Exact final-life continue interval and background AI before original name entry remain a known presentation/behavior difference; no invented paid-continue policy is claimed.
+
+Results now offer N for original three-letter initials for this session's qualifying top20 human rows. Atomic renaming uses session/player identity, protecting ties and historical/legacy rows. Failed writes roll back; cancelling discards only the active draft. Immediate replay and pending score-save retries remain intact. Exact cabinet entry UI, timeout and physical-controller entry are not reproduced or certified.
+
+Final validation:187 tests passed on Windows and Ubuntu/WSLg, with source-frozen extracted-ZIP verification recorded separately. Native1/2/8 runs cover every profile on both systems, plus actual game/spectator pairs with audio initialization. Twelve complete automated human/AI matches reconcile ledger totals and rankings. Three48-second1280x720/60fps MP4s with original AAC event audio fully decode;24-second GIF previews and12-frame profile/count contact sheet were checked. All recording actors are automated; logical1/2/8 human stations have7/6/0 AI. Physical controllers, human multiplayer acceptance and audible speaker assessment stay in production.
+
+Agent reviews ran initial and deeper passes with targeted fixes/rechecks. Their approval covers tested implementation scope, not undocumented original rules. Remaining exact scoring/power/AI/map/continue questions are tracked honestly; no perfect-match or zero-issues claim.

@@ -1,0 +1,18 @@
+{
+  "platform": "linux",
+  "driver": "x11",
+  "audio_format": [
+    44100,
+    -16,
+    2
+  ],
+  "game_frames": 240,
+  "viewer_frames": 90,
+  "elapsed_seconds": 4.753,
+  "human_stations": 2,
+  "ai_stations": 6,
+  "frame_export": true,
+  "spectator_exit": 0,
+  "data_folder": "workspace test profile",
+  "physical_controllers_tested": false
+}

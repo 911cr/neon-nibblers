@@ -35,7 +35,7 @@ class CabinetStore:
                     name=''.join(c for c in str(row.get('name','PLAYER')) if c.isprintable())[:24] or 'PLAYER'
                     self.high_scores.append({'name':name,
                         'score':row['score'],'player_id':max(1,min(8,int(row.get('player_id',1)))),
-                        'time':stamp})
+                        'time':stamp, 'session':row.get('session') if isinstance(row.get('session'),str) else None})
             self.high_scores.sort(key=lambda r:(-r['score'],r['time']))
             self.recorded=set(str(x) for x in raw.get('recorded',[])[:100])
         except FileNotFoundError:pass
@@ -48,7 +48,7 @@ class CabinetStore:
         result=dict(DEFAULTS)
         for key,low,high in [('starting_lives',1,5),('bonus_threshold',0,1000000),('match_seconds',30,1800)]:
             value=settings.get(key,result[key])
-            if type(value) is not int or not low<=value<=high:raise ValueError('Invalid '+key)
+            if type(value) is not int or not (low<=value<=high or key=='match_seconds' and value==0):raise ValueError('Invalid '+key)
             result[key]=value
         for key in ('free_play','attract_sound','fill_bots'):
             value=settings.get(key,result[key])
@@ -92,13 +92,28 @@ class CabinetStore:
         now=time.time()
         for row in rows:
             self.high_scores.append({'name':f"P{row['player_id']}",'score':row['score'],
-                                    'player_id':row['player_id'],'time':now})
+                                    'player_id':row['player_id'],'time':now,'session':token})
         self.high_scores.sort(key=lambda r:(-r['score'],r['time']))
         self.high_scores=self.high_scores[:20];self.recorded.add(token)
         if self.save():return True
         self.high_scores=previous;self.recorded.discard(token);return False
 
+    def rename_score(self, token, player_id, initials):
+        """Rename only this session's qualifying row; failed writes roll back."""
+        if not isinstance(initials,str) or len(initials)!=3 or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' for c in initials):
+            raise ValueError('Initials must be three A-Z letters')
+        matches=[i for i,row in enumerate(self.high_scores)
+                 if row.get('session')==token and row['player_id']==player_id]
+        if not matches:
+            self.error='This score has no saved qualifying entry.';return False
+        previous=self.high_scores
+        self.high_scores=[dict(row) for row in previous]
+        for i in matches:self.high_scores[i]['name']=initials
+        if self.save():return True
+        self.high_scores=previous;return False
+
 def spectator_view(match,phase,map_name=''):
     return {'schema_version':1,'updated':time.time(),'phase':phase,'map':map_name,
             'stage':match.stage if match else 0,'remaining':match.time if match else 0,
+            'timed':match.rules['match_seconds']>0 if match else False,
             'ranking':match.rankings() if match else []}

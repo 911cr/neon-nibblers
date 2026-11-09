@@ -2,7 +2,7 @@
 
 Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to eight human stations, USB joystick/gamepad support, keyboard fallback and AI opponents. Commercial sprites, recordings, logos, ROMs and source code are not included.
 
-Revision 12 replaces the unsupported authored routes with two independently reconstructed observed DX layouts, offered as four color profiles. It adds AI vacancy filling, lifecycle animation, operator settings, local high scores, credits and spectator windows. Exact commercial scoring, timing, AI difficulty, joining rules and the complete DX map inventory remain unverified. This is an independent adaptation, not a certified exact reproduction.
+Revision 13 uses two independently reconstructed observed DX layouts, offered as four color profiles, with rounded wall ends and preserved narrow passages. It adds AI vacancy filling, lifecycle animation, operator settings, local high scores, credits and spectator windows. Exact commercial scoring, timing, AI difficulty, joining rules and the complete DX map inventory remain unverified. This is an independent adaptation, not a certified exact reproduction.
 
 ## Install and play
 
@@ -41,7 +41,7 @@ F11 in the lobby/results opens original operator controls: starting lives, bonus
 
 Default free play needs no credits. With it off, C in the lobby inserts a software credit and each new human station costs one. Find and bot replacement cannot grant free lives to an already joined eliminated human. No real payment hardware is integrated. Failed saves do not debit credits.
 
-H shows the local high-score table. Completed human results are stored once per session, ranked with ties and recorded as P1..P8. Failed score writes remain queued in memory for retry even after leaving results; unsaved data cannot survive closing the program while storage remains unavailable. Corrupt data falls back to defaults with a status message.
+H shows the local high-score table. Completed human results are stored once per session, ranked with ties and recorded as P1..P8. On results, N opens optional three-letter initials for qualifying saved rows; type A-Z, use arrows/Backspace, Enter to save each, Escape to cancel the current draft. Names are keyboard-entry in this build; controller acceptance stays in production. Failed score writes remain queued in memory for retry even after leaving results; unsaved data cannot survive closing the program while storage remains unavailable. Corrupt data falls back to defaults with a status message.
 
 Data: `%LOCALAPPDATA%/NeonNibblers` on Windows; `$XDG_DATA_HOME/neon-nibblers` or `~/.local/share/neon-nibblers` on Linux. Override with `--data-dir PATH` or `NEON_NIBBLERS_DATA`. Tests use isolated workspace profiles.
 
@@ -86,9 +86,9 @@ Run the second command in another terminal. Move the spectator window to another
 
 ## Verification and recordings
 
-Run `python -m unittest discover -p "test*.py" -v`. Revision 12 has 151 checks, including 1–8 human rosters across every profile, bots/takeover, powers, continuous ghost return, all visible route edges, collisions, replay, credits/storage failures, spectator feeds, lifecycle animation, HUD/tunnel clipping and 720/1080 resizing. Twelve complete automated matches validate event totals and human rankings. Native graphics checks cover 1/2/8 on all profiles on Windows and Ubuntu/WSLg; standalone Linux hardware and audible speaker quality remain unconfirmed.
+Run `python -m unittest discover -p "test*.py" -v`. Revision 13 has 187 checks, including 1–8 human rosters across every profile, bots/takeover, powers, continuous ghost return, all visible route edges, collisions, replay, credits/storage failures, spectator feeds, lifecycle animation, HUD/tunnel clipping and 720/1080 resizing. Twelve complete automated matches validate event totals and human rankings. Native graphics checks cover 1/2/8 on all profiles on Windows and Ubuntu/WSLg; standalone Linux hardware and audible speaker quality remain unconfirmed.
 
-The three MP4 s are 24-second 1280 x 720/60 fps tours with original event audio, one for each 1/2/8 human-station setup. AI fills vacant stations; all actors are computer-controlled during capture. Each tour visits four palette profiles of two layouts. GIFs are silent 12 fps previews. They do not assert the commercial game uses this sequence.
+The three MP4s are 48-second 1280 x 720/60 fps tours with original event audio, one for each 1/2/8 human-station setup. AI fills vacant stations; all actors are computer-controlled during capture. Each tour visits four palette profiles of two layouts. GIFs are silent 12 fps previews. They do not assert the commercial game uses this sequence.
 
 Optional capture tools: `python -m pip install -r requirements-capture.txt`, then `python record_video.py --players 1 --seconds 6` or `python record_demo.py --players 1 --tour --seconds 6 --simulate-controllers`. Optional video encoding was tested on Windows.
 
@@ -102,4 +102,15 @@ python replay.py verify replay_sample.json
 python check_controllers.py --expected 8
 ```
 
-Physical controllers are explicitly deferred to production; simulation never counts as physical testing. See docs/DX_RELEASE_STATUS.md and the evidence/audit files for the remaining reference uncertainties. Repository: https://github.com/911 cr/neon-nibblers .
+Physical controllers are explicitly deferred to production; simulation never counts as physical testing. See docs/DX_RELEASE_STATUS.md and the evidence/audit files for the remaining reference uncertainties. Repository: https://github.com/911cr/neon-nibblers .
+
+
+## Revision 13 options and evidence
+
+Run `python game.py --untimed` to play until all human lives are exhausted. F11 also permits time limit0; the CLI option affects only the current application run. A fixed180-second limit remains a custom selectable mode. Fresh DX footage supports investigating life-survival and shows a continue interval/name entry, but exact paid-continuation and multiplayer termination rules remain unknown. Our immediate results and optional keyboard initials are documented adaptations.
+
+`python game.py --tuning tuning.example.json` loads partial overrides for power durations, player/ghost/item movement intervals, effect ranges, smoke/quake multipliers, spawn cadence and item cap. The included file lists all current approximate defaults. Invalid/unknown/nonfinite values are rejected. Use `python replay.py record tuned.json --players 1 --fill-bots --tuning tuning.example.json`. Replays and match-start events store the complete effective settings. Recorded pickup expiry is the nominal deadline; refresh, damage or a stage transition may end/replace the effect.
+
+Four ordinary dots producing+40 in fresh footage supports the existing10-point dot value. Other point values and power durations were not changed on ambiguous evidence. Independent AI now avoids lethal routes when alternatives exist; its target costs are original choices.
+
+The ZIP contains current source, launchers, tests, documentation and the three current HD gameplay videos. Larger GIF previews and historical revision captures are provided alongside downloads or retained in the workspace/history. Research screenshots/comparisons of the commercial reference are separate and are not playable game assets.

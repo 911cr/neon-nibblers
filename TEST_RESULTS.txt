@@ -1,5 +1,5 @@
-REVISION12:151 local Windows tests PASS;151 local Ubuntu tests PASS.
-12 full automated human/AI matches completed; all score totals and human rankings reconciled.
-Native1/2/8 checks on all4profiles for bothOS; native game+spectator pairs passedWindows/UbuntuWSLg.
-Lifecycle/render/cabinet/bot two-pass QA and corrected failures documented.
-Physical controllers productiondeferred. ExactDXevidence gaps documented; no blanket perfectmatchclaim.
+Revision13:187 Windows checks PASS;187 Ubuntu checks PASS.
+Native1/2/8 per all4profiles on bothOS; game/spectator pairs PASS.
+12 complete automated matches reconcile score accounts/rankings.
+48s720p60AAC recordings fully decoded. See VIDEO_REVISION13.json.
+Physical controllers deferred. Exact DX rules remain unverified where documented.
