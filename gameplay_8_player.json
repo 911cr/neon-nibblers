@@ -2,7 +2,7 @@
   "width": 1280,
   "height": 720,
   "fps": 60,
-  "seconds": 80.0,
+  "seconds": 88.0,
   "scenarios": [
     {
       "profile": 0,
@@ -35057,6 +35057,5065 @@
           "rank": 8,
           "player_id": 8,
           "score": 370,
+          "lives": 3
+        }
+      ]
+    },
+    {
+      "profile": 0,
+      "seed": 92,
+      "human_stations": 8,
+      "ai_stations": 0,
+      "actors_automated": true,
+      "rules": {
+        "starting_lives": 3,
+        "bonus_threshold": 10000,
+        "match_seconds": 0,
+        "free_play": true,
+        "attract_sound": true,
+        "fill_bots": true
+      },
+      "tuning": {
+        "durations": {
+          "Crown": 7.0,
+          "Titan": 7.0,
+          "Rush": 7.0,
+          "Mist": 7.0,
+          "Slick": 2.0,
+          "Spark": 2.0,
+          "Veil": 7.0,
+          "Flare": 3.0,
+          "Quake": 5.0,
+          "Lure": 7.0
+        },
+        "spawn_seconds": 3.0,
+        "item_step_seconds": 0.24,
+        "player_step_seconds": 0.1,
+        "rush_step_seconds": 0.065,
+        "slick_step_seconds": 0.055,
+        "ghost_step_seconds": 0.16,
+        "spark_radius": 8,
+        "flame_cells": 5,
+        "smoke_seconds": 2.5,
+        "smoke_radius": 2,
+        "quake_multiplier": 2.0,
+        "smoke_multiplier": 2.0,
+        "max_items": 12
+      },
+      "palette_override": 4,
+      "continue_seconds": 10.0,
+      "continue_delay": 1.0,
+      "controlled_fixture": true,
+      "scenario": "maze_transition",
+      "events": [
+        {
+          "sequence": 0,
+          "timestamp": 0.0,
+          "tick": 0,
+          "event": "match_start",
+          "player_id": null,
+          "stage": 1,
+          "delta": 0,
+          "score": null,
+          "context": {
+            "seed": 92,
+            "count": 8,
+            "theme": 2,
+            "score_values": {
+              "dot": 10,
+              "pickup": 75,
+              "gold_pickup": 100,
+              "giant_pickup": 1000,
+              "ghost_eaten": 200,
+              "ghost_burned": 200,
+              "rival_eaten": 300,
+              "rival_burned": 300,
+              "carried_ghost_hit": 300,
+              "stage_clear": 500
+            },
+            "progression": "cycle",
+            "rules": {
+              "starting_lives": 3,
+              "bonus_threshold": 10000,
+              "match_seconds": 0,
+              "free_play": true,
+              "attract_sound": true,
+              "fill_bots": true
+            },
+            "tuning": {
+              "durations": {
+                "Crown": 7.0,
+                "Titan": 7.0,
+                "Rush": 7.0,
+                "Mist": 7.0,
+                "Slick": 2.0,
+                "Spark": 2.0,
+                "Veil": 7.0,
+                "Flare": 3.0,
+                "Quake": 5.0,
+                "Lure": 7.0
+              },
+              "spawn_seconds": 3.0,
+              "item_step_seconds": 0.24,
+              "player_step_seconds": 0.1,
+              "rush_step_seconds": 0.065,
+              "slick_step_seconds": 0.055,
+              "ghost_step_seconds": 0.16,
+              "spark_radius": 8,
+              "flame_cells": 5,
+              "smoke_seconds": 2.5,
+              "smoke_radius": 2,
+              "quake_multiplier": 2.0,
+              "smoke_multiplier": 2.0,
+              "max_items": 12
+            },
+            "continue_seconds": 10.0,
+            "continue_delay": 1.0
+          }
+        },
+        {
+          "sequence": 1,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              5,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 2,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              53,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 3,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              53,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 4,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              5,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 5,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              21,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 6,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              37,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 7,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              39,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 8,
+          "timestamp": 0.9,
+          "tick": 54,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 10,
+          "context": {
+            "position": [
+              21,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 9,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              4,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 10,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              54,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 11,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              54,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 12,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              4,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 13,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              22,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 14,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              36,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 15,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              40,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 16,
+          "timestamp": 1.0,
+          "tick": 60,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 20,
+          "context": {
+            "position": [
+              22,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 17,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              3,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 18,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              55,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 19,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              55,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 20,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              3,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 21,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              23,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 22,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              35,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 23,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              41,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 24,
+          "timestamp": 1.1,
+          "tick": 66,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 30,
+          "context": {
+            "position": [
+              23,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 25,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              2,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 26,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              56,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 27,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              56,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 28,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              2,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 29,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              24,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 30,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              35,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 31,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              42,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 32,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 40,
+          "context": {
+            "position": [
+              24,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 33,
+          "timestamp": 1.2,
+          "tick": 72,
+          "event": "pickup",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 75,
+          "score": 115,
+          "context": {
+            "position": [
+              56,
+              29
+            ],
+            "score_rule": "pickup",
+            "power": "Veil",
+            "duration": 7.0,
+            "expires_at": 8.2
+          }
+        },
+        {
+          "sequence": 34,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              1,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 35,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 125,
+          "context": {
+            "position": [
+              57,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 36,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              57,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 37,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              1,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 38,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              24,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 39,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              35,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 40,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              42,
+              2
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 41,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 50,
+          "context": {
+            "position": [
+              24,
+              2
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 42,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "pickup",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 100,
+          "score": 150,
+          "context": {
+            "position": [
+              1,
+              29
+            ],
+            "score_rule": "gold_pickup",
+            "power": "Crown",
+            "duration": 7.0,
+            "expires_at": 8.3
+          }
+        },
+        {
+          "sequence": 43,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "pickup",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 100,
+          "score": 225,
+          "context": {
+            "position": [
+              57,
+              29
+            ],
+            "score_rule": "gold_pickup",
+            "power": "Crown",
+            "duration": 7.0,
+            "expires_at": 8.3
+          }
+        },
+        {
+          "sequence": 44,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "pickup",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 100,
+          "score": 150,
+          "context": {
+            "position": [
+              57,
+              1
+            ],
+            "score_rule": "gold_pickup",
+            "power": "Crown",
+            "duration": 7.0,
+            "expires_at": 8.3
+          }
+        },
+        {
+          "sequence": 45,
+          "timestamp": 1.3,
+          "tick": 78,
+          "event": "pickup",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 100,
+          "score": 150,
+          "context": {
+            "position": [
+              1,
+              1
+            ],
+            "score_rule": "gold_pickup",
+            "power": "Crown",
+            "duration": 7.0,
+            "expires_at": 8.3
+          }
+        },
+        {
+          "sequence": 46,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              1,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 47,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 235,
+          "context": {
+            "position": [
+              57,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 48,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              57,
+              2
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 49,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              1,
+              2
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 50,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 60,
+          "context": {
+            "position": [
+              24,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 51,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 60,
+          "context": {
+            "position": [
+              35,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 52,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 60,
+          "context": {
+            "position": [
+              42,
+              3
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 53,
+          "timestamp": 1.4,
+          "tick": 84,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 60,
+          "context": {
+            "position": [
+              24,
+              3
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 54,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              1,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 55,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 245,
+          "context": {
+            "position": [
+              57,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 56,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              57,
+              3
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 57,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              1,
+              3
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 58,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 70,
+          "context": {
+            "position": [
+              24,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 59,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 70,
+          "context": {
+            "position": [
+              35,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 60,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 70,
+          "context": {
+            "position": [
+              42,
+              4
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 61,
+          "timestamp": 1.5,
+          "tick": 90,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 70,
+          "context": {
+            "position": [
+              24,
+              4
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 62,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              1,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 63,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 255,
+          "context": {
+            "position": [
+              57,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 64,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              57,
+              4
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 65,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              1,
+              4
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 66,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 80,
+          "context": {
+            "position": [
+              24,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 67,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 80,
+          "context": {
+            "position": [
+              36,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 68,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 80,
+          "context": {
+            "position": [
+              42,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 69,
+          "timestamp": 1.6,
+          "tick": 96,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 80,
+          "context": {
+            "position": [
+              24,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 70,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              1,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 71,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 265,
+          "context": {
+            "position": [
+              57,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 72,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              57,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 73,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              1,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 74,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 90,
+          "context": {
+            "position": [
+              23,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 75,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 90,
+          "context": {
+            "position": [
+              37,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 76,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 90,
+          "context": {
+            "position": [
+              42,
+              6
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 77,
+          "timestamp": 1.7,
+          "tick": 102,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 90,
+          "context": {
+            "position": [
+              23,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 78,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              0,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 79,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 275,
+          "context": {
+            "position": [
+              57,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 80,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              57,
+              6
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 81,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              0,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 82,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 100,
+          "context": {
+            "position": [
+              22,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 83,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 100,
+          "context": {
+            "position": [
+              38,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 84,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 100,
+          "context": {
+            "position": [
+              42,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 85,
+          "timestamp": 1.8,
+          "tick": 108,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 100,
+          "context": {
+            "position": [
+              22,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 86,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              58,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 87,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 285,
+          "context": {
+            "position": [
+              57,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 88,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              57,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 89,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              58,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 90,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 110,
+          "context": {
+            "position": [
+              21,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 91,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 110,
+          "context": {
+            "position": [
+              38,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 92,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 110,
+          "context": {
+            "position": [
+              43,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 93,
+          "timestamp": 1.9,
+          "tick": 114,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 110,
+          "context": {
+            "position": [
+              21,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 94,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 295,
+          "context": {
+            "position": [
+              57,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 95,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              57,
+              8
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 96,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 120,
+          "context": {
+            "position": [
+              20,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 97,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 120,
+          "context": {
+            "position": [
+              38,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 98,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 120,
+          "context": {
+            "position": [
+              44,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 99,
+          "timestamp": 2.0,
+          "tick": 120,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 120,
+          "context": {
+            "position": [
+              20,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 100,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 305,
+          "context": {
+            "position": [
+              57,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 101,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 230,
+          "context": {
+            "position": [
+              57,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 102,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 130,
+          "context": {
+            "position": [
+              20,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 103,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 130,
+          "context": {
+            "position": [
+              38,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 104,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 130,
+          "context": {
+            "position": [
+              45,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 105,
+          "timestamp": 2.1,
+          "tick": 126,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 130,
+          "context": {
+            "position": [
+              20,
+              6
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 106,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 315,
+          "context": {
+            "position": [
+              57,
+              20
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 107,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 240,
+          "context": {
+            "position": [
+              57,
+              10
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 108,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 140,
+          "context": {
+            "position": [
+              20,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 109,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 140,
+          "context": {
+            "position": [
+              38,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 110,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 140,
+          "context": {
+            "position": [
+              45,
+              8
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 111,
+          "timestamp": 2.2,
+          "tick": 132,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 140,
+          "context": {
+            "position": [
+              20,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 112,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 325,
+          "context": {
+            "position": [
+              57,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 113,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 250,
+          "context": {
+            "position": [
+              57,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 114,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 150,
+          "context": {
+            "position": [
+              20,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 115,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 150,
+          "context": {
+            "position": [
+              38,
+              20
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 116,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 150,
+          "context": {
+            "position": [
+              45,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 117,
+          "timestamp": 2.3,
+          "tick": 138,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 150,
+          "context": {
+            "position": [
+              20,
+              8
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 118,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 335,
+          "context": {
+            "position": [
+              56,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 119,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 260,
+          "context": {
+            "position": [
+              56,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 120,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              20,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 121,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              38,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 122,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              45,
+              10
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 123,
+          "timestamp": 2.4,
+          "tick": 144,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 160,
+          "context": {
+            "position": [
+              20,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 124,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 345,
+          "context": {
+            "position": [
+              55,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 125,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 270,
+          "context": {
+            "position": [
+              55,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 126,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              19,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 127,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              38,
+              18
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 128,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              45,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 129,
+          "timestamp": 2.5,
+          "tick": 150,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 170,
+          "context": {
+            "position": [
+              20,
+              10
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 130,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 355,
+          "context": {
+            "position": [
+              54,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 131,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 280,
+          "context": {
+            "position": [
+              54,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 132,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              18,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 133,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              38,
+              17
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 134,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              46,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 135,
+          "timestamp": 2.6,
+          "tick": 156,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 180,
+          "context": {
+            "position": [
+              20,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 136,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 365,
+          "context": {
+            "position": [
+              53,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 137,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 290,
+          "context": {
+            "position": [
+              53,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 138,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              17,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 139,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              38,
+              16
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 140,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              47,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 141,
+          "timestamp": 2.7,
+          "tick": 162,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 190,
+          "context": {
+            "position": [
+              20,
+              12
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 142,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 375,
+          "context": {
+            "position": [
+              52,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 143,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 300,
+          "context": {
+            "position": [
+              52,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 144,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              16,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 145,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              38,
+              15
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 146,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              48,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 147,
+          "timestamp": 2.8,
+          "tick": 168,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 1,
+          "delta": 10,
+          "score": 200,
+          "context": {
+            "position": [
+              20,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 148,
+          "timestamp": 2.9,
+          "tick": 174,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 385,
+          "context": {
+            "position": [
+              51,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 149,
+          "timestamp": 2.9,
+          "tick": 174,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 310,
+          "context": {
+            "position": [
+              51,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 150,
+          "timestamp": 2.9,
+          "tick": 174,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              16,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 151,
+          "timestamp": 2.9,
+          "tick": 174,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              38,
+              14
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 152,
+          "timestamp": 2.9,
+          "tick": 174,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              49,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 153,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 1,
+          "delta": 10,
+          "score": 395,
+          "context": {
+            "position": [
+              50,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 154,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 10,
+          "score": 320,
+          "context": {
+            "position": [
+              50,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 155,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              51,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 156,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              16,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 157,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 1,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              38,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 158,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              49,
+              10
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 159,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "pickup",
+          "player_id": 7,
+          "stage": 1,
+          "delta": 75,
+          "score": 295,
+          "context": {
+            "position": [
+              49,
+              10
+            ],
+            "score_rule": "pickup",
+            "power": "Lure",
+            "duration": 7.0,
+            "expires_at": 10.0
+          }
+        },
+        {
+          "sequence": 160,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "capture_fixture",
+          "player_id": null,
+          "stage": 2,
+          "delta": 0,
+          "score": null,
+          "context": {
+            "kind": "C_to_D_transition",
+            "controlled": true
+          }
+        },
+        {
+          "sequence": 161,
+          "timestamp": 3.0,
+          "tick": 180,
+          "event": "stage_start",
+          "player_id": null,
+          "stage": 2,
+          "delta": 0,
+          "score": null,
+          "context": {
+            "theme": 0,
+            "previous_theme": 2,
+            "actors_preserved": true
+          }
+        },
+        {
+          "sequence": 162,
+          "timestamp": 3.5,
+          "tick": 210,
+          "event": "pickup",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 75,
+          "score": 295,
+          "context": {
+            "position": [
+              33,
+              13
+            ],
+            "score_rule": "pickup",
+            "power": "Slick",
+            "duration": 2.0,
+            "expires_at": 5.5
+          }
+        },
+        {
+          "sequence": 163,
+          "timestamp": 3.566666667,
+          "tick": 214,
+          "event": "player_hurt",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 0,
+          "score": 295,
+          "context": {
+            "position": [
+              32,
+              13
+            ],
+            "lives": 2
+          }
+        },
+        {
+          "sequence": 164,
+          "timestamp": 3.6,
+          "tick": 216,
+          "event": "pickup",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 75,
+          "score": 295,
+          "context": {
+            "position": [
+              12,
+              25
+            ],
+            "score_rule": "pickup",
+            "power": "Quake",
+            "duration": 5.0,
+            "expires_at": 8.6
+          }
+        },
+        {
+          "sequence": 165,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              12,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 166,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 405,
+          "context": {
+            "position": [
+              43,
+              17
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 167,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 10,
+          "score": 330,
+          "context": {
+            "position": [
+              43,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 168,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 230,
+          "context": {
+            "position": [
+              52,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 169,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 305,
+          "context": {
+            "position": [
+              11,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 170,
+          "timestamp": 3.8,
+          "tick": 228,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 210,
+          "context": {
+            "position": [
+              27,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 171,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 230,
+          "context": {
+            "position": [
+              12,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 172,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 415,
+          "context": {
+            "position": [
+              42,
+              17
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 173,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 240,
+          "context": {
+            "position": [
+              51,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 174,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 315,
+          "context": {
+            "position": [
+              12,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 175,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 305,
+          "context": {
+            "position": [
+              42,
+              10
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 176,
+          "timestamp": 4.0,
+          "tick": 240,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 220,
+          "context": {
+            "position": [
+              28,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 177,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 240,
+          "context": {
+            "position": [
+              12,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 178,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 425,
+          "context": {
+            "position": [
+              42,
+              16
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 179,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 250,
+          "context": {
+            "position": [
+              50,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 180,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 325,
+          "context": {
+            "position": [
+              13,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 181,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 315,
+          "context": {
+            "position": [
+              42,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 182,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 230,
+          "context": {
+            "position": [
+              29,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 183,
+          "timestamp": 4.2,
+          "tick": 252,
+          "event": "pickup",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 1000,
+          "score": 1230,
+          "context": {
+            "position": [
+              29,
+              9
+            ],
+            "score_rule": "giant_pickup",
+            "power": "Titan",
+            "duration": 7.0,
+            "expires_at": 11.2
+          }
+        },
+        {
+          "sequence": 184,
+          "timestamp": 4.4,
+          "tick": 264,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 435,
+          "context": {
+            "position": [
+              42,
+              15
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 185,
+          "timestamp": 4.4,
+          "tick": 264,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 260,
+          "context": {
+            "position": [
+              49,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 186,
+          "timestamp": 4.4,
+          "tick": 264,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 335,
+          "context": {
+            "position": [
+              14,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 187,
+          "timestamp": 4.4,
+          "tick": 264,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 325,
+          "context": {
+            "position": [
+              42,
+              12
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 188,
+          "timestamp": 4.4,
+          "tick": 264,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1240,
+          "context": {
+            "position": [
+              30,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 189,
+          "timestamp": 4.566666667,
+          "tick": 274,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 305,
+          "context": {
+            "position": [
+              37,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 190,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 445,
+          "context": {
+            "position": [
+              42,
+              14
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 191,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 270,
+          "context": {
+            "position": [
+              48,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 192,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 345,
+          "context": {
+            "position": [
+              15,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 193,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 335,
+          "context": {
+            "position": [
+              42,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 194,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1250,
+          "context": {
+            "position": [
+              31,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 195,
+          "timestamp": 4.6,
+          "tick": 276,
+          "event": "player_bump",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 0,
+          "score": 445,
+          "context": {
+            "other_player_id": 7,
+            "positions": [
+              [
+                42,
+                15
+              ],
+              [
+                42,
+                12
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 196,
+          "timestamp": 4.766666667,
+          "tick": 286,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 315,
+          "context": {
+            "position": [
+              36,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 197,
+          "timestamp": 4.8,
+          "tick": 288,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 280,
+          "context": {
+            "position": [
+              47,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 198,
+          "timestamp": 4.8,
+          "tick": 288,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 355,
+          "context": {
+            "position": [
+              16,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 199,
+          "timestamp": 4.8,
+          "tick": 288,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1260,
+          "context": {
+            "position": [
+              32,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 200,
+          "timestamp": 4.8,
+          "tick": 288,
+          "event": "player_bump",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 0,
+          "score": 330,
+          "context": {
+            "other_player_id": 7,
+            "positions": [
+              [
+                42,
+                11
+              ],
+              [
+                42,
+                12
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 201,
+          "timestamp": 4.966666667,
+          "tick": 298,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 325,
+          "context": {
+            "position": [
+              35,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 202,
+          "timestamp": 5.0,
+          "tick": 300,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 290,
+          "context": {
+            "position": [
+              46,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 203,
+          "timestamp": 5.0,
+          "tick": 300,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 365,
+          "context": {
+            "position": [
+              17,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 204,
+          "timestamp": 5.0,
+          "tick": 300,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1270,
+          "context": {
+            "position": [
+              33,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 205,
+          "timestamp": 5.166666667,
+          "tick": 310,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 335,
+          "context": {
+            "position": [
+              34,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 206,
+          "timestamp": 5.2,
+          "tick": 312,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 300,
+          "context": {
+            "position": [
+              46,
+              6
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 207,
+          "timestamp": 5.2,
+          "tick": 312,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 375,
+          "context": {
+            "position": [
+              18,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 208,
+          "timestamp": 5.2,
+          "tick": 312,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1280,
+          "context": {
+            "position": [
+              34,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 209,
+          "timestamp": 5.316666667,
+          "tick": 319,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 345,
+          "context": {
+            "position": [
+              41,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 210,
+          "timestamp": 5.366666667,
+          "tick": 322,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 345,
+          "context": {
+            "position": [
+              33,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 211,
+          "timestamp": 5.4,
+          "tick": 324,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 250,
+          "context": {
+            "position": [
+              16,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 212,
+          "timestamp": 5.4,
+          "tick": 324,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 310,
+          "context": {
+            "position": [
+              46,
+              7
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 213,
+          "timestamp": 5.4,
+          "tick": 324,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 385,
+          "context": {
+            "position": [
+              19,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 214,
+          "timestamp": 5.4,
+          "tick": 324,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1290,
+          "context": {
+            "position": [
+              35,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 215,
+          "timestamp": 5.516666667,
+          "tick": 331,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 355,
+          "context": {
+            "position": [
+              40,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 216,
+          "timestamp": 5.516666667,
+          "tick": 331,
+          "event": "player_bump",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 0,
+          "score": 445,
+          "context": {
+            "other_player_id": 3,
+            "positions": [
+              [
+                42,
+                14
+              ],
+              [
+                42,
+                11
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 217,
+          "timestamp": 5.566666667,
+          "tick": 334,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 355,
+          "context": {
+            "position": [
+              32,
+              29
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 218,
+          "timestamp": 5.6,
+          "tick": 336,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 260,
+          "context": {
+            "position": [
+              16,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 219,
+          "timestamp": 5.6,
+          "tick": 336,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 320,
+          "context": {
+            "position": [
+              46,
+              8
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 220,
+          "timestamp": 5.6,
+          "tick": 336,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 395,
+          "context": {
+            "position": [
+              20,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 221,
+          "timestamp": 5.6,
+          "tick": 336,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1300,
+          "context": {
+            "position": [
+              36,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 222,
+          "timestamp": 5.716666667,
+          "tick": 343,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 365,
+          "context": {
+            "position": [
+              39,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 223,
+          "timestamp": 5.766666667,
+          "tick": 346,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 365,
+          "context": {
+            "position": [
+              32,
+              28
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 224,
+          "timestamp": 5.8,
+          "tick": 348,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 270,
+          "context": {
+            "position": [
+              16,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 225,
+          "timestamp": 5.8,
+          "tick": 348,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 330,
+          "context": {
+            "position": [
+              46,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 226,
+          "timestamp": 5.8,
+          "tick": 348,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 405,
+          "context": {
+            "position": [
+              20,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 227,
+          "timestamp": 5.8,
+          "tick": 348,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1310,
+          "context": {
+            "position": [
+              37,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 228,
+          "timestamp": 5.916666667,
+          "tick": 355,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 375,
+          "context": {
+            "position": [
+              38,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 229,
+          "timestamp": 5.966666667,
+          "tick": 358,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 375,
+          "context": {
+            "position": [
+              32,
+              27
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 230,
+          "timestamp": 6.0,
+          "tick": 360,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 280,
+          "context": {
+            "position": [
+              16,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 231,
+          "timestamp": 6.0,
+          "tick": 360,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 340,
+          "context": {
+            "position": [
+              45,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 232,
+          "timestamp": 6.0,
+          "tick": 360,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 415,
+          "context": {
+            "position": [
+              20,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 233,
+          "timestamp": 6.0,
+          "tick": 360,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1320,
+          "context": {
+            "position": [
+              38,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 234,
+          "timestamp": 6.116666667,
+          "tick": 367,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 385,
+          "context": {
+            "position": [
+              38,
+              14
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 235,
+          "timestamp": 6.166666667,
+          "tick": 370,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 385,
+          "context": {
+            "position": [
+              32,
+              26
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 236,
+          "timestamp": 6.2,
+          "tick": 372,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 290,
+          "context": {
+            "position": [
+              16,
+              20
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 237,
+          "timestamp": 6.2,
+          "tick": 372,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 350,
+          "context": {
+            "position": [
+              44,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 238,
+          "timestamp": 6.2,
+          "tick": 372,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 425,
+          "context": {
+            "position": [
+              20,
+              22
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 239,
+          "timestamp": 6.2,
+          "tick": 372,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1330,
+          "context": {
+            "position": [
+              39,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 240,
+          "timestamp": 6.233333333,
+          "tick": 374,
+          "event": "player_bump",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 0,
+          "score": 445,
+          "context": {
+            "other_player_id": 3,
+            "positions": [
+              [
+                42,
+                14
+              ],
+              [
+                42,
+                11
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 241,
+          "timestamp": 6.316666667,
+          "tick": 379,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 395,
+          "context": {
+            "position": [
+              38,
+              15
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 242,
+          "timestamp": 6.316666667,
+          "tick": 379,
+          "event": "ghost_captured",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 0,
+          "score": 395,
+          "context": {
+            "ghost_id": 2
+          }
+        },
+        {
+          "sequence": 243,
+          "timestamp": 6.366666667,
+          "tick": 382,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 395,
+          "context": {
+            "position": [
+              32,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 244,
+          "timestamp": 6.4,
+          "tick": 384,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 300,
+          "context": {
+            "position": [
+              16,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 245,
+          "timestamp": 6.4,
+          "tick": 384,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 435,
+          "context": {
+            "position": [
+              20,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 246,
+          "timestamp": 6.4,
+          "tick": 384,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1340,
+          "context": {
+            "position": [
+              40,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 247,
+          "timestamp": 6.566666667,
+          "tick": 394,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 405,
+          "context": {
+            "position": [
+              33,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 248,
+          "timestamp": 6.6,
+          "tick": 396,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 310,
+          "context": {
+            "position": [
+              16,
+              18
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 249,
+          "timestamp": 6.6,
+          "tick": 396,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 445,
+          "context": {
+            "position": [
+              20,
+              20
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 250,
+          "timestamp": 6.6,
+          "tick": 396,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1350,
+          "context": {
+            "position": [
+              41,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 251,
+          "timestamp": 6.6,
+          "tick": 396,
+          "event": "player_hurt",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 0,
+          "score": 330,
+          "context": {
+            "position": [
+              42,
+              10
+            ],
+            "lives": 2
+          }
+        },
+        {
+          "sequence": 252,
+          "timestamp": 6.6,
+          "tick": 396,
+          "event": "rival_eaten",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 300,
+          "score": 1650,
+          "context": {
+            "position": [
+              41,
+              9
+            ],
+            "score_rule": "rival_eaten",
+            "target_player_id": 3
+          }
+        },
+        {
+          "sequence": 253,
+          "timestamp": 6.766666667,
+          "tick": 406,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 415,
+          "context": {
+            "position": [
+              34,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 254,
+          "timestamp": 6.8,
+          "tick": 408,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 320,
+          "context": {
+            "position": [
+              16,
+              17
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 255,
+          "timestamp": 6.8,
+          "tick": 408,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 455,
+          "context": {
+            "position": [
+              20,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 256,
+          "timestamp": 6.8,
+          "tick": 408,
+          "event": "dot",
+          "player_id": 8,
+          "stage": 2,
+          "delta": 10,
+          "score": 1660,
+          "context": {
+            "position": [
+              42,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 257,
+          "timestamp": 6.8,
+          "tick": 408,
+          "event": "pickup",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 75,
+          "score": 530,
+          "context": {
+            "position": [
+              20,
+              19
+            ],
+            "score_rule": "pickup",
+            "power": "Mist",
+            "duration": 7.0,
+            "expires_at": 13.8
+          }
+        },
+        {
+          "sequence": 258,
+          "timestamp": 6.916666667,
+          "tick": 415,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 405,
+          "context": {
+            "position": [
+              37,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 259,
+          "timestamp": 6.966666667,
+          "tick": 418,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 425,
+          "context": {
+            "position": [
+              35,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 260,
+          "timestamp": 7.0,
+          "tick": 420,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 330,
+          "context": {
+            "position": [
+              16,
+              16
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 261,
+          "timestamp": 7.116666667,
+          "tick": 427,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 415,
+          "context": {
+            "position": [
+              36,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 262,
+          "timestamp": 7.15,
+          "tick": 429,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 455,
+          "context": {
+            "position": [
+              42,
+              18
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 263,
+          "timestamp": 7.166666667,
+          "tick": 430,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 435,
+          "context": {
+            "position": [
+              36,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 264,
+          "timestamp": 7.2,
+          "tick": 432,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 340,
+          "context": {
+            "position": [
+              16,
+              15
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 265,
+          "timestamp": 7.316666667,
+          "tick": 439,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 425,
+          "context": {
+            "position": [
+              35,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 266,
+          "timestamp": 7.35,
+          "tick": 441,
+          "event": "dot",
+          "player_id": 2,
+          "stage": 2,
+          "delta": 10,
+          "score": 465,
+          "context": {
+            "position": [
+              42,
+              19
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 267,
+          "timestamp": 7.366666667,
+          "tick": 442,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 445,
+          "context": {
+            "position": [
+              37,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 268,
+          "timestamp": 7.4,
+          "tick": 444,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 350,
+          "context": {
+            "position": [
+              16,
+              14
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 269,
+          "timestamp": 7.4,
+          "tick": 444,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 540,
+          "context": {
+            "position": [
+              21,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 270,
+          "timestamp": 7.516666667,
+          "tick": 451,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 435,
+          "context": {
+            "position": [
+              34,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 271,
+          "timestamp": 7.566666667,
+          "tick": 454,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 455,
+          "context": {
+            "position": [
+              38,
+              25
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 272,
+          "timestamp": 7.6,
+          "tick": 456,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 360,
+          "context": {
+            "position": [
+              16,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 273,
+          "timestamp": 7.6,
+          "tick": 456,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 10,
+          "score": 340,
+          "context": {
+            "position": [
+              53,
+              1
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 274,
+          "timestamp": 7.6,
+          "tick": 456,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 550,
+          "context": {
+            "position": [
+              22,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 275,
+          "timestamp": 7.716666667,
+          "tick": 463,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 445,
+          "context": {
+            "position": [
+              33,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 276,
+          "timestamp": 7.766666667,
+          "tick": 466,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 465,
+          "context": {
+            "position": [
+              38,
+              24
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 277,
+          "timestamp": 7.8,
+          "tick": 468,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 370,
+          "context": {
+            "position": [
+              16,
+              12
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 278,
+          "timestamp": 7.8,
+          "tick": 468,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 10,
+          "score": 350,
+          "context": {
+            "position": [
+              53,
+              2
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 279,
+          "timestamp": 7.8,
+          "tick": 468,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 560,
+          "context": {
+            "position": [
+              23,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 280,
+          "timestamp": 7.916666667,
+          "tick": 475,
+          "event": "dot",
+          "player_id": 7,
+          "stage": 2,
+          "delta": 10,
+          "score": 455,
+          "context": {
+            "position": [
+              32,
+              13
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 281,
+          "timestamp": 7.966666667,
+          "tick": 478,
+          "event": "dot",
+          "player_id": 6,
+          "stage": 2,
+          "delta": 10,
+          "score": 475,
+          "context": {
+            "position": [
+              38,
+              23
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 282,
+          "timestamp": 8.0,
+          "tick": 480,
+          "event": "dot",
+          "player_id": 1,
+          "stage": 2,
+          "delta": 10,
+          "score": 380,
+          "context": {
+            "position": [
+              16,
+              11
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 283,
+          "timestamp": 8.0,
+          "tick": 480,
+          "event": "dot",
+          "player_id": 3,
+          "stage": 2,
+          "delta": 10,
+          "score": 360,
+          "context": {
+            "position": [
+              53,
+              3
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 284,
+          "timestamp": 8.0,
+          "tick": 480,
+          "event": "dot",
+          "player_id": 4,
+          "stage": 2,
+          "delta": 10,
+          "score": 360,
+          "context": {
+            "position": [
+              45,
+              5
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 285,
+          "timestamp": 8.0,
+          "tick": 480,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 2,
+          "delta": 10,
+          "score": 570,
+          "context": {
+            "position": [
+              24,
+              21
+            ],
+            "score_rule": "dot"
+          }
+        }
+      ],
+      "rankings": [
+        {
+          "rank": 1,
+          "player_id": 8,
+          "score": 1660,
+          "lives": 3
+        },
+        {
+          "rank": 2,
+          "player_id": 5,
+          "score": 570,
+          "lives": 3
+        },
+        {
+          "rank": 3,
+          "player_id": 6,
+          "score": 475,
+          "lives": 2
+        },
+        {
+          "rank": 4,
+          "player_id": 2,
+          "score": 465,
+          "lives": 3
+        },
+        {
+          "rank": 5,
+          "player_id": 7,
+          "score": 455,
+          "lives": 3
+        },
+        {
+          "rank": 6,
+          "player_id": 1,
+          "score": 380,
+          "lives": 3
+        },
+        {
+          "rank": 7,
+          "player_id": 3,
+          "score": 360,
+          "lives": 2
+        },
+        {
+          "rank": 7,
+          "player_id": 4,
+          "score": 360,
           "lives": 3
         }
       ]

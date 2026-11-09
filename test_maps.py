@@ -9,6 +9,44 @@ from map_library import catalog, get_map, next_map_index, parse_catalog
 
 
 class MapTests(unittest.TestCase):
+    def test_exterior_core_spacing_all_maps_and_palettes(self):
+        import pygame as pg
+        from game import App,Match,PALETTES,OX,TOP,COLS,ROWS,TILE
+        app=App(simulate_controllers=True)
+        for theme in range(4):
+            app.match=Match(8,theme,seed=321)
+            app.reset_visuals()
+            for palette in range(len(PALETTES)):
+                app.palette_override=palette;app.draw(0)
+                for label,points in (
+                    ('top',[(OX+300,TOP+i) for i in range(11)]),
+                    ('bottom',[(OX+300,TOP+ROWS*TILE-1-i) for i in range(11)]),
+                    ('left',[(OX+i,TOP+240) for i in range(11)]),
+                    ('right',[(OX+COLS*TILE-1-i,TOP+240) for i in range(11)])):
+                    values=[sum(app.canvas.get_at(p)[:3]) for p in points]
+                    outer=max(range(0,4),key=values.__getitem__)
+                    inner=max(range(5,10),key=values.__getitem__)
+                    with self.subTest(map=theme,palette=palette,edge=label):
+                        self.assertEqual(inner-outer,6)
+                        self.assertLess(values[4],min(values[outer],values[inner])*.8)
+        pg.quit()
+
+    def test_exterior_corners_are_concentric(self):
+        import pygame as pg
+        from game import Arena
+        from arcade_art import maze_wall_mask,FRAME_THICKNESS
+        expected=pg.Surface((1180,620),pg.SRCALPHA)
+        pg.draw.rect(expected,'white',expected.get_rect(),border_radius=16)
+        pg.draw.rect(expected,(0,0,0,0),expected.get_rect().inflate(-18,-18),border_radius=7)
+        expected=pg.mask.from_surface(expected)
+        self.assertEqual(FRAME_THICKNESS,9)
+        for theme in range(4):
+            actual=maze_wall_mask(Arena(theme).space,59,31,20,26)
+            for x0,y0 in ((0,0),(1156,0),(0,596),(1156,596)):
+                for y in range(y0,y0+24):
+                    for x in range(x0,x0+24):
+                        self.assertEqual(actual.get_at((x,y)),expected.get_at((x,y)))
+
     def document(self):
         return json.loads(Path(__file__).with_name('maps.json').read_text(encoding='utf-8'))
 
@@ -318,6 +356,9 @@ class MapTests(unittest.TestCase):
                     lives = [p.lives for p in g.players]
                     scores = [p.score for p in g.players]
                     remaining = g.time
+                    positions = [p.pos for p in g.players]
+                    target = Arena(theme+1)
+                    legal = {p.idx for p in g.players if target.can_enter(p.pos,p)}
                     g.dots.clear()
                     g.update(0)
                     self.assertEqual(g.stage, 2)
@@ -325,8 +366,23 @@ class MapTests(unittest.TestCase):
                     self.assertEqual(g.time, remaining)
                     self.assertEqual([p.lives for p in g.players], lives)
                     for i, p in enumerate(g.players):
-                        self.assertEqual(p.pos, g.arena.spawns[p.idx])
+                        self.assertTrue(g.arena.can_enter(p.pos,p))
+                        if p.idx in legal:
+                            self.assertEqual(p.pos,positions[i])
+                        else:
+                            # Valid actors reserve their cells before displaced
+                            # actors move to the nearest remaining public lane.
+                            occupied={g.players[j].pos for j in legal}
+                            occupied.update(g.players[j].pos for j in range(i) if j not in legal)
+                            free=g.arena.lanes-occupied
+                            from game import distance
+                            nearest=min(distance(positions[i],cell) for cell in free)
+                            self.assertEqual(distance(positions[i],p.pos),nearest)
                         self.assertGreaterEqual(p.score, scores[i])
+                    stage_events=[e for e in g.ledger.events if e['event']=='stage_start']
+                    self.assertTrue(stage_events[-1]['context']['actors_preserved'])
+                    self.assertTrue(g.refill_pending)
+                    self.assertFalse(g.dots)
 
     def test_sparse_station_identity_survives_map_transition(self):
         from game import Match
@@ -337,13 +393,15 @@ class MapTests(unittest.TestCase):
                     self.assertTrue(g.join_station(station))
                     self.assertEqual(g.count, 1)
                     self.assertEqual([p.idx for p in g.players if p.joined], [station])
+                    positions=[p.pos for p in g.players]
                     g.dots.clear()
                     g.update(0)
                     self.assertFalse(g.over)
                     self.assertEqual(g.stage, 2)
                     self.assertEqual(g.count, 1)
                     for p in g.players:
-                        self.assertEqual(p.pos, g.arena.spawns[p.idx])
+                        self.assertEqual(p.pos, positions[p.idx])
+                        if p.joined:self.assertEqual(p.pos,g.arena.spawns[p.idx])
                         self.assertEqual(p.joined, p.idx == station)
                         self.assertEqual(p.lives, 3 if p.joined else 0)
                         self.assertEqual(p.score, 500 if p.joined else 0)

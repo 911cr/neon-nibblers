@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "step": 0.016666666666666666,
-  "fill_bots": false,
+  "fill_bots": true,
   "initial": {
     "count": 8,
     "theme": 0,
@@ -25982,51 +25982,51 @@
   "checkpoints": [
     {
       "frame": 60,
-      "digest": "4091382d61afe1966ea29972059b95a1ec6e55ae15cffe9fa6ec68311a1a1b47"
+      "digest": "cf97e07451a89774a6d7c6d8f600c04edc9c4baca2939531ced685db2701d092"
     },
     {
       "frame": 120,
-      "digest": "f6257b16f66fa0b2a023eb6ade2f038d423be732e63ac81fe824848acaede60a"
+      "digest": "b296aa21482620648059235e8523a871a54958d3121b9a41f5e94aee0d37fe45"
     },
     {
       "frame": 180,
-      "digest": "3ebeb87ec4cb5dc61c5ad11c5c55ff22959fa242f97ec303151dd0a2e95285cc"
+      "digest": "5f43d345ce2dd8a88f75ef5d856b1e2c252ca17bc6ddb764ce2ca0ad9855d60f"
     },
     {
       "frame": 240,
-      "digest": "98c483425c7789f42e58e2db57fe82141b33827e708fd07297441650de58a617"
+      "digest": "7693157b529f2f6d265528a6b2ac45d47a97b569e180edff8c5de66afe33f37e"
     },
     {
       "frame": 300,
-      "digest": "57c0e45bfdce02562c69adf4ce1310a17578e943c0674714ec3e3828b7652062"
+      "digest": "b0343844dc43c83a7269f72ec94840879eaf89cb7502153d6c1f13889b0594e7"
     },
     {
       "frame": 360,
-      "digest": "ab1e34d1b5f8a52cd3957d22470977b58328ad30d2fe14018d33c01d55e743fb"
+      "digest": "7ca49c07d9e5d520aa0cd1f593c8660b9a4c37e7e97248965bedf0973e815d06"
     },
     {
       "frame": 420,
-      "digest": "f801b3eb1dc4fce7a6ef317721cdf555d496e4ab8813dd78578204fc92b6fb68"
+      "digest": "f10d6146d371e3709af65a7dafd5ee981dcd9264abc0a47b5638cfa3545d2338"
     },
     {
       "frame": 480,
-      "digest": "a7190b8c2fd2374fd6bfd7598b54b8f89618610271422ab4b1e27b25a72a6d6b"
+      "digest": "8d1a8c710a595d4f6e53695634bfb975062e5d7572532b6c63a3aed7e88e1837"
     },
     {
       "frame": 540,
-      "digest": "ba93f974af43794e8c0bcedad754803c810de77906bd51e61d5fd30bf21656fd"
+      "digest": "62f7ea3d4d57221fc88acf47fa6a7ddc2e3b380f9f39d24793df28b026b62010"
     },
     {
       "frame": 600,
-      "digest": "d2ea99db4a0885c0bc8de5a345ff1568d37141df0ebc8a597315e2bb5080d529"
+      "digest": "ead3693250e58ac1d77702563450ee831b34440faccc75144280bd58dc1afbc3"
     },
     {
       "frame": 660,
-      "digest": "8ab7b0c940dc904c581a6a18f1e9aa24e1c80ad728e6f66c8bcaa92394e85f0a"
+      "digest": "0935343240823af4f24c7af32cffa0794e720855364a6b32697e7a1ba32a5701"
     },
     {
       "frame": 720,
-      "digest": "0c6feed982a27b79fce765734a54abd68b7015bfa63ecc3b65d3b255b5e8c186"
+      "digest": "394181a05ade990a63ec3b093eac29ea5a386cd55f471d0432184ae056309882"
     }
   ],
   "movement_trace": [
@@ -50444,5 +50444,5 @@
       }
     }
   ],
-  "final_digest": "0c6feed982a27b79fce765734a54abd68b7015bfa63ecc3b65d3b255b5e8c186"
+  "final_digest": "394181a05ade990a63ec3b093eac29ea5a386cd55f471d0432184ae056309882"
 }

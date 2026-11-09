@@ -1,4 +1,5 @@
-Revision15: 271 checks PASS on Windows and Ubuntu/WSLg.
-See docs/DX_TEST_REPORT.md and current NATIVE_REVISION15/VIDEO_REVISION15 reports.
-All captured actors automated; physical controllers remain production acceptance.
-Exact DX fidelity is not certified.
+Revision16:288 checks PASS Windows and Ubuntu/WSLg.
+24 native map/count cases and6 native transition cases.
+12 complete automated matches;720-frame472-event replay.
+See current NATIVE_REVISION16/NATIVE_TRANSITION_R16/VIDEO_REVISION16 reports.
+Physical controllers deferred; exact DX fidelity not certified.

@@ -26,14 +26,14 @@ class GateQuality(unittest.TestCase):
                 s=game.pg.Surface((200,160));s.fill((0,0,4))
                 draw_tunnel_neck(s,100,80,side,accent)
                 x=100+side*12
-                peak=s.get_at((x,53))
+                peak=s.get_at((x,52))
                 self.assertGreater(sum(peak[:3]),sum(accent))
                 self.assertGreater(sum(s.get_at((x,49))[:3]),4)
                 self.assertEqual(tuple(s.get_at((100-side*16,53)))[:3],(0,0,4))
                 # Inner rail turns into its matching board frame core;
                 # the old capped frame must not remain across the mouth.
-                inner=104 if side<0 else 95
-                for y in (56,55,54,50,44):
+                inner=107 if side<0 else 92
+                for y in (58,57,56,50,44):
                     self.assertGreater(sum(s.get_at((inner,y))[:3]),sum(accent),(side,y))
                 self.assertEqual(tuple(s.get_at((inner,80)))[:3],(0,0,4))
 

@@ -51,7 +51,7 @@ class Smoke(unittest.TestCase):
 
     def test_stage_and_end(self):
         g=Match(8,seed=1); g.dots.clear(); g.update(.01)
-        self.assertEqual(g.stage,2); self.assertTrue(g.dots)
+        self.assertEqual(g.stage,2); self.assertTrue(g.refill_pending)
         g.time=.01; g.update(.02); self.assertTrue(g.over)
         g=Match(1); g.players[0].lives=0; g.update(.01); self.assertTrue(g.over)
 
@@ -106,7 +106,7 @@ class Smoke(unittest.TestCase):
             for stage in range(1,9):
                 before=[p.score for p in g.players]
                 time=g.time
-                g.dots.clear(); g.update(.01)
+                g.refill_pending.clear();g.dots.clear(); g.update(.01)
                 self.assertEqual(g.stage,stage+1)
                 self.assertEqual(g.arena.theme,stage%4)
                 self.assertAlmostEqual(g.time,time-.01)

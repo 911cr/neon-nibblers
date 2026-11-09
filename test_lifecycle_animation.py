@@ -83,10 +83,12 @@ class LifecycleTests(unittest.TestCase):
                pg.image.tobytes(self.image(),'RGBA'),digest(self.g))
         self.assertEqual(before,after)
 
-    def test_stage_and_session_reset_remove_old_map_feedback(self):
+    def test_continuous_stage_keeps_feedback_but_new_session_resets(self):
         p=self.g.players[0];p.pos=(5,9);p.safe=0;self.g.hurt(p)
         self.fx.update(self.g,0)
         self.g.dots.clear();self.g.update(1/60);self.fx.update(self.g,0)
+        self.assertEqual(len(self.fx.deaths),1);self.assertEqual(len(self.fx.arrivals),1)
+        self.fx.update(self.g,.45)
         self.assertEqual(self.fx.deaths,[]);self.assertEqual(self.fx.arrivals,[])
         other=Match(1,seed=99)
         self.fx.update(other,0)

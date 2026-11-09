@@ -2,7 +2,7 @@
 from functools import lru_cache
 import math
 import pygame as pg
-from arcade_art import wall_highlight,neon_sprite,NEON_SCALE,NEON_STROKE,NEON_CORE
+from arcade_art import wall_highlight,neon_sprite,NEON_SCALE,NEON_STROKE,NEON_CORE,FRAME_CORE_OFFSETS
 
 GATE_HATCH=(228,238,82)
 GATE_LIP=(250,255,146)  # Continuous yellow upper edge seen in the reference photo.
@@ -14,12 +14,14 @@ GATE_DEPTH=48
 def _tunnel_sprite(accent):
     scale=NEON_SCALE
     ink=pg.Surface((64*scale,112*scale),pg.SRCALPHA)
-    # Left-hand frame cores are 1/4px inside the board. Replace its old
+    # Left-hand frame cores are 1/7px inside the board. Replace its old
     # closed cap with two continuous corners, rather than dangling rails.
-    for x,top,bottom in ((1,-28,27),(4,-24,23)):
+    gap=FRAME_CORE_OFFSETS[1]-FRAME_CORE_OFFSETS[0]
+    for index,x in enumerate(FRAME_CORE_OFFSETS):
+        top,bottom=-28+index*gap,27-index*gap
         for y,end in ((top,-56),(bottom,56)):
             points=[(-36,y),(x,y),(x,end)]
-            points=[(round((px+36+.5)*scale),round((py+56+.5)*scale)) for px,py in points]
+            points=[(round((px+36)*scale)+scale//2,round((py+56)*scale)+scale//2) for px,py in points]
             pg.draw.lines(ink,accent,False,points,round(NEON_STROKE*scale))
             pg.draw.lines(ink,wall_highlight(accent),False,points,round(NEON_CORE*scale))
     return neon_sprite(ink,(64,112))
@@ -44,7 +46,7 @@ def gate_geometry(sx,mouth_y,upper):
 
 
 def _u_points(half,depth,radius,lip):
-    points=[(-44,lip),(-half,lip),(-half,depth-radius)]
+    points=[(-56,lip),(-half,lip),(-half,depth-radius)]
     for angle in range(180,89,-10):
         radians=math.radians(angle)
         points.append((-half+radius+math.cos(radians)*radius,depth-radius+math.sin(radians)*radius))
@@ -52,39 +54,44 @@ def _u_points(half,depth,radius,lip):
     for angle in range(90,-1,-10):
         radians=math.radians(angle)
         points.append((half-radius+math.cos(radians)*radius,depth-radius+math.sin(radians)*radius))
-    points.extend(((half,lip),(44,lip)))
+    points.extend(((half,lip),(56,lip)))
     return points
 
 
 @lru_cache(maxsize=40)
 def _gate_sprite(accent,upper,opening):
-    scale=NEON_SCALE;size=(96,80);anchor=(48,12)
+    scale=NEON_SCALE;size=(112,80);anchor=(56,68 if upper else 12)
     ink=pg.Surface((size[0]*scale,size[1]*scale),pg.SRCALPHA)
     high=wall_highlight(accent)
-    for half,depth,radius,lip in ((32,48,10,3),(26,42,6,-2)):
-        points=[(round((x+anchor[0])*scale),round((y+anchor[1])*scale))
+    lips=(3,-3) if upper else (2,-4)
+    for half,depth,radius,lip in ((32,48,10,lips[0]),(26,42,4,lips[1])):
+        points=[(round((x+anchor[0])*scale)+scale//2,round(((-y if upper else y)+anchor[1])*scale)+scale//2)
                 for x,y in _u_points(half,depth,radius,lip)]
         pg.draw.lines(ink,accent,False,points,round(NEON_STROKE*scale))
         pg.draw.lines(ink,high,False,points,round(NEON_CORE*scale))
     sprite=neon_sprite(ink,size)
-    if upper:sprite=pg.transform.flip(sprite,False,True)
     if not opening:
         band=pg.Surface((48,10));band.fill(GATE_HATCH)
         for x in range(-6,58,8):pg.draw.line(band,(17,23,9),(x,10),(x+10,0),3)
         # Keep the bright lip continuous: the dark cuts begin beneath it.
         # The static reference does not establish a persistent open-gate line.
         pg.draw.line(band,GATE_LIP,(0,0),(47,0),1)
-        band_y=(sprite.get_height()-1-anchor[1] if upper else anchor[1])-5
+        band_y=anchor[1]-5
         sprite.blit(band,(anchor[0]-24,band_y))
     return sprite
 
 
 def draw_station_gate(target,sx,mouth_y,upper,accent,opening):
     geometry=gate_geometry(sx,mouth_y,upper)
-    pg.draw.rect(target,(0,0,4),geometry['clear'])
+    # Replace, rather than over-blend, the shared frame at the shoulders.
+    # Long off-clip lines keep the glow identical at either patch boundary.
+    old_clip=target.get_clip()
+    target.set_clip(geometry['clear'].clip(old_clip))
+    target.fill((0,0,4),target.get_clip())
     sprite=_gate_sprite(tuple(accent),bool(upper),bool(opening))
-    anchor_y=sprite.get_height()-1-12 if upper else 12
-    target.blit(sprite,(sx-48,mouth_y-anchor_y),special_flags=pg.BLEND_PREMULTIPLIED)
+    anchor_y=68 if upper else 12
+    target.blit(sprite,(sx-56,mouth_y-anchor_y),special_flags=pg.BLEND_PREMULTIPLIED)
+    target.set_clip(old_clip)
     return geometry
 
 

@@ -21,6 +21,9 @@ from arcade_ai import choose_direction
 from cabinet_flow import ContinueOffers
 from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH
 from player_contacts import resolve_bumps,approaching_contact
+from maze_transition import render_background,actor_scale
+
+MAZE_TRANSITION_SECONDS=1.1  # Observed sequence; exact duration remains estimated.
 
 W, H, TILE, TOP = 1280, 720, 20, 50
 COLS, ROWS = 59, 31
@@ -237,6 +240,9 @@ class Match:
         return state
 
     def new_arena(self, theme):
+        self.transition_from=None
+        self.transition_age=0.
+        self.refill_pending={}
         self.arena = Arena(theme%4)
         self.dots = set(self.arena.lanes) - set(self.arena.entries)
         self.items, self.traps = {}, {}
@@ -264,6 +270,49 @@ class Match:
             c=min(self.arena.lanes,key=lambda c:(distance(c,anchor),c))
             if len(self.items)<self.tuning['max_items']:self.items[c]='Titan'
         for name in self.rng.sample([k for k in ITEMS if k not in ('Crown','Titan')],3): self.spawn_item(name)
+
+    def transition_arena(self, theme):
+        """Keep the running field across a layout change, as observed in DX.
+
+        Exact commercial relocation, persistence and refill timings are unknown.
+        Our deterministic policy preserves legal positions first, then moves
+        disappearing cells to the nearest free public lane; no respawn/immunity.
+        """
+        old=self.arena
+        self.arena=Arena(theme%4)
+        self.transition_from=old.theme
+        self.transition_age=0.
+        # Reserve unchanged living positions before assigning displaced actors.
+        reserved=set()
+        displaced=[]
+        for p in self.players:
+            if p.lives<=0 or not (p.joined or p.bot):continue
+            if self.arena.can_enter(p.pos,p) and p.pos not in reserved:reserved.add(p.pos)
+            else:displaced.append(p)
+        for p in displaced:
+            p.pos=min(self.arena.lanes-reserved,key=lambda c:(distance(c,p.pos),c))
+            reserved.add(p.pos)
+        for i,mode in enumerate(self.foe_modes):
+            if mode in ('roaming','eyes') and self.foes[i] not in self.arena.lanes:
+                self.foes[i]=min(self.arena.lanes,key=lambda c:(distance(c,self.foes[i]),c))
+            # All catalog layouts share the same house/door. Keep progress on
+            # its entry/exit track rather than resetting release/recovery.
+            if self.foe_previous[i] not in self.arena.lanes:self.foe_previous[i]=self.foes[i]
+        self.sync_carriers()
+        occupied={c for c in self.items if c in self.arena.lanes}
+        items={};directions={}
+        for cell,name in sorted(self.items.items()):
+            target=cell if cell in self.arena.lanes else min(
+                self.arena.lanes-occupied,key=lambda c:(distance(c,cell),c))
+            occupied.add(target);items[target]=name
+            directions[target]=self.item_directions.get(cell)
+        self.items=items;self.item_directions=directions
+        self.traps={c:value for c,value in self.traps.items() if c in self.arena.lanes}
+        self.smoke={c:value for c,value in self.smoke.items() if c in self.arena.lanes}
+        self.dots=set()
+        # Stagger visible/collectible dots together; hidden dots cannot score.
+        self.refill_pending={c:.6+((c[0]*37+c[1]*61)%101)/100*.5
+                             for c in self.arena.lanes-set(self.arena.entries)}
 
     def spawn_item(self, name=None):
         if len(self.items)>=self.tuning['max_items']: return
@@ -519,6 +568,11 @@ class Match:
         if self.over or self.paused: return []
         if not math.isfinite(dt) or dt < 0: raise ValueError('dt must be finite and non-negative')
         self.elapsed += dt; self.tick += 1
+        if self.transition_from is not None:
+            self.transition_age+=dt
+            ready={c for c,at in self.refill_pending.items() if at<=self.transition_age+1e-10}
+            self.dots.update(ready)
+            for c in ready:del self.refill_pending[c]
         sounds=[]
         expired_continues=self.continues.advance(dt)
         for idx in expired_continues:
@@ -610,12 +664,13 @@ class Match:
             if timed_out:self.continues.clear()
             self.ledger.append(self, 'match_end', reason='time' if timed_out else 'elimination', rankings=self.rankings(),
                                continue_timeout=not timed_out and bool(expired_continues))
-        elif not self.dots:
+        elif not self.dots and not self.refill_pending:
             for p in self.players:
                 if p.lives>0: self.award(p, 'stage_clear')
             self.stage+=1
-            self.new_arena(next_map_index(self.arena.theme, self.progression, self.rng))
-            self.ledger.append(self, 'stage_start', theme=self.arena.theme)
+            self.transition_arena(next_map_index(self.arena.theme, self.progression, self.rng))
+            self.ledger.append(self, 'stage_start', theme=self.arena.theme,previous_theme=self.transition_from,
+                               actors_preserved=True,refill_seconds=MAZE_TRANSITION_SECONDS)
             self.award_score_lives()
             sounds.append('power')
         return sounds
@@ -1007,6 +1062,26 @@ class App:
                     wanted=(1 if x>0 else -1,0) if abs(x)>abs(y) else (0,1 if y>0 else -1)
             if wanted: p.wanted=wanted
 
+    def transition_geometry(self,arena,palette,accent):
+        """Geometry-only frame; station text and actors never get rescaled."""
+        frame=pg.Surface((W,H));frame.fill((0,0,4))
+        key=(arena.map_id,arena.map_revision,palette)
+        if key not in self.backgrounds:
+            if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
+            self.backgrounds[key]=maze_background(arena.space,COLS,ROWS,TILE,accent,arena.lane_radius)
+        frame.blit(self.backgrounds[key],(OX,TOP))
+        dx,dy,dw,dh=arena.den
+        draw_house(frame,pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10),accent,center(arena.door)[0])
+        for idx,spawn in enumerate(arena.spawns):
+            p=self.match.players[idx] if idx<len(self.match.players) else None
+            opening=p and p.lives>0 and (p.entry>0 or p.pos==spawn)
+            draw_station_gate(frame,center(spawn)[0],TOP+4 if spawn[1]==0 else TOP+ROWS*TILE-4,
+                              spawn[1]==0,accent,opening)
+        for row in arena.portals:
+            for side in (-1,1):
+                draw_tunnel_neck(frame,OX if side<0 else OX+COLS*TILE,center((0,row))[1],side,accent)
+        return frame
+
     def draw(self,dt=1/60):
         self.canvas.fill((0,0,4))
         if self.match and self.phase not in (Phase.PLAYING,Phase.CONTINUE):dt=0.
@@ -1051,19 +1126,26 @@ class App:
             for event in g.ledger.events[self.ledger_cursor:]:
                 if event['event'] in ('player_hurt','station_join') and event['player_id'] is not None:
                     self.visual_positions.pop(event['player_id']-1,None)
-                elif event['event']=='stage_start':
+                elif event['event']=='stage_start' and not event['context'].get('actors_preserved'):
                     self.visual_positions.clear();self.visual_foes.clear();self.visual_items.clear()
             palette,accent=self.wall_style()
+            morph=g.transition_from is not None and g.transition_age<MAZE_TRANSITION_SECONDS
+            progress=g.transition_age/MAZE_TRANSITION_SECONDS if morph else 1.
+            pulse=actor_scale(progress) if morph else 1.
             background_key=(g.arena.map_id,g.arena.map_revision,palette)
             if background_key not in self.backgrounds:
                 if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
                 self.backgrounds[background_key]=maze_background(g.arena.space,COLS,ROWS,TILE,accent,g.arena.lane_radius)
-            self.canvas.blit(self.backgrounds[background_key],(OX,TOP))
+            if morph:
+                before=self.transition_geometry(Arena(g.transition_from),palette,accent)
+                after=self.transition_geometry(g.arena,palette,accent)
+                self.canvas.blit(render_background(before,after,progress),(0,0))
+            else:self.canvas.blit(self.backgrounds[background_key],(OX,TOP))
             # Thin enclosure and colored border stations, leaving the maze dominant.
             dx,dy,dw,dh=g.arena.den
             gate=pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10)
             door_x=center(g.arena.door)[0]
-            draw_house(self.canvas,gate,accent,door_x)
+            if not morph:draw_house(self.canvas,gate,accent,door_x)
             for idx,spawn in enumerate(g.arena.spawns):
                 sx=center(spawn)[0]
                 upper=spawn[1]<ROWS//2
@@ -1077,7 +1159,7 @@ class App:
                     visual[1]<mouth_y+22 if upper else visual[1]>mouth_y-22)
                 opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
                     or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
-                draw_station_gate(self.canvas,sx,mouth_y,upper,accent,opening)
+                if not morph:draw_station_gate(self.canvas,sx,mouth_y,upper,accent,opening)
                 hud=station_hud(spawn,g.players[idx].score if active else 0)
                 sx_text,sy=hud['x'],hud['y']
                 if active:
@@ -1105,7 +1187,7 @@ class App:
                 cy=center((0,row))[1]
                 for side in (-1,1):
                     edge=OX if side<0 else OX+COLS*TILE
-                    draw_tunnel_neck(self.canvas,edge,cy,side,accent)
+                    if not morph:draw_tunnel_neck(self.canvas,edge,cy,side,accent)
             self.canvas.set_clip(pg.Rect(OX-28,TOP-32,COLS*TILE+56,ROWS*TILE+64))
             self.canvas.set_clip(pg.Rect(OX,TOP,COLS*TILE,ROWS*TILE))
             for c,life in g.smoke.items():
@@ -1165,11 +1247,11 @@ class App:
                       1 if target[1]>old[1] else -1 if target[1]<old[1] else 0)
                 edible=any(g.active(p,'Crown') or g.active(p,'Titan') for p in g.players if p.lives>0)
                 stunned=g.foe_stun>0 or (i<len(g.foe_zapped) and g.foe_zapped[i]>0)
-                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
+                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'),pulse)
                 if c[1] in g.arena.portals and (smooth[0]<OX+30 or smooth[0]>OX+COLS*TILE-30):
                     twin=smooth[0]+COLS*TILE if smooth[0]<OX+30 else smooth[0]-COLS*TILE
                     foe(self.canvas,(round(twin),round(smooth[1])),COLORS[(3,1,2,5)[i%4]],self.animation_time,
-                        stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
+                        stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'),pulse)
             for p in g.players:
                 if p.lives<=0: continue
                 target=center(p.pos)
@@ -1182,7 +1264,7 @@ class App:
                     if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
                     elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
                 self.visual_positions[p.idx]=smooth
-                cx,cy=map(round,smooth); r=self.presentation.radius(p.idx)
+                cx,cy=map(round,smooth); r=round(self.presentation.radius(p.idx)*pulse)
                 if p.locate_remaining>0:
                     ring=r+12+round(4*math.sin(self.animation_time*12))
                     if cy<TOP+45 or cy>TOP+ROWS*TILE-45:

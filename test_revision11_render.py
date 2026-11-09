@@ -68,15 +68,16 @@ class RenderQA(unittest.TestCase):
         self.assertEqual(tracks[(58,9)],('Rush',0))
         self.assertEqual(tracks[(52,9)],('Rush',1))
 
-    def test_damage_and_stage_start_discard_old_position_cache(self):
+    def test_damage_resets_position_but_continuous_stage_keeps_interpolation(self):
         a=self.app;g=a.match;p=g.players[0]
         p.pos=g.arena.entries[0];p.entry=p.safe=0;p.direction=p.wanted=(0,0)
         a.draw();self.assertTrue(g.hurt(p));a.draw()
         self.assertEqual(a.visual_positions[0],game.center(p.pos))
         p.pos=g.arena.entries[0];p.entry=0;a.draw()
-        g.dots.clear();g.update(1/60);a.draw()
+        old=a.visual_positions[0]
+        g.dots.clear();g.update(1/60);a.draw(0)
         self.assertEqual(g.stage,2)
-        self.assertEqual(a.visual_positions[0],game.center(p.pos))
+        self.assertEqual(a.visual_positions[0],old)
 
     def test_all_maps_counts_and_720_1080_render_without_footer_clipping(self):
         a=self.app
@@ -209,7 +210,9 @@ class RenderQA(unittest.TestCase):
                 key=(a.match.arena.map_id,a.match.arena.map_revision,palette)
                 background=a.backgrounds[key]
                 color=game.PALETTES[palette]
-                count=game.pg.mask.from_threshold(background,color,(1,1,1,255)).count()
+                # Antialiasing mixes the accent with its pale core/halo; the
+                # wider exterior no longer leaves exact flat RGB texels.
+                count=game.pg.mask.from_threshold(background,color,(24,24,24,255)).count()
                 self.assertGreater(count,100)
                 images.append(game.pg.image.tobytes(background,'RGB'))
             self.assertEqual(len(set(images)),len(game.PALETTES))

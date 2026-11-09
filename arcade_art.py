@@ -3,6 +3,9 @@ import math
 from functools import lru_cache
 import pygame as pg
 
+FRAME_THICKNESS = 9
+FRAME_CORE_OFFSETS = (1, 7)
+
 def wall_highlight(accent):
     """Pale inner ink for the original luminous wall treatment."""
     return tuple(round(c+(255-c)*.55) for c in accent)
@@ -15,7 +18,8 @@ def _maze_wall_mask(floor, cols, rows, tile, radius=32):
     # Carve a constant-width tube around the SAME graph used by movement.
     # A free-looking gap can no longer disagree with the collision map.
     raw.fill((255,255,255))
-    raw.set_clip(pg.Rect(6,6,size[0]-12,size[1]-12))
+    raw.set_clip(pg.Rect(FRAME_THICKNESS,FRAME_THICKNESS,
+                              size[0]-2*FRAME_THICKNESS,size[1]-2*FRAME_THICKNESS))
     for x,y in floor:
         cx,cy=x*tile+tile//2,y*tile+tile//2
         pg.draw.circle(raw,(0,0,0,0),(cx,cy),radius)
@@ -108,6 +112,16 @@ def _maze_wall_mask(floor, cols, rows, tile, radius=32):
         corner_clip=pg.Surface(size,pg.SRCALPHA)
         pg.draw.rect(corner_clip,(255,255,255),corner_clip.get_rect(),border_radius=16)
         rounded=rounded.overlap_mask(pg.mask.from_surface(corner_clip),(0,0))
+        # Concentric perimeter bends: the former corridor opening rounded the
+        # inner edge independently and widened the double contour at corners.
+        frame=corner_clip.copy()
+        pg.draw.rect(frame,(0,0,0,0),frame.get_rect().inflate(-2*FRAME_THICKNESS,-2*FRAME_THICKNESS),
+                     border_radius=16-FRAME_THICKNESS)
+        frame_mask=pg.mask.from_surface(frame)
+        for x0,y0 in ((0,0),(size[0]-24,0),(0,size[1]-24),(size[0]-24,size[1]-24)):
+            for yy in range(y0,y0+24):
+                for xx in range(x0,x0+24):
+                    rounded.set_at((xx,yy),frame_mask.get_at((xx,yy)))
     return rounded
 
 NEON_SCALE = 3
@@ -255,7 +269,7 @@ def muncher(target, pos, color, direction, time, radius=15, powered=False, safe=
     if opacity<255: s.set_alpha(opacity)
     target.blit(s,s.get_rect(center=pos))
 
-def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False,eyes_only=False):
+def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False,eyes_only=False,size_scale=1.):
     x,y=pos; scale=3; mid=24*scale
     s=pg.Surface((48*scale,48*scale),pg.SRCALPHA)
     c=color
@@ -288,8 +302,9 @@ def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False,eyes_on
             points=[(sx,sy-3),(sx+1,sy-1),(sx+4,sy),(sx+1,sy+1),
                     (sx,sy+3),(sx-1,sy+1),(sx-4,sy),(sx-1,sy-1)]
             pg.draw.polygon(s,(255,236,133),[(round(px*units),round(py*units)) for px,py in points])
-    s=pg.transform.smoothscale(s,(58,58))
-    target.blit(s,(round(x)-29,round(y)-29))
+    size=max(1,round(58*size_scale))
+    s=pg.transform.smoothscale(s,(size,size))
+    target.blit(s,s.get_rect(center=(round(x),round(y))))
 
 _DIGITS=(
  '01110' '11011' '11011' '11011' '11011' '11011' '01110',

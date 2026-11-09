@@ -2,7 +2,23 @@
 
 **Neon Nibblers is not an exact replica.** It is an independently implemented game with broad feature coverage, four observed maze reconstructions, and reference-supported details. Passing its automated tests verifies its own rules, not the commercial game's rules. This assessment supersedes older baseline tables without erasing their history.
 
-## Wall color and graphical quality are separate questions
+## Revision 16 — exterior spacing and continuous maze changes
+
+The user's annotated image exposed a real mismatch: exterior wall cores were3px apart while bay cores were6px apart. The exterior now has the same6px separation, concentric corner curves, aligned gate shoulders and continuous tunnel joins. A second review found and fixed lower gates being dimmer due to inconsistent supersampling phase. All four maps/five palettes/eight station joins were checked, with unchanged public lanes and body clearance.
+
+Two fresh passes through Harold Zheng's DX footage (qcO9tzgsdjo,5:02–5:04) show actors staying on the field, maze compression/change, temporary enlargement of both players and ghosts, and scattered dot refill. The game now preserves actors across stage changes instead of resetting everybody to bays/house. Legal actor and item positions are reserved before displaced objects get the nearest free lane. Ghost release/return/carrier state, scores, lives, ongoing effects and continue timers persist. Exact relocation and power persistence remain our stated policy, not recovered source rules. The initial/new-match reset is unchanged.
+
+An original1.1-second shrink/blend/expand animation replaces the instant layout swap. Actor enlargement is visual only; it never changes combat size or grants a power. Dots refill visibly and become collectible together between0.6 and1.1 seconds, with no accidental second stage-clear during refill. HUD scores stay stationary and pause/help/results freeze the animation. The0.90 maze scale,1.35 actor pulse, short midpoint overlap, timing and trajectories remain approximations; source footage does not establish an exact curve or whether movement pauses.
+
+The deeper transition review caught a moving item stealing an already-valid static pellet position; the reservation fix is covered by a regression. Legacy tests that required a global respawn were updated to require continuous legal placement. The independent transition tests cover all16 ordered map changes, eight-player conflicts, private bays, inactive stations, continuation, carried/returning/releasing ghosts, refill and render immutability.
+
+All288 checks pass on Windows and Ubuntu/WSLg. Native checks cover1/2/8 on all four maps (24 cases), plus actual transition runs for those counts on both systems (six cases). Twelve complete simulated matches reconcile scoring/rankings, and a720-frame472-event replay verifies deterministically. Audio initialized; physical input and audibility are not certified. Initial geometry construction still causes a first-use render delay; short native startup-inclusive figures are not steady-state performance claims.
+
+Three new88-second1280x720/60fps recordings contain48seconds of all-map gameplay, an8-second labelled controlled C-to-D transition, and32seconds of labelled continue acceptance/expiry. All actors are automated;1/2/8 human-designated stations have7/6/0AI. Fresh24-second GIF map tours, all11-power/player/ghost animation sheets and actual transition frame sequences accompany review.
+
+The source clearly shows a3000 popup associated with this transition; its universal award/recipient/scaling rules remain unknown, so the configurable500 simulation clear award is not promoted as authentic. All11 power categories are present and tested internally, but exact durations/spawn rates/stacking, global ghost vulnerability, ghost targeting/release and several source artwork details remain unresolved. Original sprites/audio/branding are retained. Controllers remain deferred to production; no perfect-match or zero-issue claim.
+
+## Earlier revision15 detailed comparison (updated by revision16 above)
 
 Fresh continuous DX footage separates map transitions from power-related color changes. In [Harold Zheng's DX gameplay](https://www.youtube.com/watch?v=qcO9tzgsdjo), approximately5:00–5:05, nearly cleared family C morphs into family D and dots refill while the same spectator display remains amber. At5:07–5:08 the red player enlarges and the walls/cabinet lights turn red without another layout change. At5:10 both red and blue giants are visible and walls are blue;5:11 shows a red/purple transition;5:13 returns blue with both giants still active. This supports cycling among concurrently enlarged player colors. It does not establish a fixed one-color-per-map rule or a permanently retained last-pickup color.
 
@@ -25,7 +41,7 @@ The actual revision14 renderer had a separate reproducible quality problem: nati
 | Power inventory | Eleven categories | Edge cases, damage, timing and artwork not established by count | Per-power interaction evidence |
 | Power generation | Initial corner Gold, central Giant,3 other items; every3s, cap12, equal category weights | Positions, weights, cadence, movement and exceptions authored | Multi-session timestamped spawn census |
 | Scoring | Dot10/Gold100/Giant1000 observed in instruction legend; shared ledger | Other item75/ghost200/rival300/clear500, combos, bonuses and life cap5 unconfirmed | Isolated pickup/attack score changes |
-| Stage progression | Dot-clear advances map; position/effect reset, scores/lives persist | Near-empty→morph→refill observed; exact threshold, preservation and order unknown | Track final dot and actors/effects across transition |
+| Stage progression | Dot-clear advances map; actors/effects persist with nearest-legal relocation, animated refill | No general respawn observed; exact trigger, relocation, power persistence, trajectory and order unknown | Track final dot and actors/effects across transition |
 | Joining/Find | Independent stations, identity, locator and bot takeover | Eligibility, locator animation/timer and takeover policy | Cabinet Start/Find in each lifecycle state |
 | Continue/end | Approximate10s prompt with AI continuing; original restore/initials policies | Paid score/life restoration, price, reveal delay and ranking UI | Successful paid continue and complete end sequence |
 | HUD/screens | Station order/colors, upright scores, original menus/results/operator/attract | Cabinet-side scores rotate; font, spacing, life symbols and transitions differ | Comparable full-state screenshots |

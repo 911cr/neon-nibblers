@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--untimed',action='store_true',help='Record the optional life-survival mode.')
     parser.add_argument('--continue-showcase',action='store_true',help='Append two explicitly labelled controlled continue acceptance/expiry scenarios.')
     parser.add_argument('--reference-blue',action='store_true',help='Show Golden Rails in the selectable blue palette from the clearer user reference.')
+    parser.add_argument('--transition-showcase',action='store_true',help='Append a labelled controlled C-to-D transition with actors retained.')
     args=parser.parse_args()
     if not 1<=args.seconds<=30:parser.error('Seconds per map must be 1..30')
     encoder=imageio_ffmpeg.get_ffmpeg_exe()
@@ -59,6 +60,17 @@ def main():
                 if tick==120:app.station_action(0)
                 app.advance(1/60);cursor=present(cursor)
             scenarios.append(describe(theme))
+        if args.transition_showcase:
+            app.palette_override=4;app.count=args.players;app.theme=2;app.seed=92
+            app.untimed=True;app.start();cursor=0
+            for tick in range(8*60):
+                if tick==3*60:
+                    g=app.match;g.stage+=1;g.transition_arena(0)
+                    g.ledger.append(g,'capture_fixture',kind='C_to_D_transition',controlled=True)
+                    g.ledger.append(g,'stage_start',theme=0,previous_theme=2,actors_preserved=True)
+                app.advance(1/60)
+                cursor=present(cursor,'CONTROLLED TEST: C to D, actors retained')
+            scenarios.append(describe(0,True,'maze_transition'))
         if args.continue_showcase:
             for accept in (True,False):
                 app.palette_override=None

@@ -1,0 +1,68 @@
+[
+  {
+    "human_stations": 1,
+    "ai_stations": 7,
+    "automated_capture": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 88,
+    "aac_audio": true,
+    "all_frames_decode": true,
+    "sample_images": [
+      "r16-hd-1-profile0.png",
+      "r16-hd-1-profile1.png",
+      "r16-hd-1-profile2.png",
+      "r16-hd-1-profile3.png",
+      "r16-hd-1-continue0.png",
+      "r16-hd-1-continue1.png",
+      "r16-hd-1-continue2.png"
+    ],
+    "gif_preview_frames": 288,
+    "gif_seconds": 24
+  },
+  {
+    "human_stations": 2,
+    "ai_stations": 6,
+    "automated_capture": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 88,
+    "aac_audio": true,
+    "all_frames_decode": true,
+    "sample_images": [
+      "r16-hd-2-profile0.png",
+      "r16-hd-2-profile1.png",
+      "r16-hd-2-profile2.png",
+      "r16-hd-2-profile3.png",
+      "r16-hd-2-continue0.png",
+      "r16-hd-2-continue1.png",
+      "r16-hd-2-continue2.png"
+    ],
+    "gif_preview_frames": 288,
+    "gif_seconds": 24
+  },
+  {
+    "human_stations": 8,
+    "ai_stations": 0,
+    "automated_capture": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 88,
+    "aac_audio": true,
+    "all_frames_decode": true,
+    "sample_images": [
+      "r16-hd-8-profile0.png",
+      "r16-hd-8-profile1.png",
+      "r16-hd-8-profile2.png",
+      "r16-hd-8-profile3.png",
+      "r16-hd-8-continue0.png",
+      "r16-hd-8-continue1.png",
+      "r16-hd-8-continue2.png"
+    ],
+    "gif_preview_frames": 288,
+    "gif_seconds": 24
+  }
+]

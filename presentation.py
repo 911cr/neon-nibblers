@@ -59,7 +59,7 @@ class LifecyclePresentation:
             self.ledger=match.ledger
         for event in match.ledger.events[self.cursor:]:
             kind=event['event']
-            if kind=='stage_start':
+            if kind=='stage_start' and not event['context'].get('actors_preserved'):
                 self.deaths.clear();self.arrivals.clear();self.radii.clear()
             elif kind=='player_hurt' and event['player_id'] is not None:
                 idx=event['player_id']-1
