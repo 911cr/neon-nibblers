@@ -12,14 +12,15 @@ import pygame as pg
 from score_ledger import ScoreLedger, DEFAULT_SCORES
 from stations import Phase, phase_for, StationBindings
 from map_library import get_map, next_map_index
-from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite, fire_plume
+from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite, fire_plume,smoke_cloud
 from arcade_audio import ArcadeAudio
 from cabinet import CabinetStore, spectator_view, atomic_json
 from presentation import LifecyclePresentation
 from gameplay_tuning import validate_tuning, load_tuning
 from arcade_ai import choose_direction
 from cabinet_flow import ContinueOffers
-from gate_art import draw_station_gate,draw_house,gate_geometry,GATE_HATCH
+from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH
+from player_contacts import resolve_bumps,approaching_contact
 
 W, H, TILE, TOP = 1280, 720, 20, 50
 COLS, ROWS = 59, 31
@@ -73,6 +74,7 @@ class Player:
     joined: bool = True
     bot: bool = False
     locate_remaining: float = 0.
+    recoil: tuple = (0,0)
 
 class Arena:
     def __init__(self, theme):
@@ -245,7 +247,7 @@ class Match:
         for p in self.players:
             p.pos = self.arena.spawns[p.idx]
             p.safe, p.direction, p.wanted = 2.5, (0,1) if p.pos[1]==0 else (0,-1), (0,0)
-            p.entry=.8; p.stun=0.; p.clock=0.
+            p.entry=.8; p.stun=0.; p.clock=0.; p.recoil=(0,0)
             p.effects.clear()
         self.foes = list(self.arena.homes)
         self.foe_previous=list(self.foes)
@@ -387,7 +389,7 @@ class Match:
         p.lives -= 1
         p.pos, p.safe = self.arena.spawns[p.idx], 3.
         p.direction, p.wanted = (0,0),(0,0)
-        p.entry=.8; p.stun=0.; p.clock=0.
+        p.entry=.8; p.stun=0.; p.clock=0.; p.recoil=(0,0)
         p.effects.clear()
         self.ledger.append(self, 'player_hurt', p, position=old_position, lives=p.lives)
         if p.lives==0 and p.joined and not p.bot and not (self.rules['match_seconds']>0 and self.time<=0):
@@ -412,6 +414,11 @@ class Match:
             for i,f in enumerate(self.foes):
                 if distance(f,p.pos)<=self.tuning['spark_radius']: self.foe_zapped[i]=duration
         elif name=='Quake': self.quake=duration
+        elif name=='Mist':
+            p.effects[name]=duration
+            # The published effect includes a smoke explosion. It must also
+            # occur for a stationary collector, before any movement trail.
+            self.smoke[p.pos]=self.tuning['smoke_seconds']
         elif name!='Heart': p.effects[name]=duration
 
     def fire_cells(self, p):
@@ -443,32 +450,7 @@ class Match:
                     self.award(p, 'rival_burned', target_player_id=q.idx+1)
 
     def bump(self,p,q,previous):
-        pair=tuple(sorted((p.idx,q.idx)))
-        crossed=previous and previous[p.idx]!=previous[q.idx] and previous[p.idx]==q.pos and previous[q.idx]==p.pos
-        if crossed:
-            # Rewind a head-on swap before applying the outward impulse.
-            p.pos,q.pos=previous[p.idx],previous[q.idx]
-            for actor in (p,q):
-                reverse=(-actor.direction[0],-actor.direction[1])
-                other=q if actor is p else p
-                cell=self.arena.step(actor.pos,reverse)
-                if self.arena.can_enter(cell,actor) and cell!=other.pos: actor.pos=cell
-                actor.direction=actor.wanted=reverse; actor.stun=.12
-            self.bump_cooldowns[pair]=.28
-            return
-        if pair in self.bump_cooldowns and p.pos!=q.pos: return
-        self.bump_cooldowns[pair]=.28
-        occupied={r.pos for r in self.players if r.lives>0}
-        for actor,other in ((p,q),(q,p)):
-            options=[self.arena.step(actor.pos,d) for d in DIRS
-                     if self.arena.can_enter(self.arena.step(actor.pos,d),actor)
-                     and self.arena.step(actor.pos,d) not in occupied]
-            if not options: continue
-            chosen=max(options,key=lambda c:distance(c,other.pos))
-            actor.direction=(chosen[0]-actor.pos[0],chosen[1]-actor.pos[1])
-            if abs(actor.direction[0])>1: actor.direction=(-1 if actor.direction[0]>0 else 1,0)
-            actor.wanted=actor.direction; actor.pos=chosen; actor.stun=.12
-            occupied.add(chosen)
+        resolve_bumps(self,[(p,q)],previous)
 
     def separate_overlaps(self):
         # Resolve a crowd without leaving multiple living bodies in one cell.
@@ -496,6 +478,7 @@ class Match:
                 self.ledger.append(self, 'score_bonus_life', p, lives=p.lives, gained=p.lives-old_lives)
 
     def combat(self,previous=None,old_foes=None):
+        event_start=len(self.ledger.events)
         for p in self.players:
             if p.lives<=0: continue
             for i,f in enumerate(self.foes):
@@ -516,17 +499,21 @@ class Match:
                     self.award(p, 'ghost_eaten', ghost_id=i, power='Titan' if self.active(p,'Titan') else 'Crown')
                     self.reset_foe(i)
                 else: self.hurt(p)
+        contacts=[]
         for i,p in enumerate(self.players):
             for q in self.players[i+1:]:
                 if min(p.lives,q.lives)<=0: continue
-                crossed = previous and previous[p.idx]==q.pos and previous[q.idx]==p.pos
-                if p.pos!=q.pos and not crossed: continue
+                if not approaching_contact(self,p,q,previous): continue
                 a = self.active(p,'Titan')
                 b = self.active(q,'Titan')
                 if a and not b and self.hurt(q): self.award(p, 'rival_eaten', target_player_id=q.idx+1)
                 if b and not a and self.hurt(p): self.award(q, 'rival_eaten', target_player_id=p.idx+1)
-                if a==b: self.bump(p,q,previous)
-        self.separate_overlaps()
+                if a==b: contacts.append((p,q))
+        harmed={e['player_id']-1 for e in self.ledger.events[event_start:]
+                if e['event']=='player_hurt'}
+        contacts=[pair for pair in contacts if not any(p.idx in harmed for p in pair)]
+        if contacts:resolve_bumps(self,contacts,previous)
+        else:self.separate_overlaps()
 
     def update(self,dt):
         if self.over or self.paused: return []
@@ -566,7 +553,11 @@ class Match:
             if self.quake>0: speed*=self.tuning['quake_multiplier']
             if p.clock+1e-10>=speed:
                 p.clock=max(0.,p.clock-speed)%speed
-                if self.active(p,'Slick'):
+                if p.recoil!=(0,0):
+                    # One legal outward step survives held input/autoplay.
+                    # It uses normal movement cadence rather than teleporting.
+                    p.direction=p.recoil; p.recoil=(0,0)
+                elif self.active(p,'Slick'):
                     if not self.arena.can_enter(self.arena.step(p.pos,p.direction),p) or p.direction==(0,0):
                         options=[d for d in DIRS if self.arena.can_enter(self.arena.step(p.pos,d),p)]
                         if options: p.direction=self.rng.choice(options)
@@ -640,7 +631,7 @@ def station_hud(spawn,score=0):
     """Reserve clearance beside each bay for every digit, life and prompt."""
     sx=center(spawn)[0]
     sy=4 if spawn[1]<ROWS//2 else H-45
-    label=f'{score:06}'
+    label=str(score)
     scale=max(1,min(3,108//(6*len(label))))
     return {'x':sx+50,'y':sy,'label':label,'scale':scale,
             'score':pg.Rect(sx+50,sy,(6*len(label)-1)*scale,7*scale),
@@ -670,6 +661,7 @@ class App:
         self.untimed=False
         self.continue_seconds=10.;self.continue_delay=1.
         self.palette_override=None  # Presentation is independent of maze topology.
+        self.match_palette=None  # A layout change alone is not a color-change trigger.
         self.cabinet=cabinet if cabinet is not None else CabinetStore()
         self.operator_open=False;self.operator_index=0;self.operator_draft={}
         self.status_notice='';self.scores_open=False;self.idle_time=0.
@@ -742,6 +734,7 @@ class App:
         if needs_join and not self.cabinet.pay(1):
             self.status_notice='Insert credit: press C in the lobby.';return
         if self.phase in (Phase.ATTRACT,Phase.RESULTS):
+            self.match_palette=self.theme
             self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning,
                              continue_seconds=self.continue_seconds,continue_delay=self.continue_delay)
             self.session_id=str(uuid.uuid4())
@@ -808,7 +801,7 @@ class App:
                 self.muted=not self.muted
                 if self.muted:self.audio.silence()
             elif e.key==pg.K_F12:
-                current=self.palette_override if self.palette_override is not None else (self.match.arena.theme if self.match else self.theme)
+                current=self.wall_palette()
                 self.palette_override=(current+1)%len(PALETTES)
             elif e.key==pg.K_RETURN and (not self.match or self.match.over): self.start()
             elif e.key==pg.K_p and self.match: self.match.paused=not self.match.paused
@@ -820,12 +813,33 @@ class App:
         self.save_result()
         if not self.cabinet.pay(self.count):
             self.status_notice=f'{self.count} credits needed. Press C in the lobby.';return False
+        self.match_palette=self.theme
         self.match=Match(self.count,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning,
                          continue_seconds=self.continue_seconds,continue_delay=self.continue_delay); self.help=False
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
         self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice='';self.name_entry=None
         self.reset_visuals()
         return True
+
+    def wall_palette(self):
+        if self.palette_override is not None:return self.palette_override
+        if self.match is None:return self.theme
+        return self.match.arena.theme if self.match_palette is None else self.match_palette
+
+    def wall_style(self):
+        """DX footage shows hue following and cycling among active giants.
+
+        Exact period/order are not recovered: this presentation uses a documented
+        1.25-second station-order cycle. It never changes collision or scoring.
+        """
+        if self.match:
+            giants=sorted(p.idx for p in self.match.players
+                          if p.lives>0 and self.match.active(p,'Titan'))
+            if giants:
+                idx=giants[int(self.match.elapsed/1.25)%len(giants)]
+                return ('giant',idx),COLORS[idx]
+        palette=self.wall_palette()
+        return palette,PALETTES[palette]
 
     def match_rules(self):
         rules=dict(self.cabinet.settings)
@@ -1039,10 +1053,10 @@ class App:
                     self.visual_positions.pop(event['player_id']-1,None)
                 elif event['event']=='stage_start':
                     self.visual_positions.clear();self.visual_foes.clear();self.visual_items.clear()
-            palette=g.arena.theme if self.palette_override is None else self.palette_override
-            accent=PALETTES[palette]
+            palette,accent=self.wall_style()
             background_key=(g.arena.map_id,g.arena.map_revision,palette)
             if background_key not in self.backgrounds:
+                if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
                 self.backgrounds[background_key]=maze_background(g.arena.space,COLS,ROWS,TILE,accent,g.arena.lane_radius)
             self.canvas.blit(self.backgrounds[background_key],(OX,TOP))
             # Thin enclosure and colored border stations, leaving the maze dominant.
@@ -1091,17 +1105,13 @@ class App:
                 cy=center((0,row))[1]
                 for side in (-1,1):
                     edge=OX if side<0 else OX+COLS*TILE
-                    for dy in (-27,-23,23,27):
-                        pg.draw.line(self.canvas,accent,(edge,cy+dy),(edge+side*26,cy+dy),1)
+                    draw_tunnel_neck(self.canvas,edge,cy,side,accent)
             self.canvas.set_clip(pg.Rect(OX-28,TOP-32,COLS*TILE+56,ROWS*TILE+64))
             self.canvas.set_clip(pg.Rect(OX,TOP,COLS*TILE,ROWS*TILE))
             for c,life in g.smoke.items():
                 cx,cy=center(c)
-                fog=pg.Surface((70,62),pg.SRCALPHA)
-                for n in range(4):
-                    pg.draw.circle(fog,(150,163,180,int(65*min(1,life))),
-                        (18+n*10,30+round(math.sin(self.animation_time*3+n)*7)),15)
-                self.canvas.blit(fog,(cx-35,cy-31))
+                smoke_cloud(self.canvas,(cx,cy),self.animation_time,
+                            radius=27,opacity=round(150*min(1,life)))
             for c,life in g.zaps:
                 cx,cy=center(c)
                 for n in range(8):

@@ -107,7 +107,7 @@ class Interactions(unittest.TestCase):
                 calls.append((str(label),x,y));return original(surface,label,x,y,color,scale)
             with patch.object(game,'arcade_digits',capture):app.draw(0)
             hud=game.station_hud(g.arena.spawns[7],10)
-            self.assertIn(('000010',hud['x'],hud['y']),calls)
+            self.assertIn(('10',hud['x'],hud['y']),calls)
             row=next(r for r in spectator_view(g,'playing')['ranking'] if r['player_id']==8)
             self.assertEqual(row['score'],g.ledger.totals()[8])
         finally:game.pg.quit()

@@ -50,7 +50,7 @@ class MapTests(unittest.TestCase):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena, DIRS, TILE, COLS, ROWS
         pg.init()
         try:
@@ -59,10 +59,10 @@ class MapTests(unittest.TestCase):
                 a = Arena(index)
                 art = maze_background(a.space, COLS, ROWS, TILE, spec.accent, spec.lane_radius)
                 backgrounds[index] = art
-                # Both observed families have a single-contour upper-left capsule.
+                # Each profile has a single-contour upper horizontal wall band.
                 # A broad-island inset heuristic must not add interior rectangles.
                 contour_y = [y for y in range(40, 100)
-                             if tuple(art.get_at((150, y)))[:3] == spec.accent]
+                             if max(tuple(art.get_at((150, y)))[:3]) > max(spec.accent)*.65]
                 runs = sum(i == 0 or y != contour_y[i-1]+1
                            for i, y in enumerate(contour_y))
                 self.assertEqual(runs, 2, (spec.id, 'extra capsule contours', contour_y))
@@ -88,7 +88,7 @@ class MapTests(unittest.TestCase):
     def test_observed_capsule_end_is_round_without_losing_wall_body(self):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena
         pg.init()
         try:
@@ -97,10 +97,11 @@ class MapTests(unittest.TestCase):
                 art = maze_background(a.space, 59, 31, 20, spec.accent, spec.lane_radius)
                 # A top-left corner must recede; its rounded side midpoint and
                 # long straight upper edge remain. Both source families show this.
-                self.assertNotEqual(tuple(art.get_at((60, 56)))[:3], spec.accent)
-                self.assertEqual(tuple(art.get_at((56, 70)))[:3], spec.accent)
-                self.assertEqual(tuple(art.get_at((150, 56)))[:3], spec.accent)
-                self.assertEqual(tuple(art.get_at((150, 70)))[:3], (1, 2, 8))
+                mask = maze_wall_mask(a.space, 59, 31, 20, spec.lane_radius)
+                self.assertFalse(mask.get_at((60, 56)))
+                self.assertTrue(mask.get_at((150, 70)))
+                for point in ((56, 70), (150, 56)):
+                    self.assertGreater(max(tuple(art.get_at(point))[:3]), max(spec.accent)*.65)
         finally:
             pg.quit()
 
@@ -122,7 +123,7 @@ class MapTests(unittest.TestCase):
                          [(x, box.bottom-20) for x in range(box.left-15, box.left+12)])
                 for points in scans:
                     hits = [i for i, point in enumerate(points)
-                            if tuple(app.canvas.get_at(point))[:3] in (spec.accent, wall_highlight(spec.accent))]
+                            if max(tuple(app.canvas.get_at(point))[:3]) > max(spec.accent)*.65]
                     runs = sum(i == 0 or n != hits[i-1]+1 for i, n in enumerate(hits))
                     self.assertEqual(runs, 2, (spec.id, 'house third contour', hits))
         finally:
@@ -131,7 +132,7 @@ class MapTests(unittest.TestCase):
     def test_normal_actor_body_clearance_on_every_rendered_route(self):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena
         pg.init()
         try:
@@ -148,9 +149,9 @@ class MapTests(unittest.TestCase):
                             pg.draw.rect(clearance, 'white', rect)
                 # Glow is translucent presentation; only opaque fill/contour
                 # count as walls. A20px radius exceeds normal player/foe bodies.
-                walls = pg.mask.from_threshold(art, (1, 2, 8), (1, 1, 1, 255))
-                walls.draw(pg.mask.from_threshold(art, spec.accent, (1, 1, 1, 255)), (0, 0))
-                walls.draw(pg.mask.from_threshold(art, wall_highlight(spec.accent), (1, 1, 1, 255)), (0, 0))
+                walls = maze_wall_mask(a.space, 59, 31, 20, spec.lane_radius)
+                # Include actual high-opacity antialiased stroke samples too.
+                walls.draw(pg.mask.from_surface(_wall_ink(walls, spec.accent), 190), (0, 0))
                 overlap = walls.overlap(pg.mask.from_surface(clearance), (0, 0))
                 self.assertIsNone(overlap, (spec.id, 'actor body intersects wall', overlap))
         finally:
@@ -159,17 +160,18 @@ class MapTests(unittest.TestCase):
     def test_isolated_quantized_stems_have_bounded_width(self):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena
         pg.init()
         try:
             for index, spec in enumerate(catalog()):
                 a = Arena(index)
                 art = maze_background(a.space, 59, 31, 20, spec.accent, spec.lane_radius)
+                mask = maze_wall_mask(a.space, 59, 31, 20, spec.lane_radius)
                 centers = (440, 740) if index in (0, 3) else (300, 880) if index == 2 else (880,)
                 for center_x in centers:
                     opaque = [x for x in range(center_x-20, center_x+21)
-                              if tuple(art.get_at((x, 350)))[:3] in ((1, 2, 8), spec.accent, wall_highlight(spec.accent))]
+                              if mask.get_at((x, 350))]
                     self.assertEqual(len(opaque), 16, (spec.id, center_x, opaque))
         finally:
             pg.quit()
@@ -189,15 +191,17 @@ class MapTests(unittest.TestCase):
     def test_wall_photo_treatment_has_soft_halo_and_bright_inner_ink(self):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena
         pg.init()
         try:
             for index, spec in enumerate(catalog()):
                 a = Arena(index)
                 art = maze_background(a.space, 59, 31, 20, spec.accent, spec.lane_radius)
-                self.assertEqual(tuple(art.get_at((180, 56)))[:3], spec.accent)
-                self.assertEqual(tuple(art.get_at((180, 57)))[:3], wall_highlight(spec.accent))
+                outer = tuple(art.get_at((180, 56)))[:3]
+                core = tuple(art.get_at((180, 57)))[:3]
+                self.assertGreater(max(outer), max(spec.accent)*.65)
+                self.assertGreater(sum(core), sum(outer))
                 self.assertGreater(sum(tuple(art.get_at((180, 51)))[:3]), 4)
                 self.assertEqual(tuple(art.get_at((180, 30)))[:3], (0, 0, 4))
         finally:
@@ -206,18 +210,18 @@ class MapTests(unittest.TestCase):
     def test_photo_outer_frame_corners_are_round_but_edges_remain(self):
         os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
         import pygame as pg
-        from arcade_art import maze_background, wall_highlight
+        from arcade_art import maze_background, wall_highlight, maze_wall_mask, _wall_ink
         from game import Arena
         pg.init()
         try:
             for index, spec in enumerate(catalog()):
                 a = Arena(index)
                 art = maze_background(a.space, 59, 31, 20, spec.accent, spec.lane_radius)
-                opaque = ((1, 2, 8), spec.accent, wall_highlight(spec.accent))
+                mask = maze_wall_mask(a.space, 59, 31, 20, spec.lane_radius)
                 for point in ((0, 0), (1179, 0), (0, 619), (1179, 619)):
-                    self.assertNotIn(tuple(art.get_at(point))[:3], opaque)
+                    self.assertFalse(mask.get_at(point))
                 for point in ((0, 60), (60, 0), (1179, 60), (60, 619)):
-                    self.assertEqual(tuple(art.get_at(point))[:3], spec.accent)
+                    self.assertGreater(max(tuple(art.get_at(point))[:3]), max(spec.accent)*.65)
         finally:
             pg.quit()
 

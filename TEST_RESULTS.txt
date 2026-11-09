@@ -1,6 +1,4 @@
-Revision14 final photo build:238 Windows tests PASS;238 Ubuntu tests PASS.
-Native1/2/8 on each of4mazes; native continue+initials and game/spectator pairs PASSbothOS.
-12 complete automated matches reconcile scores/rankings; continued1/2/8 replays verified.
-3x80s720p60AAC videos fully decode,21frames sampled, controlled continue checks labelled.
-Larger gate pockets and luminous blue photo palette regenerated and checked.
-Physical controllers remain production acceptance. Exact remaining DX rules not certified.
+Revision15: 271 checks PASS on Windows and Ubuntu/WSLg.
+See docs/DX_TEST_REPORT.md and current NATIVE_REVISION15/VIDEO_REVISION15 reports.
+All captured actors automated; physical controllers remain production acceptance.
+Exact DX fidelity is not certified.

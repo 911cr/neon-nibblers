@@ -2,7 +2,7 @@
 
 Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to8 human stations, USB gamepad/joystick support, keyboard fallback and AI opponents. No commercial sprites, ROMs, source code, logos or recordings are included.
 
-Revision14 adds two observed maze reconstructions (four distinct layouts total), source-supported pellet awards and a per-station continue flow. Exact remaining scoring, power timings, AI, paid continuation and the complete commercial maze catalog are not certified.
+Revision15 corrects wall brightness, yellow gate lips, tunnel lighting, player contact and smoke, and adds source-observed giant-related wall colors. Four observed maze reconstructions and per-station continuation remain available. This is not an exact replica: graphical details, power timing/interactions, ghost AI, map morphing/progression, remaining scoring and paid continuation still have documented differences. See docs/DX_CURRENT_GAP_AUDIT.md.
 
 ## Install and run
 
@@ -31,7 +31,7 @@ Enter starts the quick-play roster;1–8 select its human count in the lobby. F3
 | P7 Purple | YBNM |
 | P8 Blue |8456 |
 
-Tab selects a starting maze in the lobby. F12 changes wall color independently. P pauses; F1 guide freezes play; F2 mutes immediately. Escape closes guide/editor, returns to lobby or exits. Resize preserves aspect ratio.
+Tab selects a starting maze in the lobby. F12 changes the base wall color. Active giants temporarily color the walls; multiple giants cycle colors every1.25 seconds (an estimated interval). Layout changes alone retain the base hue. P pauses; F1 guide freezes play; F2 mutes immediately. Escape closes guide/editor, returns to lobby or exits. Resize preserves aspect ratio.
 
 AI fills vacant stations by default:1human+7AI,2+6,8+0. F11 can disable fill. Human input/rankings/controller requirements exclude bots. `--demo` steers every actor for demonstrations. AI routes and difficulty are independently authored.
 
@@ -78,7 +78,7 @@ The actual DX instruction legend in `qcO9tzgsdjo` at0:01/0:03 shows dot10, Gold1
 | Gold Orb | Eat ghosts7s;100points |
 | Giant Orb | Grow/eat smaller rivals and ghosts7s;1000points |
 | Caffeine | Faster movement7s |
-| Smoke Bomb | Trail slows nearby ghosts7s; clouds2.5s |
+| Smoke Bomb | Immediate cloud plus trail slows nearby ghosts7s; clouds2.5s (trail/timers approximate) |
 | Banana Peel | Uncontrolled fast skid2s |
 | Lightning | Nearby ghost/rival stun2s |
 | Ghost Sheet | Ghost target concealment7s; incidental contact still dangerous |
@@ -99,13 +99,13 @@ python replay.py verify continued.json
 python check_controllers.py --expected 8
 ```
 
-238 checks cover all1–8 counts/maps,11powers, ledger/replay, AI, continuous house return, rendered routes, HUD, operator/storage failures, continuation/initials and spectator feeds. Windows and Ubuntu/WSLg native checks include1/2/8 per maze and full continue acceptance/timeout/name entry. Tests and screenshots are automated; physical controllers, eight-human acceptance, speaker audibility and standalone Linux hardware remain production checks.
+271 checks cover all1–8 counts/maps,11powers, ledger/replay, AI, continuous house return, rendered routes, HUD, operator/storage failures, continuation/initials and spectator feeds. Windows and Ubuntu/WSLg native checks include1/2/8 per maze and full continue acceptance/timeout/name entry. Tests and screenshots are automated; physical controllers, eight-human acceptance, speaker audibility and standalone Linux hardware remain production checks.
 
 Three current MP4s are80seconds each,1280x720/60fps with original AAC event audio:48seconds touring all four mazes, then two16-second labelled controlled tests of continue acceptance and expiry/initials. All actors are automated. Logical1/2/8 human stations have7/6/0AI. Controlled final-life setup is explicitly labelled, not presented as unassisted human gameplay. GIF previews are24-second silent map tours and may be provided alongside the ZIP.
 
 Optional capture dependencies: `python -m pip install -r requirements-capture.txt`; then `python record_video.py --players 1 --seconds 12 --untimed --continue-showcase`. The ZIP includes current source/tests/docs and three HD videos; historical captures stay in workspace/history. Commercial reference comparisons are separate research artifacts.
 
-See docs/DX_RELEASE_STATUS.md and revision14 audits for evidence boundaries. Repository: https://github.com/911cr/neon-nibblers
+See docs/DX_RELEASE_STATUS.md and revision15 audits for evidence boundaries. Repository: https://github.com/911cr/neon-nibblers
 
 
 ## Map from the clearer photo
@@ -113,3 +113,18 @@ See docs/DX_RELEASE_STATUS.md and revision14 audits for evidence boundaries. Rep
 Yes: the photo is our Golden Rails / observed family D. Double-click `photo_map_windows.bat`, or run `sh photo_map_linux.sh`, to open it in the fifth blue palette and untimed mode with the visibly labelled development controller stub. Manual equivalent: `python game.py --arena 0 --palette 4 --untimed --simulate-controllers`.
 
 The current build has larger glowing64x48 gate pockets, filled striped48x10 thresholds, visible bodies inside their pockets, corrected AI opening, bright wall cores/halos and rounded outer corners. Gate/border graphics remain independently drawn. Desktop scores stay upright. The photo is retained only as separate research evidence and is excluded from the runnable ZIP. F12 cycles all five palettes without changing the maze.
+
+
+## Revision15 visual and contact review
+
+Fresh continuous DX footage qcO9tzgsdjo around5:00–5:05 shows C morphing into D while walls remain amber. At5:07–5:08 red enlargement accompanies red walls; by5:10/5:13 red and blue giants coexist and walls alternate their colors. The build now retains its base hue through map changes and cycles active giant colors. The1.25-second interval, station order and expiry fallback remain explicit approximations; exact commercial blending/priority is unresolved. Map morphing itself is still not implemented: our stage changes/reset policy remains different.
+
+Native-resolution cardinal outlining made curved wall strokes8.1–8.7% dimmer than horizontal sections. Supersampled circular outlines and a shared premultiplied material reduce the sampled mean difference to0.07–0.34% across four blue maps. Gates, house and tunnel extensions now share luminous stroke construction. Closed gate hatching has the continuous yellow upper lip from the user's photo. All11 pickup icons, eight player colors/directions/sizes, ghost states and world effects were inspected in animation/contact sheets; this does not certify identical commercial assets. Smoke now has soft animated shading and appears immediately on stationary pickup, while the retained trail remains unverified against DX.
+
+The collision report exposed multiple-cell instantaneous shoves and a cooldown that did not prevent repeated impulses. Contact resolution now rolls back the complete group and affected followers, then takes one outward step at normal movement cadence while retaining buffered input. Radius-aware bounded corridor checks reduce visible interpenetration, including tunnels and stationary giant growth. Separate QA caught stationary recoil in the wrong direction and rollback after a later giant hit; both were corrected. This remains a discrete corridor approximation, not recovered continuous DX physics.
+
+HUD scores now show their actual digits, removing the invented six-digit leading-zero padding absent in the user's photo (1760/9460/13530). Existing gate clearance and long-score fitting remain tested. Desktop orientation and the remaining typography/life indicators are still different or unresolved.
+
+Full final source: 271 checks pass on Windows and Ubuntu/WSLg. These include all1–8 rosters/maps and11power categories; no physical-controller certification. A natural continuation replay fixture needed seed0 because the former seed1 survives the60-second window under corrected contact rules; its continuation, score and replay assertions are unchanged. Native1/2/8 runs cover every map; regenerated actual automated gameplay videos include labelled continue scenarios. Source/package tests and decoded media are recorded in current reports.
+
+The full current comparison is DX_CURRENT_GAP_AUDIT.md. All11 categories exist, but numerical power rules, global ghost vulnerability, blanket giant immunity, ghost AI/count/order, attack/combo scoring, spawn distribution, map catalog/progression, paid continuation and several graphical states remain unverified. Agent approval covers stated test scopes only. Controllers remain deferred to production. No exact-match claim.

@@ -120,7 +120,7 @@ class RenderQA(unittest.TestCase):
                         return original(surface,text,x,y,color,scale)
                     with patch.object(game,'arcade_digits',capture):a.draw(0)
                     timers=[rect for label,rect in rectangles if ':' in label]
-                    scores=[rect for label,rect in rectangles if label==f'{score:06}']
+                    scores=[rect for label,rect in rectangles if label==str(score)]
                     self.assertEqual(len(timers),1)
                     self.assertEqual(len(scores),count)
                     for rect in scores:

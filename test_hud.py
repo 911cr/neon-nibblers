@@ -8,6 +8,11 @@ import pygame as pg
 import game
 
 class HudTests(unittest.TestCase):
+    def test_scores_use_visible_digits_without_invented_leading_zeroes(self):
+        spawn=game.Arena(0).spawns[0]
+        for value in (0,1760,9460,13530,144680):
+            self.assertEqual(game.station_hud(spawn,value)['label'],str(value))
+
     def test_actual_scores_and_prompts_clear_all_bays(self):
         app=game.App(simulate_controllers=True)
         for theme in range(4):

@@ -8,7 +8,8 @@ def wall_highlight(accent):
     return tuple(round(c+(255-c)*.55) for c in accent)
 
 
-def maze_background(floor, cols, rows, tile, accent,radius=32):
+@lru_cache(maxsize=12)
+def _maze_wall_mask(floor, cols, rows, tile, radius=32):
     size=(cols*tile,rows*tile)
     raw=pg.Surface(size,pg.SRCALPHA)
     # Carve a constant-width tube around the SAME graph used by movement.
@@ -107,49 +108,104 @@ def maze_background(floor, cols, rows, tile, accent,radius=32):
         corner_clip=pg.Surface(size,pg.SRCALPHA)
         pg.draw.rect(corner_clip,(255,255,255),corner_clip.get_rect(),border_radius=16)
         rounded=rounded.overlap_mask(pg.mask.from_surface(corner_clip),(0,0))
-    mask=rounded
-    inner=mask.copy()
-    for offset in ((2,0),(-2,0),(0,2),(0,-2)):
-        shifted=pg.mask.Mask(size); shifted.draw(mask,offset)
-        inner=inner.overlap_mask(shifted,(0,0))
-    edge=mask.copy(); edge.erase(inner,(0,0))
-    result=pg.Surface(size); result.fill((0,0,4))
-    # Original luminous wall treatment: a soft colored halo and a brighter
-    # inner stroke. The opaque silhouette is unchanged, preserving clearance.
-    glow_source=edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0))
-    for blur_radius in (6,3):
-        halo=pg.transform.gaussian_blur(glow_source,blur_radius)
-        result.blit(halo,(0,0),special_flags=pg.BLEND_RGB_ADD)
-    result.blit(mask.to_surface(setcolor=(1,2,8),unsetcolor=(0,0,0,0)),(0,0))
-    result.blit(edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
-    one_inside=mask.copy()
-    for offset in ((1,0),(-1,0),(0,1),(0,-1)):
-        shifted=pg.mask.Mask(size);shifted.draw(mask,offset)
-        one_inside=one_inside.overlap_mask(shifted,(0,0))
-    bright=edge.overlap_mask(one_inside,(0,0))
-    highlight=wall_highlight(accent)
-    result.blit(bright.to_surface(setcolor=highlight,unsetcolor=(0,0,0,0)),(0,0))
-    # The reconstructed A/B layouts use ordinary single-contour capsules.
-    # Preserve their two outer edges; do not add an inner rectangle merely
-    # because a long narrow wall happens to exceed the old area threshold.
-    if radius<30:return result
-    # Broad wall islands have a second inset contour, as visible on the
-    # rectangular DX island in the retained 1:15 reference. Erosion removes
-    # thin capsules and the frame from this pass, preserving their silhouette.
-    broad=mask.copy()
-    for offset in ((12,0),(-12,0),(0,12),(0,-12),(9,9),(-9,9),(9,-9),(-9,-9)):
-        shifted=pg.mask.Mask(size);shifted.draw(mask,offset)
-        broad=broad.overlap_mask(shifted,(0,0))
-    filtered=pg.mask.Mask(size)
-    for component in broad.connected_components(500):filtered.draw(component,(0,0))
-    broad=filtered
-    core=broad.copy()
-    for offset in ((1,0),(-1,0),(0,1),(0,-1)):
-        shifted=pg.mask.Mask(size);shifted.draw(broad,offset)
-        core=core.overlap_mask(shifted,(0,0))
-    inset=broad.copy();inset.erase(core,(0,0))
-    result.blit(inset.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
+    return rounded
+
+NEON_SCALE = 3
+NEON_STROKE = 3.0
+NEON_CORE = 1.0
+
+
+def neon_sprite(ink, output_size=None):
+    """Return premultiplied luminous RGBA; blit with BLEND_PREMULTIPLIED.
+
+    Filter premultiplied colors once, then compose shared halo layers with the
+    same alpha convention. Transparent RGB cannot darken a second time on blit.
+    """
+    source = ink.premul_alpha()
+    if output_size is not None and source.get_size() != tuple(output_size):
+        source = pg.transform.smoothscale(source, output_size)
+    result = pg.Surface(source.get_size(), pg.SRCALPHA)
+    for blur, strength in ((6, 140), (3, 190)):
+        halo = pg.transform.gaussian_blur(source, blur)
+        halo.fill((strength,)*4, special_flags=pg.BLEND_RGBA_MULT)
+        result.blit(halo, (0, 0), special_flags=pg.BLEND_PREMULTIPLIED)
+    result.blit(source, (0, 0), special_flags=pg.BLEND_PREMULTIPLIED)
     return result
+
+
+def maze_wall_mask(floor, cols, rows, tile, radius=32):
+    """Independent copy of the unchanged opaque geometry used by the renderer."""
+    return _maze_wall_mask(frozenset(floor), cols, rows, tile, radius).copy()
+
+
+@lru_cache(maxsize=24)
+def _disk_boundary(radius):
+    if radius == 0:
+        return ((0, 0),)
+    return tuple((x, y) for x in range(-radius, radius+1)
+                 for y in range(-radius, radius+1)
+                 if x*x+y*y <= radius*radius and
+                 any((x+dx)**2+(y+dy)**2 > radius*radius
+                     for dx, dy in ((1,0),(-1,0),(0,1),(0,-1))))
+
+
+def _erode_circle(mask, radius):
+    core = mask.copy()
+    for offset in _disk_boundary(radius):
+        shifted = pg.mask.Mask(mask.get_size())
+        shifted.draw(mask, offset)
+        core = core.overlap_mask(shifted, (0, 0))
+    return core
+
+
+@lru_cache(maxsize=8)
+def _wall_basis(mask):
+    """Three-times sampled constant-distance stroke, with no direction shading."""
+    scale = NEON_SCALE
+    size = mask.get_size()
+    big_size = (size[0]*scale, size[1]*scale)
+    coverage = mask.to_surface(setcolor=(255,255,255,255), unsetcolor=(0,0,0,0))
+    large = pg.mask.from_surface(pg.transform.gaussian_blur(
+        pg.transform.scale(coverage, big_size), 2))
+    inside = _erode_circle(large, round(NEON_STROKE*scale))
+    band = large.copy(); band.erase(inside, (0, 0))
+    outer_core = _erode_circle(large, round((NEON_STROKE-NEON_CORE)*scale/2))
+    inner_core = _erode_circle(large, round((NEON_STROKE+NEON_CORE)*scale/2))
+    core = outer_core.copy(); core.erase(inner_core, (0, 0))
+    # Alpha coverage is identical for both linear RGB basis layers. Keeping
+    # black opaque in the other region preserves source-over attenuation.
+    layers=[]
+    for outer, inner in (((255,255,255),(0,0,0)), ((0,0,0),(255,255,255))):
+        ink=band.to_surface(setcolor=outer, unsetcolor=(0,0,0,0))
+        ink.blit(core.to_surface(setcolor=inner, unsetcolor=(0,0,0,0)), (0,0))
+        layers.append(neon_sprite(ink,size))
+    return tuple(layers)
+
+
+def _wall_ink(mask, accent):
+    """Color cached geometry/halo bases without redoing morphology or blur."""
+    outer, inner = _wall_basis(mask)
+    result=outer.copy()
+    result.fill((*accent,255),special_flags=pg.BLEND_RGBA_MULT)
+    highlight=inner.copy()
+    highlight.fill((*wall_highlight(accent),255),special_flags=pg.BLEND_RGBA_MULT)
+    result.blit(highlight,(0,0),special_flags=pg.BLEND_RGB_ADD)
+    return result
+
+
+@lru_cache(maxsize=20)
+def _maze_background(floor, cols, rows, tile, accent, radius):
+    mask = _maze_wall_mask(floor, cols, rows, tile, radius)
+    result = pg.Surface(mask.get_size()); result.fill((0,0,4))
+    result.blit(mask.to_surface(setcolor=(1,2,8), unsetcolor=(0,0,0,0)), (0,0))
+    result.blit(_wall_ink(mask, accent), (0,0), special_flags=pg.BLEND_PREMULTIPLIED)
+    return result
+
+
+def maze_background(floor, cols, rows, tile, accent, radius=32):
+    # Callers may draw overlays; never let them poison the bounded shared cache.
+    return _maze_background(frozenset(floor), cols, rows, tile, tuple(accent), radius).copy()
+
 
 @lru_cache(maxsize=32)
 def _sphere_template(color):
@@ -401,3 +457,30 @@ def fire_plume(target,origin,end,direction,time):
     if dx: position=(round(min(origin[0],end[0])),round(origin[1])-mid)
     else: position=(round(origin[0])-mid,round(min(origin[1],end[1])))
     target.blit(flame,position)
+
+
+@lru_cache(maxsize=12)
+def _smoke_texture(phase):
+    """Original soft cloud, cached at a small number of animated phases."""
+    size=96
+    cloud=pg.Surface((size,size),pg.SRCALPHA)
+    for index,(x,y,r) in enumerate(((33,46,23),(49,32,22),(64,47,24),(48,58,23))):
+        drift=math.sin(phase*math.tau/12+index)*3
+        puff=pg.Surface((size,size),pg.SRCALPHA)
+        for radius in range(r,0,-1):
+            fraction=1-radius/r
+            alpha=round(125*fraction**.7)
+            gray=round(90+70*fraction)
+            pg.draw.circle(puff,(gray,gray+3,gray+8,alpha),(round(x+drift),y),radius)
+        cloud.blit(puff,(0,0))
+    return pg.transform.gaussian_blur(cloud.premul_alpha(),3)
+
+
+def smoke_cloud(target, pos, time, radius=27, opacity=180):
+    """Soft original smoke, time-driven; no claim of commercial particle parity."""
+    phase=int(time*12)%12
+    size=max(8,round(radius*3.2))
+    cloud=pg.transform.smoothscale(_smoke_texture(phase),(size,size))
+    strength=max(0,min(255,round(opacity)))
+    cloud.fill((strength,)*4,special_flags=pg.BLEND_RGBA_MULT)
+    target.blit(cloud,cloud.get_rect(center=pos),special_flags=pg.BLEND_PREMULTIPLIED)
