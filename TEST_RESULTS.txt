@@ -1,4 +1,4 @@
-Revision17:328 checks PASS Windows and Ubuntu/WSLg.
+Revision18:363 checks PASS Windows and Ubuntu/WSLg.
 24 native map/count cases and6 native transition cases.
-See NATIVE_REVISION17, NATIVE_TRANSITION_R17, VIDEO_REVISION17 and PACING_R17 reports.
-Physical controllers deferred; subjective fun/exact DX fidelity not certified.
+See NATIVE_REVISION18, NATIVE_TRANSITION_R18, VIDEO_REVISION18 and POWER_TIMING_R18 reports.
+Physical controllers deferred; exact DX fidelity and subjective fun not certified.

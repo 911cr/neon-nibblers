@@ -1,0 +1,90 @@
+{
+  "reference_limit": "These checks verify configured app rules, not exact commercial timing. Titan10s is a provisional single-sequence DX estimate; remaining defaults unchanged.",
+  "powers": [
+    {
+      "power": "Crown",
+      "configured_seconds": 7.0,
+      "expiry_tick_after_refresh": 420,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Titan",
+      "configured_seconds": 10.0,
+      "expiry_tick_after_refresh": 600,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Rush",
+      "configured_seconds": 7.0,
+      "expiry_tick_after_refresh": 420,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Mist",
+      "configured_seconds": 7.0,
+      "expiry_tick_after_refresh": 420,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Slick",
+      "configured_seconds": 2.0,
+      "expiry_tick_after_refresh": 120,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Spark",
+      "configured_seconds": 2.0,
+      "expiry_tick_after_refresh": 120,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Veil",
+      "configured_seconds": 7.0,
+      "expiry_tick_after_refresh": 420,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Flare",
+      "configured_seconds": 3.0,
+      "expiry_tick_after_refresh": 180,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Quake",
+      "configured_seconds": 5.0,
+      "expiry_tick_after_refresh": 300,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    },
+    {
+      "power": "Heart",
+      "instant_lives_gained": 1,
+      "passed": true
+    },
+    {
+      "power": "Lure",
+      "configured_seconds": 7.0,
+      "expiry_tick_after_refresh": 420,
+      "refresh_restarts_full_duration": true,
+      "pause_freezes": true,
+      "passed": true
+    }
+  ]
+}

@@ -39,8 +39,9 @@ class GameplayTimingQA(unittest.TestCase):
         self.assertEqual(sum(e['event']=='pickup' for e in g.ledger.events),2)
 
     def test_timed_effects_expire_on_configured_tick(self):
-        timed={name:2 if name=='Slick' else 3 if name=='Flare' else 7
-               for name in ITEMS if name not in ('Heart','Spark','Quake')}
+        from gameplay_tuning import DEFAULT_TUNING
+        timed={name:int(seconds) for name,seconds in DEFAULT_TUNING['durations'].items()
+               if name not in ('Spark','Quake')}
         for name,seconds in timed.items():
             with self.subTest(power=name):
                 g=Match(1,seed=19);p=g.players[0]

@@ -7,9 +7,9 @@ from replay import record,replay,digest
 class ContinueReplay(unittest.TestCase):
     def test_natural_death_and_continue_roundtrip_1_2_8(self):
         for count in (1,2,8):
-            # Seed0 includes a natural final-life loss under radius-aware
-            # contacts; the former seed1 now survives the sixty-second window.
-            document=record(count,3,0,3600,fill_bots=True,
+            # Seed1 includes natural final-life losses with R18's longer
+            # Giant timing; seed0's one-human station now survives this window.
+            document=record(count,3,1,3600,fill_bots=True,
                 rules={'starting_lives':1,'match_seconds':0,'bonus_threshold':0},
                 continue_seconds=10,continue_delay=.2,auto_continue=True)
             restored=replay(json.loads(json.dumps(document)))

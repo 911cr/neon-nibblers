@@ -1,0 +1,314 @@
+[
+  {
+    "theme": 0,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.539,
+    "fps": 47.27,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      125,
+      50,
+      50
+    ],
+    "seed": 6378005815753000510,
+    "simulation_ticks": 157,
+    "ledger_events": 54
+  },
+  {
+    "theme": 0,
+    "players": 2,
+    "frames": 120,
+    "seconds": 1.986,
+    "fps": 60.41,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      225,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 5930249977371097347,
+    "simulation_ticks": 123,
+    "ledger_events": 53
+  },
+  {
+    "theme": 0,
+    "players": 8,
+    "frames": 120,
+    "seconds": 1.986,
+    "fps": 60.42,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 5423515961316172415,
+    "simulation_ticks": 123,
+    "ledger_events": 46
+  },
+  {
+    "theme": 1,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.003,
+    "fps": 59.92,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 4147989239667943726,
+    "simulation_ticks": 126,
+    "ledger_events": 53
+  },
+  {
+    "theme": 1,
+    "players": 2,
+    "frames": 120,
+    "seconds": 1.993,
+    "fps": 60.21,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 191863916990113413,
+    "simulation_ticks": 123,
+    "ledger_events": 52
+  },
+  {
+    "theme": 1,
+    "players": 8,
+    "frames": 120,
+    "seconds": 1.993,
+    "fps": 60.22,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 3878067312028780811,
+    "simulation_ticks": 123,
+    "ledger_events": 46
+  },
+  {
+    "theme": 2,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.003,
+    "fps": 59.92,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 1700935706868752340,
+    "simulation_ticks": 126,
+    "ledger_events": 53
+  },
+  {
+    "theme": 2,
+    "players": 2,
+    "frames": 120,
+    "seconds": 1.997,
+    "fps": 60.09,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      155,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 2188003350291763411,
+    "simulation_ticks": 124,
+    "ledger_events": 56
+  },
+  {
+    "theme": 2,
+    "players": 8,
+    "frames": 120,
+    "seconds": 1.99,
+    "fps": 60.31,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      50,
+      50
+    ],
+    "seed": 3429691530639151343,
+    "simulation_ticks": 123,
+    "ledger_events": 46
+  },
+  {
+    "theme": 3,
+    "players": 1,
+    "frames": 120,
+    "seconds": 1.994,
+    "fps": 60.18,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      150,
+      150,
+      150,
+      150,
+      50,
+      50,
+      125,
+      50
+    ],
+    "seed": 2423902866284833758,
+    "simulation_ticks": 125,
+    "ledger_events": 55
+  },
+  {
+    "theme": 3,
+    "players": 2,
+    "frames": 120,
+    "seconds": 1.991,
+    "fps": 60.28,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "seed": 5099216771385159825,
+    "simulation_ticks": 122,
+    "ledger_events": 40
+  },
+  {
+    "theme": 3,
+    "players": 8,
+    "frames": 120,
+    "seconds": 1.983,
+    "fps": 60.52,
+    "driver": "windows",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "seed": 7307622289376683982,
+    "simulation_ticks": 122,
+    "ledger_events": 34
+  }
+]

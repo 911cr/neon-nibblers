@@ -38,9 +38,15 @@ class CorridorTrack:
 
     def reset(self, position):
         self.position = tuple(map(float, position))
+        self.direction = (0, 0)
         self._last_target = self.position
         self._last_direction = (0., 0.)
         self._waypoints = deque()
+
+    @property
+    def remaining_path(self):
+        """Read-only presentation route; never grants additional hit range."""
+        return (self.position, *self._waypoints)
 
     def sample(self, target, dt, speed, period=None):
         if dt <= 0:
@@ -77,6 +83,8 @@ class CorridorTrack:
             if budget <= _EPS:
                 break
             travel = min(budget, distance)
+            self.direction = tuple(0 if abs(value) <= _EPS else
+                                   (1 if value > 0 else -1) for value in delta)
             position = [self.position[i] + delta[i] * travel / distance for i in range(2)]
             for i in range(2):
                 if period and period[i]:

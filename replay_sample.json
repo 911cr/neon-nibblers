@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "step": 0.016666666666666666,
-  "fill_bots": true,
+  "fill_bots": false,
   "initial": {
     "count": 8,
     "theme": 0,
@@ -30,7 +30,7 @@
     "tuning": {
       "durations": {
         "Crown": 7.0,
-        "Titan": 7.0,
+        "Titan": 10.0,
         "Rush": 7.0,
         "Mist": 7.0,
         "Slick": 2.0,
@@ -25982,51 +25982,51 @@
   "checkpoints": [
     {
       "frame": 60,
-      "digest": "938eace28eca071a45950677e8ae951c4ece651d2d3666e025725c345a96ce22"
+      "digest": "9fc666e5c2cdd4118b4586b74c6484f7f601f28c9a9130bcb34da110672f9eeb"
     },
     {
       "frame": 120,
-      "digest": "965822bb821346bd227b7b3dadb85272b5d13f2fbb3e53f8d8d1b3d7972a2e36"
+      "digest": "72c91dbc7b116cd6617ab2048854b5e99e69395088041c77553c4594e7a1e039"
     },
     {
       "frame": 180,
-      "digest": "65aa8d8ffd3811fe7bb08f8fb962941b8b1758b03faa7111e671e2b98f1ad186"
+      "digest": "e3cbb6e7cf97d161613fb6d71aa93b129529bd79d0e3c4f76833f8b6490c6a71"
     },
     {
       "frame": 240,
-      "digest": "06fdfae052f50d176e4a75c5c72269ef702d083e6f4fad1292f12521e1519c60"
+      "digest": "7332b5ed9b44500d345e48f58484833aa5520f9cf191c4f4a22746a919ce3dcf"
     },
     {
       "frame": 300,
-      "digest": "d0c52c482462e1ae5c432529ee06614bb419d1e7396b1b76ecf9ec002bdad62c"
+      "digest": "71eb43155efdb3611acdf70466617220d37f039becb9bc403c6a107e53998e95"
     },
     {
       "frame": 360,
-      "digest": "669cd55facd70b2f9c3f14e69062e754c66a3fe9ce60385e81f31d6011594a41"
+      "digest": "b1f7509e4ec71b0a91338bf02098497365f0d6e2f74ce5393089ddfe6fe84ead"
     },
     {
       "frame": 420,
-      "digest": "e6271af733789d3df660cf06459590b2e1bb2b552610e7fc84e330d5e0a1933d"
+      "digest": "b7e8044706e78553d219e278470c9647548c0d985f27a3ecf9cb5ecf01ad918c"
     },
     {
       "frame": 480,
-      "digest": "b59fd46a091e74a1e7bc2a7d425b495c2194b88b610ed04235be6f1496ff7d16"
+      "digest": "8771e7aa3f2cdbeb6ea5fc838f7416b8c6cbbc7a2d3042990f0f6074b58b314a"
     },
     {
       "frame": 540,
-      "digest": "103b4d977d47be2a4a766c8519513b917063110af1b4256cdb00bd26a450736a"
+      "digest": "4d71d80c77da540ed263a517fc8a98a3e3b53735a0f91a6c05126046d18d8c28"
     },
     {
       "frame": 600,
-      "digest": "b8384d6119d328881172b62dc4a014f4f35f95f32497e89e47fdb76e2c272031"
+      "digest": "b603f6598ca1821fd6d4fe4f11fe340de0f6e99002d8c6f43166a9d029c1c45d"
     },
     {
       "frame": 660,
-      "digest": "e774bf51b4f667c1fe1e5f6d4cf3856e20dc1977e5056a28d7bd5432249cd890"
+      "digest": "3fd90bd35c519f1ba58e3ad73d54f55914e47388a91c52ec3bba7b62c270a7c3"
     },
     {
       "frame": 720,
-      "digest": "6f98463a1861a35802049ce2ed93ab1045bf183f8e8d82eab6b05c42a6955315"
+      "digest": "2c41282ec0c1572f1e02cad68d659068e7aa63af2d9e234863957b4e9a4131f4"
     }
   ],
   "movement_trace": [
@@ -42269,7 +42269,7 @@
         "tuning": {
           "durations": {
             "Crown": 7.0,
-            "Titan": 7.0,
+            "Titan": 10.0,
             "Rush": 7.0,
             "Mist": 7.0,
             "Slick": 2.0,
@@ -45942,8 +45942,8 @@
         ],
         "score_rule": "giant_pickup",
         "power": "Titan",
-        "duration": 7.0,
-        "expires_at": 14.416666667
+        "duration": 10.0,
+        "expires_at": 17.416666667
       }
     },
     {
@@ -47813,5 +47813,5 @@
       }
     }
   ],
-  "final_digest": "6f98463a1861a35802049ce2ed93ab1045bf183f8e8d82eab6b05c42a6955315"
+  "final_digest": "2c41282ec0c1572f1e02cad68d659068e7aa63af2d9e234863957b4e9a4131f4"
 }

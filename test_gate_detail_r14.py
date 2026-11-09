@@ -93,12 +93,12 @@ class GateDetailQA(unittest.TestCase):
             self.app.advance(.8)
             self.assertTrue(all(p.pos==g.arena.entries[p.idx] for p in g.players))
             for _ in range(30):
-                before=dict(self.app.visual_positions)
                 with patch.object(game,'muncher'):self.app.draw(1/60)
                 for idx,spawn in enumerate(g.arena.spawns):
                     upper=spawn[1]==0
                     mouth=game.TOP+4 if upper else game.TOP+game.ROWS*game.TILE-4
-                    y=before[idx][1]
+                    # Gate and body now share this frame's precomputed pose.
+                    y=self.app.visual_positions[idx][1]
                     not_cleared=y-17<=mouth+5 if upper else y+17>=mouth-5
                     if not_cleared:self.assertEqual(self.hatch_pixels(idx),0,(theme,idx,y,mouth))
 

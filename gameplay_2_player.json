@@ -21,7 +21,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -88,7 +88,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -1588,8 +1588,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 10.3
+            "duration": 10.0,
+            "expires_at": 13.3
           }
         },
         {
@@ -4813,8 +4813,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 18.05
+            "duration": 10.0,
+            "expires_at": 21.05
           }
         },
         {
@@ -5120,23 +5120,6 @@
           "timestamp": 12.55,
           "tick": 753,
           "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1290,
-          "context": {
-            "position": [
-              41,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 294,
-          "timestamp": 12.55,
-          "tick": 753,
-          "event": "dot",
           "player_id": 7,
           "stage": 1,
           "delta": 10,
@@ -5150,7 +5133,7 @@
           }
         },
         {
-          "sequence": 295,
+          "sequence": 294,
           "timestamp": 12.55,
           "tick": 753,
           "event": "dot",
@@ -5167,7 +5150,7 @@
           }
         },
         {
-          "sequence": 296,
+          "sequence": 295,
           "timestamp": 12.55,
           "tick": 753,
           "event": "player_hurt",
@@ -5184,7 +5167,7 @@
           }
         },
         {
-          "sequence": 297,
+          "sequence": 296,
           "timestamp": 12.55,
           "tick": 753,
           "event": "rival_eaten",
@@ -5202,7 +5185,7 @@
           }
         },
         {
-          "sequence": 298,
+          "sequence": 297,
           "timestamp": 12.733333333,
           "tick": 764,
           "event": "dot",
@@ -5219,7 +5202,7 @@
           }
         },
         {
-          "sequence": 299,
+          "sequence": 298,
           "timestamp": 12.8,
           "tick": 768,
           "event": "dot",
@@ -5236,24 +5219,7 @@
           }
         },
         {
-          "sequence": 300,
-          "timestamp": 12.8,
-          "tick": 768,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1300,
-          "context": {
-            "position": [
-              40,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 301,
+          "sequence": 299,
           "timestamp": 12.8,
           "tick": 768,
           "event": "dot",
@@ -5270,7 +5236,7 @@
           }
         },
         {
-          "sequence": 302,
+          "sequence": 300,
           "timestamp": 12.8,
           "tick": 768,
           "event": "dot",
@@ -5287,7 +5253,7 @@
           }
         },
         {
-          "sequence": 303,
+          "sequence": 301,
           "timestamp": 12.983333333,
           "tick": 779,
           "event": "dot",
@@ -5304,7 +5270,7 @@
           }
         },
         {
-          "sequence": 304,
+          "sequence": 302,
           "timestamp": 13.05,
           "tick": 783,
           "event": "dot",
@@ -5321,24 +5287,7 @@
           }
         },
         {
-          "sequence": 305,
-          "timestamp": 13.05,
-          "tick": 783,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1310,
-          "context": {
-            "position": [
-              39,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 306,
+          "sequence": 303,
           "timestamp": 13.05,
           "tick": 783,
           "event": "dot",
@@ -5355,7 +5304,7 @@
           }
         },
         {
-          "sequence": 307,
+          "sequence": 304,
           "timestamp": 13.05,
           "tick": 783,
           "event": "dot",
@@ -5372,7 +5321,7 @@
           }
         },
         {
-          "sequence": 308,
+          "sequence": 305,
           "timestamp": 13.233333333,
           "tick": 794,
           "event": "dot",
@@ -5389,24 +5338,7 @@
           }
         },
         {
-          "sequence": 309,
-          "timestamp": 13.3,
-          "tick": 798,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1320,
-          "context": {
-            "position": [
-              38,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 310,
+          "sequence": 306,
           "timestamp": 13.3,
           "tick": 798,
           "event": "dot",
@@ -5423,7 +5355,7 @@
           }
         },
         {
-          "sequence": 311,
+          "sequence": 307,
           "timestamp": 13.3,
           "tick": 798,
           "event": "dot",
@@ -5440,7 +5372,7 @@
           }
         },
         {
-          "sequence": 312,
+          "sequence": 308,
           "timestamp": 13.483333333,
           "tick": 809,
           "event": "dot",
@@ -5457,24 +5389,7 @@
           }
         },
         {
-          "sequence": 313,
-          "timestamp": 13.55,
-          "tick": 813,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1330,
-          "context": {
-            "position": [
-              37,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 314,
+          "sequence": 309,
           "timestamp": 13.55,
           "tick": 813,
           "event": "dot",
@@ -5491,7 +5406,7 @@
           }
         },
         {
-          "sequence": 315,
+          "sequence": 310,
           "timestamp": 13.55,
           "tick": 813,
           "event": "dot",
@@ -5508,7 +5423,7 @@
           }
         },
         {
-          "sequence": 316,
+          "sequence": 311,
           "timestamp": 13.6,
           "tick": 816,
           "event": "dot",
@@ -5525,7 +5440,7 @@
           }
         },
         {
-          "sequence": 317,
+          "sequence": 312,
           "timestamp": 13.666666667,
           "tick": 820,
           "event": "dot",
@@ -5542,7 +5457,7 @@
           }
         },
         {
-          "sequence": 318,
+          "sequence": 313,
           "timestamp": 13.733333333,
           "tick": 824,
           "event": "dot",
@@ -5559,24 +5474,7 @@
           }
         },
         {
-          "sequence": 319,
-          "timestamp": 13.8,
-          "tick": 828,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1340,
-          "context": {
-            "position": [
-              36,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 320,
+          "sequence": 314,
           "timestamp": 13.8,
           "tick": 828,
           "event": "dot",
@@ -5593,7 +5491,7 @@
           }
         },
         {
-          "sequence": 321,
+          "sequence": 315,
           "timestamp": 13.85,
           "tick": 831,
           "event": "dot",
@@ -5610,7 +5508,7 @@
           }
         },
         {
-          "sequence": 322,
+          "sequence": 316,
           "timestamp": 13.916666667,
           "tick": 835,
           "event": "dot",
@@ -5627,7 +5525,7 @@
           }
         },
         {
-          "sequence": 323,
+          "sequence": 317,
           "timestamp": 13.983333333,
           "tick": 839,
           "event": "dot",
@@ -5644,24 +5542,7 @@
           }
         },
         {
-          "sequence": 324,
-          "timestamp": 14.05,
-          "tick": 843,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1350,
-          "context": {
-            "position": [
-              35,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 325,
+          "sequence": 318,
           "timestamp": 14.05,
           "tick": 843,
           "event": "dot",
@@ -5678,7 +5559,7 @@
           }
         },
         {
-          "sequence": 326,
+          "sequence": 319,
           "timestamp": 14.1,
           "tick": 846,
           "event": "dot",
@@ -5695,7 +5576,7 @@
           }
         },
         {
-          "sequence": 327,
+          "sequence": 320,
           "timestamp": 14.166666667,
           "tick": 850,
           "event": "dot",
@@ -5712,7 +5593,7 @@
           }
         },
         {
-          "sequence": 328,
+          "sequence": 321,
           "timestamp": 14.233333333,
           "tick": 854,
           "event": "dot",
@@ -5729,24 +5610,7 @@
           }
         },
         {
-          "sequence": 329,
-          "timestamp": 14.3,
-          "tick": 858,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1360,
-          "context": {
-            "position": [
-              34,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 330,
+          "sequence": 322,
           "timestamp": 14.3,
           "tick": 858,
           "event": "dot",
@@ -5763,7 +5627,7 @@
           }
         },
         {
-          "sequence": 331,
+          "sequence": 323,
           "timestamp": 14.35,
           "tick": 861,
           "event": "dot",
@@ -5780,7 +5644,7 @@
           }
         },
         {
-          "sequence": 332,
+          "sequence": 324,
           "timestamp": 14.416666667,
           "tick": 865,
           "event": "dot",
@@ -5797,7 +5661,7 @@
           }
         },
         {
-          "sequence": 333,
+          "sequence": 325,
           "timestamp": 14.483333333,
           "tick": 869,
           "event": "dot",
@@ -5814,24 +5678,7 @@
           }
         },
         {
-          "sequence": 334,
-          "timestamp": 14.55,
-          "tick": 873,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1370,
-          "context": {
-            "position": [
-              33,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 335,
+          "sequence": 326,
           "timestamp": 14.6,
           "tick": 876,
           "event": "dot",
@@ -5848,7 +5695,7 @@
           }
         },
         {
-          "sequence": 336,
+          "sequence": 327,
           "timestamp": 14.666666667,
           "tick": 880,
           "event": "dot",
@@ -5865,7 +5712,7 @@
           }
         },
         {
-          "sequence": 337,
+          "sequence": 328,
           "timestamp": 14.733333333,
           "tick": 884,
           "event": "dot",
@@ -5882,24 +5729,7 @@
           }
         },
         {
-          "sequence": 338,
-          "timestamp": 14.8,
-          "tick": 888,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1380,
-          "context": {
-            "position": [
-              32,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 339,
+          "sequence": 329,
           "timestamp": 14.85,
           "tick": 891,
           "event": "dot",
@@ -5916,7 +5746,7 @@
           }
         },
         {
-          "sequence": 340,
+          "sequence": 330,
           "timestamp": 14.916666667,
           "tick": 895,
           "event": "dot",
@@ -5933,7 +5763,7 @@
           }
         },
         {
-          "sequence": 341,
+          "sequence": 331,
           "timestamp": 14.983333333,
           "tick": 899,
           "event": "dot",
@@ -5950,24 +5780,31 @@
           }
         },
         {
-          "sequence": 342,
+          "sequence": 332,
           "timestamp": 15.05,
           "tick": 903,
-          "event": "dot",
+          "event": "player_bump",
           "player_id": 3,
           "stage": 1,
-          "delta": 10,
-          "score": 1390,
+          "delta": 0,
+          "score": 1280,
           "context": {
-            "position": [
-              32,
-              6
+            "other_player_id": 8,
+            "positions": [
+              [
+                57,
+                8
+              ],
+              [
+                56,
+                9
+              ]
             ],
-            "score_rule": "dot"
+            "response": "rollback_then_one_recoil_step"
           }
         },
         {
-          "sequence": 343,
+          "sequence": 333,
           "timestamp": 15.1,
           "tick": 906,
           "event": "dot",
@@ -5984,7 +5821,7 @@
           }
         },
         {
-          "sequence": 344,
+          "sequence": 334,
           "timestamp": 15.166666667,
           "tick": 910,
           "event": "dot",
@@ -6001,24 +5838,7 @@
           }
         },
         {
-          "sequence": 345,
-          "timestamp": 15.3,
-          "tick": 918,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1400,
-          "context": {
-            "position": [
-              32,
-              7
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 346,
+          "sequence": 335,
           "timestamp": 15.3,
           "tick": 918,
           "event": "dot",
@@ -6035,24 +5855,7 @@
           }
         },
         {
-          "sequence": 347,
-          "timestamp": 15.3,
-          "tick": 918,
-          "event": "dot",
-          "player_id": 8,
-          "stage": 1,
-          "delta": 10,
-          "score": 380,
-          "context": {
-            "position": [
-              57,
-              10
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 348,
+          "sequence": 336,
           "timestamp": 15.35,
           "tick": 921,
           "event": "dot",
@@ -6069,7 +5872,7 @@
           }
         },
         {
-          "sequence": 349,
+          "sequence": 337,
           "timestamp": 15.416666667,
           "tick": 925,
           "event": "dot",
@@ -6086,24 +5889,7 @@
           }
         },
         {
-          "sequence": 350,
-          "timestamp": 15.55,
-          "tick": 933,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1410,
-          "context": {
-            "position": [
-              32,
-              8
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 351,
+          "sequence": 338,
           "timestamp": 15.55,
           "tick": 933,
           "event": "dot",
@@ -6120,24 +5906,7 @@
           }
         },
         {
-          "sequence": 352,
-          "timestamp": 15.55,
-          "tick": 933,
-          "event": "dot",
-          "player_id": 8,
-          "stage": 1,
-          "delta": 10,
-          "score": 390,
-          "context": {
-            "position": [
-              57,
-              11
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 353,
+          "sequence": 339,
           "timestamp": 15.6,
           "tick": 936,
           "event": "dot",
@@ -6154,7 +5923,7 @@
           }
         },
         {
-          "sequence": 354,
+          "sequence": 340,
           "timestamp": 15.666666667,
           "tick": 940,
           "event": "dot",
@@ -6171,24 +5940,7 @@
           }
         },
         {
-          "sequence": 355,
-          "timestamp": 15.8,
-          "tick": 948,
-          "event": "dot",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 10,
-          "score": 1420,
-          "context": {
-            "position": [
-              32,
-              9
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 356,
+          "sequence": 341,
           "timestamp": 15.8,
           "tick": 948,
           "event": "dot",
@@ -6205,24 +5957,7 @@
           }
         },
         {
-          "sequence": 357,
-          "timestamp": 15.8,
-          "tick": 948,
-          "event": "dot",
-          "player_id": 8,
-          "stage": 1,
-          "delta": 10,
-          "score": 400,
-          "context": {
-            "position": [
-              57,
-              12
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 358,
+          "sequence": 342,
           "timestamp": 15.85,
           "tick": 951,
           "event": "dot",
@@ -6239,7 +5974,7 @@
           }
         },
         {
-          "sequence": 359,
+          "sequence": 343,
           "timestamp": 15.916666667,
           "tick": 955,
           "event": "dot",
@@ -6256,7 +5991,31 @@
           }
         },
         {
-          "sequence": 360,
+          "sequence": 344,
+          "timestamp": 15.916666667,
+          "tick": 955,
+          "event": "player_bump",
+          "player_id": 3,
+          "stage": 1,
+          "delta": 0,
+          "score": 1280,
+          "context": {
+            "other_player_id": 8,
+            "positions": [
+              [
+                57,
+                8
+              ],
+              [
+                56,
+                9
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 345,
           "timestamp": 15.983333333,
           "tick": 959,
           "event": "dot",
@@ -6305,7 +6064,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -6372,7 +6131,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -9411,8 +9170,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 15.55
+            "duration": 10.0,
+            "expires_at": 18.55
           }
         },
         {
@@ -9669,8 +9428,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 16.05
+            "duration": 10.0,
+            "expires_at": 19.05
           }
         },
         {
@@ -10131,8 +9890,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 17.05
+            "duration": 10.0,
+            "expires_at": 20.05
           }
         },
         {
@@ -12013,8 +11772,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 21.05
+            "duration": 10.0,
+            "expires_at": 24.05
           }
         },
         {
@@ -12543,7 +12302,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -12610,7 +12369,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -18084,7 +17843,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -18151,7 +17910,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -20779,8 +20538,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 12.05
+            "duration": 10.0,
+            "expires_at": 15.05
           }
         },
         {
@@ -23320,8 +23079,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 18.05
+            "duration": 10.0,
+            "expires_at": 21.05
           }
         },
         {
@@ -23998,6 +23757,30 @@
         },
         {
           "sequence": 339,
+          "timestamp": 13.3,
+          "tick": 798,
+          "event": "player_bump",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 0,
+          "score": 1990,
+          "context": {
+            "other_player_id": 5,
+            "positions": [
+              [
+                37,
+                9
+              ],
+              [
+                33,
+                9
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 340,
           "timestamp": 13.333333333,
           "tick": 800,
           "event": "dot",
@@ -24014,7 +23797,7 @@
           }
         },
         {
-          "sequence": 340,
+          "sequence": 341,
           "timestamp": 13.383333333,
           "tick": 803,
           "event": "dot",
@@ -24031,7 +23814,7 @@
           }
         },
         {
-          "sequence": 341,
+          "sequence": 342,
           "timestamp": 13.383333333,
           "tick": 803,
           "event": "dot",
@@ -24048,7 +23831,7 @@
           }
         },
         {
-          "sequence": 342,
+          "sequence": 343,
           "timestamp": 13.4,
           "tick": 804,
           "event": "dot",
@@ -24060,23 +23843,6 @@
             "position": [
               16,
               25
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 343,
-          "timestamp": 13.55,
-          "tick": 813,
-          "event": "dot",
-          "player_id": 5,
-          "stage": 1,
-          "delta": 10,
-          "score": 1830,
-          "context": {
-            "position": [
-              24,
-              8
             ],
             "score_rule": "dot"
           }
@@ -24171,8 +23937,8 @@
         },
         {
           "sequence": 349,
-          "timestamp": 13.8,
-          "tick": 828,
+          "timestamp": 13.666666667,
+          "tick": 820,
           "event": "dot",
           "player_id": 4,
           "stage": 1,
@@ -24180,31 +23946,14 @@
           "score": 2000,
           "context": {
             "position": [
-              35,
-              10
+              38,
+              9
             ],
             "score_rule": "dot"
           }
         },
         {
           "sequence": 350,
-          "timestamp": 13.8,
-          "tick": 828,
-          "event": "dot",
-          "player_id": 5,
-          "stage": 1,
-          "delta": 10,
-          "score": 1840,
-          "context": {
-            "position": [
-              24,
-              7
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 351,
           "timestamp": 13.8,
           "tick": 828,
           "event": "dot",
@@ -24221,7 +23970,7 @@
           }
         },
         {
-          "sequence": 352,
+          "sequence": 351,
           "timestamp": 13.8,
           "tick": 828,
           "event": "dot",
@@ -24238,7 +23987,7 @@
           }
         },
         {
-          "sequence": 353,
+          "sequence": 352,
           "timestamp": 13.8,
           "tick": 828,
           "event": "pickup",
@@ -24258,7 +24007,7 @@
           }
         },
         {
-          "sequence": 354,
+          "sequence": 353,
           "timestamp": 13.833333333,
           "tick": 830,
           "event": "dot",
@@ -24275,7 +24024,7 @@
           }
         },
         {
-          "sequence": 355,
+          "sequence": 354,
           "timestamp": 13.883333333,
           "tick": 833,
           "event": "dot",
@@ -24292,7 +24041,7 @@
           }
         },
         {
-          "sequence": 356,
+          "sequence": 355,
           "timestamp": 13.9,
           "tick": 834,
           "event": "dot",
@@ -24309,7 +24058,7 @@
           }
         },
         {
-          "sequence": 357,
+          "sequence": 356,
           "timestamp": 13.95,
           "tick": 837,
           "event": "dot",
@@ -24326,41 +24075,7 @@
           }
         },
         {
-          "sequence": 358,
-          "timestamp": 14.05,
-          "tick": 843,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 2010,
-          "context": {
-            "position": [
-              35,
-              11
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 359,
-          "timestamp": 14.05,
-          "tick": 843,
-          "event": "dot",
-          "player_id": 5,
-          "stage": 1,
-          "delta": 10,
-          "score": 1850,
-          "context": {
-            "position": [
-              24,
-              6
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 360,
+          "sequence": 357,
           "timestamp": 14.05,
           "tick": 843,
           "event": "dot",
@@ -24377,7 +24092,7 @@
           }
         },
         {
-          "sequence": 361,
+          "sequence": 358,
           "timestamp": 14.083333333,
           "tick": 845,
           "event": "dot",
@@ -24394,7 +24109,7 @@
           }
         },
         {
-          "sequence": 362,
+          "sequence": 359,
           "timestamp": 14.116666667,
           "tick": 847,
           "event": "dot",
@@ -24411,7 +24126,7 @@
           }
         },
         {
-          "sequence": 363,
+          "sequence": 360,
           "timestamp": 14.133333333,
           "tick": 848,
           "event": "dot",
@@ -24428,7 +24143,7 @@
           }
         },
         {
-          "sequence": 364,
+          "sequence": 361,
           "timestamp": 14.15,
           "tick": 849,
           "event": "dot",
@@ -24445,7 +24160,31 @@
           }
         },
         {
-          "sequence": 365,
+          "sequence": 362,
+          "timestamp": 14.166666667,
+          "tick": 850,
+          "event": "player_bump",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 0,
+          "score": 2000,
+          "context": {
+            "other_player_id": 5,
+            "positions": [
+              [
+                37,
+                9
+              ],
+              [
+                33,
+                9
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 363,
           "timestamp": 14.283333333,
           "tick": 857,
           "event": "dot",
@@ -24462,7 +24201,7 @@
           }
         },
         {
-          "sequence": 366,
+          "sequence": 364,
           "timestamp": 14.283333333,
           "tick": 857,
           "event": "dot",
@@ -24479,41 +24218,7 @@
           }
         },
         {
-          "sequence": 367,
-          "timestamp": 14.3,
-          "tick": 858,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 2020,
-          "context": {
-            "position": [
-              35,
-              12
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 368,
-          "timestamp": 14.3,
-          "tick": 858,
-          "event": "dot",
-          "player_id": 5,
-          "stage": 1,
-          "delta": 10,
-          "score": 1860,
-          "context": {
-            "position": [
-              24,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 369,
+          "sequence": 365,
           "timestamp": 14.3,
           "tick": 858,
           "event": "dot",
@@ -24530,7 +24235,7 @@
           }
         },
         {
-          "sequence": 370,
+          "sequence": 366,
           "timestamp": 14.333333333,
           "tick": 860,
           "event": "dot",
@@ -24547,7 +24252,7 @@
           }
         },
         {
-          "sequence": 371,
+          "sequence": 367,
           "timestamp": 14.383333333,
           "tick": 863,
           "event": "dot",
@@ -24564,7 +24269,7 @@
           }
         },
         {
-          "sequence": 372,
+          "sequence": 368,
           "timestamp": 14.4,
           "tick": 864,
           "event": "dot",
@@ -24581,7 +24286,7 @@
           }
         },
         {
-          "sequence": 373,
+          "sequence": 369,
           "timestamp": 14.45,
           "tick": 867,
           "event": "dot",
@@ -24598,7 +24303,7 @@
           }
         },
         {
-          "sequence": 374,
+          "sequence": 370,
           "timestamp": 14.533333333,
           "tick": 872,
           "event": "dot",
@@ -24615,76 +24320,7 @@
           }
         },
         {
-          "sequence": 375,
-          "timestamp": 14.533333333,
-          "tick": 872,
-          "event": "player_hurt",
-          "player_id": 3,
-          "stage": 1,
-          "delta": 0,
-          "score": 470,
-          "context": {
-            "position": [
-              36,
-              13
-            ],
-            "lives": 2
-          }
-        },
-        {
-          "sequence": 376,
-          "timestamp": 14.533333333,
-          "tick": 872,
-          "event": "rival_eaten",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 300,
-          "score": 2320,
-          "context": {
-            "position": [
-              35,
-              12
-            ],
-            "score_rule": "rival_eaten",
-            "target_player_id": 3
-          }
-        },
-        {
-          "sequence": 377,
-          "timestamp": 14.55,
-          "tick": 873,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 2330,
-          "context": {
-            "position": [
-              35,
-              13
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 378,
-          "timestamp": 14.55,
-          "tick": 873,
-          "event": "dot",
-          "player_id": 5,
-          "stage": 1,
-          "delta": 10,
-          "score": 1870,
-          "context": {
-            "position": [
-              25,
-              5
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 379,
+          "sequence": 371,
           "timestamp": 14.55,
           "tick": 873,
           "event": "dot",
@@ -24701,7 +24337,7 @@
           }
         },
         {
-          "sequence": 380,
+          "sequence": 372,
           "timestamp": 14.583333333,
           "tick": 875,
           "event": "dot",
@@ -24718,7 +24354,7 @@
           }
         },
         {
-          "sequence": 381,
+          "sequence": 373,
           "timestamp": 14.6,
           "tick": 876,
           "event": "dot",
@@ -24735,7 +24371,7 @@
           }
         },
         {
-          "sequence": 382,
+          "sequence": 374,
           "timestamp": 14.633333333,
           "tick": 878,
           "event": "dot",
@@ -24752,7 +24388,7 @@
           }
         },
         {
-          "sequence": 383,
+          "sequence": 375,
           "timestamp": 14.65,
           "tick": 879,
           "event": "dot",
@@ -24769,7 +24405,7 @@
           }
         },
         {
-          "sequence": 384,
+          "sequence": 376,
           "timestamp": 14.766666667,
           "tick": 886,
           "event": "dot",
@@ -24786,24 +24422,24 @@
           }
         },
         {
-          "sequence": 385,
-          "timestamp": 14.8,
-          "tick": 888,
+          "sequence": 377,
+          "timestamp": 14.783333333,
+          "tick": 887,
           "event": "dot",
-          "player_id": 5,
+          "player_id": 3,
           "stage": 1,
           "delta": 10,
-          "score": 1880,
+          "score": 480,
           "context": {
             "position": [
-              26,
-              5
+              35,
+              13
             ],
             "score_rule": "dot"
           }
         },
         {
-          "sequence": 386,
+          "sequence": 378,
           "timestamp": 14.8,
           "tick": 888,
           "event": "dot",
@@ -24820,7 +24456,7 @@
           }
         },
         {
-          "sequence": 387,
+          "sequence": 379,
           "timestamp": 14.833333333,
           "tick": 890,
           "event": "dot",
@@ -24837,7 +24473,7 @@
           }
         },
         {
-          "sequence": 388,
+          "sequence": 380,
           "timestamp": 14.883333333,
           "tick": 893,
           "event": "dot",
@@ -24854,7 +24490,7 @@
           }
         },
         {
-          "sequence": 389,
+          "sequence": 381,
           "timestamp": 14.9,
           "tick": 894,
           "event": "dot",
@@ -24871,7 +24507,7 @@
           }
         },
         {
-          "sequence": 390,
+          "sequence": 382,
           "timestamp": 14.933333333,
           "tick": 896,
           "event": "dot",
@@ -24888,24 +24524,48 @@
           }
         },
         {
-          "sequence": 391,
+          "sequence": 383,
+          "timestamp": 15.033333333,
+          "tick": 902,
+          "event": "player_bump",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 0,
+          "score": 2000,
+          "context": {
+            "other_player_id": 5,
+            "positions": [
+              [
+                37,
+                9
+              ],
+              [
+                33,
+                9
+              ]
+            ],
+            "response": "rollback_then_one_recoil_step"
+          }
+        },
+        {
+          "sequence": 384,
           "timestamp": 15.05,
           "tick": 903,
           "event": "dot",
-          "player_id": 5,
+          "player_id": 8,
           "stage": 1,
           "delta": 10,
-          "score": 1890,
+          "score": 440,
           "context": {
             "position": [
-              27,
-              5
+              57,
+              9
             ],
             "score_rule": "dot"
           }
         },
         {
-          "sequence": 392,
+          "sequence": 385,
           "timestamp": 15.083333333,
           "tick": 905,
           "event": "dot",
@@ -24922,7 +24582,7 @@
           }
         },
         {
-          "sequence": 393,
+          "sequence": 386,
           "timestamp": 15.1,
           "tick": 906,
           "event": "dot",
@@ -24939,7 +24599,7 @@
           }
         },
         {
-          "sequence": 394,
+          "sequence": 387,
           "timestamp": 15.133333333,
           "tick": 908,
           "event": "dot",
@@ -24956,7 +24616,7 @@
           }
         },
         {
-          "sequence": 395,
+          "sequence": 388,
           "timestamp": 15.15,
           "tick": 909,
           "event": "dot",
@@ -24973,7 +24633,7 @@
           }
         },
         {
-          "sequence": 396,
+          "sequence": 389,
           "timestamp": 15.25,
           "tick": 915,
           "event": "dot",
@@ -24990,24 +24650,24 @@
           }
         },
         {
-          "sequence": 397,
+          "sequence": 390,
           "timestamp": 15.3,
           "tick": 918,
           "event": "dot",
-          "player_id": 5,
+          "player_id": 8,
           "stage": 1,
           "delta": 10,
-          "score": 1900,
+          "score": 450,
           "context": {
             "position": [
-              28,
-              5
+              57,
+              8
             ],
             "score_rule": "dot"
           }
         },
         {
-          "sequence": 398,
+          "sequence": 391,
           "timestamp": 15.333333333,
           "tick": 920,
           "event": "dot",
@@ -25024,7 +24684,7 @@
           }
         },
         {
-          "sequence": 399,
+          "sequence": 392,
           "timestamp": 15.383333333,
           "tick": 923,
           "event": "dot",
@@ -25041,7 +24701,7 @@
           }
         },
         {
-          "sequence": 400,
+          "sequence": 393,
           "timestamp": 15.416666667,
           "tick": 925,
           "event": "dot",
@@ -25058,24 +24718,24 @@
           }
         },
         {
-          "sequence": 401,
+          "sequence": 394,
           "timestamp": 15.55,
           "tick": 933,
           "event": "dot",
-          "player_id": 5,
+          "player_id": 8,
           "stage": 1,
           "delta": 10,
-          "score": 1910,
+          "score": 460,
           "context": {
             "position": [
-              29,
-              5
+              57,
+              7
             ],
             "score_rule": "dot"
           }
         },
         {
-          "sequence": 402,
+          "sequence": 395,
           "timestamp": 15.583333333,
           "tick": 935,
           "event": "dot",
@@ -25092,7 +24752,7 @@
           }
         },
         {
-          "sequence": 403,
+          "sequence": 396,
           "timestamp": 15.583333333,
           "tick": 935,
           "event": "dot",
@@ -25109,7 +24769,7 @@
           }
         },
         {
-          "sequence": 404,
+          "sequence": 397,
           "timestamp": 15.633333333,
           "tick": 938,
           "event": "dot",
@@ -25126,7 +24786,7 @@
           }
         },
         {
-          "sequence": 405,
+          "sequence": 398,
           "timestamp": 15.65,
           "tick": 939,
           "event": "dot",
@@ -25143,7 +24803,7 @@
           }
         },
         {
-          "sequence": 406,
+          "sequence": 399,
           "timestamp": 15.75,
           "tick": 945,
           "event": "dot",
@@ -25160,24 +24820,24 @@
           }
         },
         {
-          "sequence": 407,
+          "sequence": 400,
           "timestamp": 15.8,
           "tick": 948,
           "event": "dot",
-          "player_id": 5,
+          "player_id": 8,
           "stage": 1,
           "delta": 10,
-          "score": 1920,
+          "score": 470,
           "context": {
             "position": [
-              30,
-              5
+              57,
+              6
             ],
             "score_rule": "dot"
           }
         },
         {
-          "sequence": 408,
+          "sequence": 401,
           "timestamp": 15.833333333,
           "tick": 950,
           "event": "dot",
@@ -25194,7 +24854,7 @@
           }
         },
         {
-          "sequence": 409,
+          "sequence": 402,
           "timestamp": 15.9,
           "tick": 954,
           "event": "dot",
@@ -25211,7 +24871,7 @@
           }
         },
         {
-          "sequence": 410,
+          "sequence": 403,
           "timestamp": 15.9,
           "tick": 954,
           "event": "dot",
@@ -25225,6 +24885,41 @@
               25
             ],
             "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 404,
+          "timestamp": 15.9,
+          "tick": 954,
+          "event": "player_hurt",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 0,
+          "score": 1820,
+          "context": {
+            "position": [
+              34,
+              9
+            ],
+            "lives": 2
+          }
+        },
+        {
+          "sequence": 405,
+          "timestamp": 15.9,
+          "tick": 954,
+          "event": "rival_eaten",
+          "player_id": 4,
+          "stage": 1,
+          "delta": 300,
+          "score": 2300,
+          "context": {
+            "position": [
+              36,
+              9
+            ],
+            "score_rule": "rival_eaten",
+            "target_player_id": 5
           }
         }
       ],
@@ -25260,7 +24955,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -25327,7 +25022,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -28427,7 +28122,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -28494,7 +28189,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -31049,8 +30744,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 12.05
+            "duration": 10.0,
+            "expires_at": 15.05
           }
         },
         {
@@ -33676,8 +33371,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 20.316666667
+            "duration": 10.0,
+            "expires_at": 23.316666667
           }
         },
         {
@@ -35094,7 +34789,7 @@
       "tuning": {
         "durations": {
           "Crown": 7.0,
-          "Titan": 7.0,
+          "Titan": 10.0,
           "Rush": 7.0,
           "Mist": 7.0,
           "Slick": 2.0,
@@ -35161,7 +34856,7 @@
             "tuning": {
               "durations": {
                 "Crown": 7.0,
-                "Titan": 7.0,
+                "Titan": 10.0,
                 "Rush": 7.0,
                 "Mist": 7.0,
                 "Slick": 2.0,
@@ -37574,8 +37269,8 @@
             ],
             "score_rule": "giant_pickup",
             "power": "Titan",
-            "duration": 7.0,
-            "expires_at": 12.05
+            "duration": 10.0,
+            "expires_at": 15.05
           }
         },
         {
@@ -39046,6 +38741,23 @@
         },
         {
           "sequence": 226,
+          "timestamp": 12.3,
+          "tick": 738,
+          "event": "dot",
+          "player_id": 5,
+          "stage": 1,
+          "delta": 10,
+          "score": 1620,
+          "context": {
+            "position": [
+              23,
+              9
+            ],
+            "score_rule": "dot"
+          }
+        },
+        {
+          "sequence": 227,
           "timestamp": 12.366666667,
           "tick": 742,
           "event": "dot",
@@ -39062,7 +38774,7 @@
           }
         },
         {
-          "sequence": 227,
+          "sequence": 228,
           "timestamp": 12.6,
           "tick": 756,
           "event": "dot",
@@ -39079,7 +38791,7 @@
           }
         },
         {
-          "sequence": 228,
+          "sequence": 229,
           "timestamp": 12.65,
           "tick": 759,
           "event": "dot",
@@ -39096,14 +38808,14 @@
           }
         },
         {
-          "sequence": 229,
+          "sequence": 230,
           "timestamp": 12.8,
           "tick": 768,
           "event": "dot",
-          "player_id": 4,
+          "player_id": 5,
           "stage": 1,
           "delta": 10,
-          "score": 515,
+          "score": 1630,
           "context": {
             "position": [
               22,
@@ -39113,7 +38825,7 @@
           }
         },
         {
-          "sequence": 230,
+          "sequence": 231,
           "timestamp": 12.8,
           "tick": 768,
           "event": "dot",
@@ -39125,23 +38837,6 @@
             "position": [
               45,
               2
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 231,
-          "timestamp": 12.816666667,
-          "tick": 769,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 525,
-          "context": {
-            "position": [
-              23,
-              9
             ],
             "score_rule": "dot"
           }
@@ -39267,23 +38962,6 @@
         },
         {
           "sequence": 239,
-          "timestamp": 13.3,
-          "tick": 798,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 535,
-          "context": {
-            "position": [
-              25,
-              9
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 240,
           "timestamp": 13.35,
           "tick": 801,
           "event": "dot",
@@ -39300,7 +38978,7 @@
           }
         },
         {
-          "sequence": 241,
+          "sequence": 240,
           "timestamp": 13.4,
           "tick": 804,
           "event": "dot",
@@ -39317,7 +38995,7 @@
           }
         },
         {
-          "sequence": 242,
+          "sequence": 241,
           "timestamp": 13.466666667,
           "tick": 808,
           "event": "dot",
@@ -39334,24 +39012,7 @@
           }
         },
         {
-          "sequence": 243,
-          "timestamp": 13.55,
-          "tick": 813,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 545,
-          "context": {
-            "position": [
-              26,
-              9
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 244,
+          "sequence": 242,
           "timestamp": 13.6,
           "tick": 816,
           "event": "dot",
@@ -39368,7 +39029,7 @@
           }
         },
         {
-          "sequence": 245,
+          "sequence": 243,
           "timestamp": 13.65,
           "tick": 819,
           "event": "dot",
@@ -39385,7 +39046,7 @@
           }
         },
         {
-          "sequence": 246,
+          "sequence": 244,
           "timestamp": 13.716666667,
           "tick": 823,
           "event": "dot",
@@ -39402,24 +39063,7 @@
           }
         },
         {
-          "sequence": 247,
-          "timestamp": 13.8,
-          "tick": 828,
-          "event": "dot",
-          "player_id": 4,
-          "stage": 1,
-          "delta": 10,
-          "score": 555,
-          "context": {
-            "position": [
-              27,
-              9
-            ],
-            "score_rule": "dot"
-          }
-        },
-        {
-          "sequence": 248,
+          "sequence": 245,
           "timestamp": 13.85,
           "tick": 831,
           "event": "dot",
@@ -39436,7 +39080,7 @@
           }
         },
         {
-          "sequence": 249,
+          "sequence": 246,
           "timestamp": 13.9,
           "tick": 834,
           "event": "dot",
@@ -39453,7 +39097,7 @@
           }
         },
         {
-          "sequence": 250,
+          "sequence": 247,
           "timestamp": 13.966666667,
           "tick": 838,
           "event": "dot",
@@ -39470,7 +39114,7 @@
           }
         },
         {
-          "sequence": 251,
+          "sequence": 248,
           "timestamp": 14.0,
           "tick": 840,
           "event": "continue_expired",
@@ -39481,7 +39125,7 @@
           "context": {}
         },
         {
-          "sequence": 252,
+          "sequence": 249,
           "timestamp": 14.0,
           "tick": 840,
           "event": "continue_expired",
@@ -39492,7 +39136,7 @@
           "context": {}
         },
         {
-          "sequence": 253,
+          "sequence": 250,
           "timestamp": 14.0,
           "tick": 840,
           "event": "match_end",

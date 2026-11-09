@@ -9,7 +9,9 @@ import math
 from pathlib import Path
 
 DEFAULT_TUNING = {
-    'durations': {'Crown': 7., 'Titan': 7., 'Rush': 7., 'Mist': 7.,
+    # One continuously tracked DX growth/shrink sequence suggests ~9–11s.
+    # Ten seconds is provisional, not an exact recovered cabinet constant.
+    'durations': {'Crown': 7., 'Titan': 10., 'Rush': 7., 'Mist': 7.,
                   'Slick': 2., 'Spark': 2., 'Veil': 7., 'Flare': 3.,
                   'Quake': 5., 'Lure': 7.},
     'spawn_seconds': 3., 'item_step_seconds': .60,

@@ -79,7 +79,7 @@ class GameplayQA(unittest.TestCase):
                 if name in ('Heart','Spark','Quake'):
                     self.assertNotIn(name,p.effects)
                 else:
-                    expected=2 if name=='Slick' else 3 if name=='Flare' else 7
+                    expected=g.tuning['durations'][name]
                     self.assertEqual(p.effects[name],expected)
                 if name=='Titan':p.effects.pop('Titan')
                 self.assertTrue(g.hurt(p))

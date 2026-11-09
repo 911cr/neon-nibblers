@@ -23,6 +23,7 @@ from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry
 from player_contacts import resolve_bumps,approaching_contact
 from maze_transition import render_background,actor_scale
 from corridor_motion import CorridorTrack
+from effect_paths import corridor_segments
 
 MAZE_TRANSITION_SECONDS=1.1  # Observed sequence; exact duration remains estimated.
 
@@ -141,7 +142,8 @@ class Match:
               if event=='pickup' else event)
         delta = self.score_values[rule]
         player.score += delta
-        self.ledger.append(self, event, player, delta, position=list(player.pos),score_rule=rule, **context)
+        position=context.pop('position',list(player.pos))
+        self.ledger.append(self, event, player, delta, position=position,score_rule=rule, **context)
 
     def fill_vacancies(self):
         """Original bot-fill policy; commercial AI difficulty/replacement is unknown.
@@ -447,6 +449,10 @@ class Match:
         p.direction, p.wanted = (0,0),(0,0)
         p.entry=.8; p.stun=0.; p.clock=0.; p.recoil=(0,0)
         p.effects.clear()
+        # Damage can happen after this tick's carrier sync (for example fire).
+        # Release the weapon now so a dead owner never retains a live carrier.
+        for ghost,owner in list(self.foe_carriers.items()):
+            if owner==p.idx:self.reset_foe(ghost)
         self.ledger.append(self, 'player_hurt', p, position=old_position, lives=p.lives)
         if p.lives==0 and p.joined and not p.bot and not (self.rules['match_seconds']>0 and self.time<=0):
             if self.continues.open(p.idx):
@@ -495,15 +501,23 @@ class Match:
                 sounds.append('power')
 
     def apply_fire(self):
+        # Preserve already emitted rays when another station burns their
+        # owner in this same tick; station order must not cancel a trade.
+        attacks=[]
         for p in self.players:
             if p.lives<=0 or not self.active(p,'Flare'): continue
             cells=self.fire_cells(p)
-            for i,f in enumerate(self.foes):
-                if f in cells and self.foe_modes[i]=='roaming':
-                    self.award(p, 'ghost_burned', ghost_id=i, target=list(f)); self.reset_foe(i)
-            for q in self.players:
-                if q is not p and q.pos in cells and self.hurt(q):
-                    self.award(p, 'rival_burned', target_player_id=q.idx+1)
+            ghosts=[(i,f) for i,f in enumerate(self.foes)
+                    if f in cells and self.foe_modes[i]=='roaming']
+            rivals=[q for q in self.players if q is not p and q.lives>0 and q.pos in cells]
+            attacks.append((p,list(p.pos),ghosts,rivals))
+        for p,origin,ghosts,rivals in attacks:
+            for i,f in ghosts:
+                if self.foe_modes[i]=='roaming':
+                    self.award(p, 'ghost_burned', ghost_id=i, target=list(f),position=origin); self.reset_foe(i)
+            for q in rivals:
+                if self.hurt(q):
+                    self.award(p, 'rival_burned', target_player_id=q.idx+1,position=origin)
 
     def bump(self,p,q,previous):
         resolve_bumps(self,[(p,q)],previous)
@@ -1065,6 +1079,26 @@ class App:
                            (COLS*TILE,None) if wrap else None)
         return point[0]+OX,point[1]+TOP
 
+    def update_player_visuals(self,g,dt):
+        for p in g.players:
+            if p.lives<=0:continue
+            target=center(p.pos)
+            old=self.visual_positions.get(p.idx,target)
+            wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
+            if not wrap and distance(old,target)>TILE*3:old=target
+            interval=g.player_interval(p)
+            spawn=g.arena.spawns[p.idx];entry=g.arena.entries[p.idx]
+            outside=old[1]<center(entry)[1] if spawn[1]==0 else old[1]>center(entry)[1]
+            if p.pos==spawn or p.pos==entry and outside:
+                # Gate centers are50px apart, unlike20px public lanes.
+                # Cover that visual distance in one movement interval.
+                interval*=TILE/abs(center(spawn)[1]-center(entry)[1])
+            smooth=self.corridor_position('players',p.idx,old,target,dt,interval,p.pos[1] in g.arena.portals)
+            if p.pos[1] in g.arena.portals:
+                if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
+                elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
+            self.visual_positions[p.idx]=smooth
+
     def item_tracks(self,items,portals):
         """Match equal-looking items by proximity, never by sorted-list index."""
         previous=self.visual_items
@@ -1180,6 +1214,7 @@ class App:
                     self.visual_positions.pop(event['player_id']-1,None)
                 elif event['event']=='stage_start' and not event['context'].get('actors_preserved'):
                     self.visual_positions.clear();self.visual_foes.clear();self.visual_items.clear()
+            self.update_player_visuals(g,dt)
             palette,accent=self.wall_style()
             morph=g.transition_from is not None and g.transition_age<MAZE_TRANSITION_SECONDS
             progress=g.transition_age/MAZE_TRANSITION_SECONDS if morph else 1.
@@ -1208,7 +1243,7 @@ class App:
                 inward=(0,-1) if upper else (0,1)
                 visual=self.visual_positions.get(idx,center(spawn))
                 crossing=occupant and abs(visual[0]-sx)<24 and (
-                    visual[1]<mouth_y+22 if upper else visual[1]>mouth_y-22)
+                    visual[1]<=mouth_y+22 if upper else visual[1]>=mouth_y-22)
                 opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
                     or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
                 if not morph:draw_station_gate(self.canvas,sx,mouth_y,upper,accent,opening)
@@ -1254,16 +1289,34 @@ class App:
                     jitter=8*math.sin(self.animation_time*37+n*2.1)
                     pg.draw.lines(self.canvas,(140,230,255),False,[(cx,cy),((cx+ex)/2+jitter,(cy+ey)/2-jitter),(ex,ey)],2)
             for p in g.players:
-                if g.active(p,'Flare'):
+                if p.lives>0 and g.active(p,'Flare'):
                     cells=g.fire_cells(p)
-                    origin=center(p.pos);end=origin;previous=p.pos
-                    for cell in cells:
-                        if abs(cell[0]-previous[0])>1:
-                            edge=OX if p.direction[0]<0 else OX+COLS*TILE
-                            fire_plume(self.canvas,origin,(edge,origin[1]),p.direction,self.animation_time)
-                            origin=(OX+COLS*TILE if p.direction[0]<0 else OX,origin[1])
-                        end=center(cell);previous=cell
-                    if cells:fire_plume(self.canvas,origin,end,p.direction,self.animation_time)
+                    if not cells:continue
+                    track=self.motion_tracks['players'][p.idx]
+                    # Join the visible mouth to the emitted logical ray only
+                    # along its known corridor route. This short tail is visual
+                    # compensation; combat still uses fire_cells exclusively.
+                    points=[(x+OX,y+TOP) for x,y in track.remaining_path]
+                    points.extend(center(cell) for cell in cells)
+                    # An owner may return through its private bay while powered.
+                    # The public-lane helper deliberately excludes that link;
+                    # authorize only this owner's known vertical gate segment.
+                    spawn=g.arena.spawns[p.idx];entry=g.arena.entries[p.idx]
+                    sx,sy=center(spawn);ey=center(entry)[1]
+                    upper=spawn[1]==0;mouth=TOP+4 if upper else TOP+ROWS*TILE-4
+                    clip=self.canvas.get_clip()
+                    for a,b in zip(points,points[1:]):
+                        if (abs(a[0]-sx)<1e-6 and abs(b[0]-sx)<1e-6 and abs(a[1]-b[1])>1e-6
+                                and min(sy,ey)-1e-6<=a[1]<=max(sy,ey)+1e-6
+                                and min(sy,ey)-1e-6<=b[1]<=max(sy,ey)+1e-6):
+                            if corridor_segments(g.arena,[a,b],(OX,TOP),TILE,COLS):continue
+                            direction=(0,1 if b[1]>a[1] else -1)
+                            fire_plume(self.canvas,a,b,direction,self.animation_time)
+                            self.canvas.set_clip(gate_geometry(sx,mouth,upper)['outer'].inflate(-3,-3))
+                            fire_plume(self.canvas,a,b,direction,self.animation_time)
+                            self.canvas.set_clip(clip)
+                    for origin,end,direction in corridor_segments(g.arena,points,(OX,TOP),TILE,COLS):
+                        fire_plume(self.canvas,origin,end,direction,self.animation_time)
             for c in g.dots:
                 cx,cy=center(c); self.canvas.blit(dot_sprite(),(cx-3,cy-3))
             for c,(owner,_) in g.traps.items(): pg.draw.circle(self.canvas,COLORS[owner],center(c),11,2)
@@ -1300,33 +1353,19 @@ class App:
                     if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
                     elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
                 self.visual_foes[i]=smooth
-                look=(1 if target[0]>old[0] else -1 if target[0]<old[0] else 0,
-                      1 if target[1]>old[1] else -1 if target[1]<old[1] else 0)
+                # Eyes follow the segment actually being drawn, not a future
+                # logical target (which can be around a corner or tunnel).
+                look=self.motion_tracks['ghosts'][i].direction
                 edible=any(g.active(p,'Crown') or g.active(p,'Titan') for p in g.players if p.lives>0)
                 stunned=g.foe_stun>0 or (i<len(g.foe_zapped) and g.foe_zapped[i]>0)
-                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'),pulse)
+                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,stunned,look,edible and g.foe_modes[i] in ('roaming','house','leaving'),g.foe_modes[i] in ('eyes','entering'),pulse)
                 if c[1] in g.arena.portals and (smooth[0]<OX+30 or smooth[0]>OX+COLS*TILE-30):
                     twin=smooth[0]+COLS*TILE if smooth[0]<OX+30 else smooth[0]-COLS*TILE
                     foe(self.canvas,(round(twin),round(smooth[1])),COLORS[(3,1,2,5)[i%4]],self.animation_time,
-                        stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'),pulse)
+                        stunned,look,edible and g.foe_modes[i] in ('roaming','house','leaving'),g.foe_modes[i] in ('eyes','entering'),pulse)
             for p in g.players:
                 if p.lives<=0: continue
-                target=center(p.pos)
-                old=self.visual_positions.get(p.idx,target)
-                wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
-                if not wrap and distance(old,target)>TILE*3:old=target
-                interval=g.player_interval(p)
-                spawn=g.arena.spawns[p.idx];entry=g.arena.entries[p.idx]
-                outside=old[1]<center(entry)[1] if spawn[1]==0 else old[1]>center(entry)[1]
-                if p.pos==spawn or p.pos==entry and outside:
-                    # Gate centers are50px apart, unlike20px public lanes.
-                    # Cover that visual distance in one movement interval.
-                    interval*=TILE/abs(center(spawn)[1]-center(entry)[1])
-                smooth=self.corridor_position('players',p.idx,old,target,dt,interval,p.pos[1] in g.arena.portals)
-                if p.pos[1] in g.arena.portals:
-                    if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
-                    elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
-                self.visual_positions[p.idx]=smooth
+                smooth=self.visual_positions[p.idx]
                 cx,cy=map(round,smooth); r=round(self.presentation.radius(p.idx)*pulse)
                 if p.locate_remaining>0:
                     ring=r+12+round(4*math.sin(self.animation_time*12))
