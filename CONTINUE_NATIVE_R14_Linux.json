@@ -1,0 +1,18 @@
+{
+  "platform": "Linux",
+  "driver": "x11",
+  "audio_format": [
+    44100,
+    -16,
+    2
+  ],
+  "frames": 957,
+  "elapsed_seconds": 15.892,
+  "ai_moved_during_offer": true,
+  "continue_accepted": true,
+  "score_preserved": true,
+  "expiry_opens_initials": true,
+  "continue_window_seconds": 10.0,
+  "custom_reveal_seconds": 1.0,
+  "physical_controller_input_tested": false
+}

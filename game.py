@@ -18,15 +18,18 @@ from cabinet import CabinetStore, spectator_view, atomic_json
 from presentation import LifecyclePresentation
 from gameplay_tuning import validate_tuning, load_tuning
 from arcade_ai import choose_direction
+from cabinet_flow import ContinueOffers
+from gate_art import draw_station_gate,draw_house,gate_geometry,GATE_HATCH
 
-W, H, TILE, TOP = 1280, 720, 20, 45
+W, H, TILE, TOP = 1280, 720, 20, 50
 COLS, ROWS = 59, 31
 OX = (W - COLS * TILE) // 2
-GATE_HATCH=(238,221,85)  # Yellow thresholds observed even on cyan Deluxe mazes.
 COLORS = [(255,222,45),(255,108,195),(75,226,245),(255,83,80),
           (111,235,90),(255,155,55),(185,109,255),(90,141,255)]
 DIRS = [(1,0),(-1,0),(0,1),(0,-1)]
 THEMES = [(get_map(index).name,get_map(index).accent) for index in range(4)]
+PALETTES=[theme[1] for theme in THEMES]+[(74,91,255)]
+_BAY_CELLS={cell for index in range(4) for cell in get_map(index).spawns}
 SPAWN_INTERVAL=3.0  # Custom tuning; commercial cadence is not published.
 MAX_ITEMS=12
 ITEM_STEP_INTERVAL=.24
@@ -98,12 +101,14 @@ class Arena:
         return target
 
 class Match:
-    def __init__(self, count=2, theme=0, seed=None, score_values=None, progression='cycle',rules=None,tuning=None):
+    def __init__(self, count=2, theme=0, seed=None, score_values=None, progression='cycle',rules=None,tuning=None,
+                 continue_seconds=0,continue_delay=1):
         if not 0 <= count <= 8: raise ValueError('Player count must be 0..8')
         if progression not in ('cycle', 'repeat', 'random'): raise ValueError('Unknown progression policy')
         self.progression = progression
         self.rules=CabinetStore.validate(rules or {})
         self.tuning=validate_tuning(tuning)
+        self.continues=ContinueOffers(continue_seconds,continue_delay)
         self.seed = seed if seed is not None else random.SystemRandom().randrange(2**63)
         self.rng = random.Random(self.seed)
         self.elapsed = 0.; self.tick = 0
@@ -121,13 +126,16 @@ class Match:
         self.players = [Player(i,(0,0),lives=self.rules['starting_lives']) for i in range(count)]
         self.new_arena(theme)
         self.ledger.append(self, 'match_start', seed=self.seed, count=count,
-                           theme=theme, score_values=self.score_values, progression=progression,rules=self.rules,tuning=self.tuning)
+                           theme=theme, score_values=self.score_values, progression=progression,rules=self.rules,tuning=self.tuning,
+                           continue_seconds=continue_seconds,continue_delay=continue_delay)
 
     def award(self, player, event, **context):
         """One score mutation path, shared by HUD totals, traces and replay checks."""
-        delta = self.score_values[event]
+        rule=({'Crown':'gold_pickup','Titan':'giant_pickup'}.get(context.get('power'),'pickup')
+              if event=='pickup' else event)
+        delta = self.score_values[rule]
         player.score += delta
-        self.ledger.append(self, event, player, delta, position=list(player.pos), **context)
+        self.ledger.append(self, event, player, delta, position=list(player.pos),score_rule=rule, **context)
 
     def fill_vacancies(self):
         """Original bot-fill policy; commercial AI difficulty/replacement is unknown.
@@ -181,6 +189,33 @@ class Match:
                  'player_id': p.idx + 1, 'score': p.score, 'lives': p.lives}
                 for p in ordered]
 
+    def can_continue_station(self,idx):
+        if type(idx) is not int or not 0<=idx<len(self.players) or self.over or self.paused:return False
+        if self.rules['match_seconds']>0 and self.time<=0:return False
+        p=self.players[idx]
+        return p.joined and not p.bot and p.lives<=0 and self.continues.can_accept(idx)
+
+    def continue_station(self,idx):
+        """Caller authorizes credit/free-play first; restoration policy is original.
+
+        DX footage establishes a continue prompt, not its score/life policy.
+        Retain the score and already-earned bonus flag; restore configured lives.
+        """
+        if not self.can_continue_station(idx):return False
+        old=self.players[idx]
+        if not self.continues.accept(idx):return False
+        p=Player(idx,self.arena.spawns[idx],lives=self.rules['starting_lives'],
+                 score=old.score,bonus_life=old.bonus_life,entry=.8)
+        p.direction=(0,1) if p.pos[1]==0 else (0,-1)
+        self.players[idx]=p
+        self.traps={cell:trap for cell,trap in self.traps.items() if trap[0]!=idx}
+        self.bump_cooldowns={pair:t for pair,t in self.bump_cooldowns.items() if idx not in pair}
+        for ghost,owner in list(self.foe_carriers.items()):
+            if owner==idx:self.reset_foe(ghost)
+        self.ledger.append(self,'station_continue',p,lives=p.lives,position=list(p.pos),
+                           score_preserved=True,bonus_life_preserved=p.bonus_life)
+        return True
+
     def snapshot(self):
         """JSON-safe complete logic state for deterministic regression comparisons."""
         def freeze(value):
@@ -190,7 +225,8 @@ class Match:
             if isinstance(value, (list, tuple)): return [freeze(v) for v in value]
             return value
         state = {k: freeze(v) for k, v in vars(self).items()
-                 if k not in ('arena', 'players', 'rng', 'ledger')}
+                 if k not in ('arena', 'players', 'rng', 'ledger','continues')}
+        state['continues']=self.continues.snapshot()
         state['arena_theme'] = self.arena.theme
         state['map_id'] = self.arena.map_id
         state['map_revision'] = self.arena.map_revision
@@ -212,6 +248,7 @@ class Match:
             p.entry=.8; p.stun=0.; p.clock=0.
             p.effects.clear()
         self.foes = list(self.arena.homes)
+        self.foe_previous=list(self.foes)
         self.foe_modes=['house']*4
         self.foe_release=[.9+i*.6 for i in range(4)]
         self.foe_carriers={}
@@ -248,6 +285,18 @@ class Match:
                     seen.add(nxt); queue.append((nxt,first or nxt))
         return start
 
+    def lane_distances(self,goal):
+        """Legal graph distances; a wall is never a shortcut for ghost AI."""
+        if goal not in self.arena.lanes:return {}
+        distances={goal:0};queue=deque([goal])
+        while queue:
+            cell=queue.popleft()
+            for direction in DIRS:
+                nxt=self.arena.step(cell,direction)
+                if nxt in self.arena.lanes and nxt not in distances:
+                    distances[nxt]=distances[cell]+1;queue.append(nxt)
+        return distances
+
     def sync_carriers(self):
         for i,owner in list(self.foe_carriers.items()):
             holder=self.players[owner]
@@ -276,7 +325,9 @@ class Match:
         interval=self.tuning['ghost_step_seconds']
         if self.foe_clock+1e-10<interval: return
         self.foe_clock=max(0.,self.foe_clock-interval)%interval
+        target_distances={}
         for i,f in enumerate(self.foes):
+            while len(self.foe_previous)<=i:self.foe_previous.append(f)
             mode=self.foe_modes[i]
             if mode=='carried':
                 holder=self.players[self.foe_carriers[i]]
@@ -316,11 +367,17 @@ class Match:
                      and not self.active(p,'Veil')]
             options=[self.arena.step(f,d) for d in DIRS if self.arena.step(f,d) in self.arena.lanes]
             if not options: continue
+            forward=[cell for cell in options if cell!=self.foe_previous[i]]
+            if forward:options=forward
             if targets and self.rng.random()<.7:
-                target=min(targets,key=lambda p:distance(p.pos,f))
-                options.sort(key=lambda c:distance(c,target.pos),reverse=self.active(target,'Crown') or self.active(target,'Titan'))
+                for target in targets:
+                    if target.idx not in target_distances:target_distances[target.idx]=self.lane_distances(target.pos)
+                target=min(targets,key=lambda p:target_distances[p.idx].get(f,float('inf')))
+                distances=target_distances[target.idx]
+                options.sort(key=lambda c:distances.get(c,float('inf')),reverse=self.active(target,'Crown') or self.active(target,'Titan'))
                 self.foes[i]=options[0]
             else: self.foes[i]=self.rng.choice(options)
+            self.foe_previous[i]=f
 
     def active(self,p,key): return p.effects.get(key,0)>0
 
@@ -333,6 +390,10 @@ class Match:
         p.entry=.8; p.stun=0.; p.clock=0.
         p.effects.clear()
         self.ledger.append(self, 'player_hurt', p, position=old_position, lives=p.lives)
+        if p.lives==0 and p.joined and not p.bot and not (self.rules['match_seconds']>0 and self.time<=0):
+            if self.continues.open(p.idx):
+                self.ledger.append(self,'continue_offered',p,duration=self.continues.seconds,
+                                   reveal_delay=self.continues.delay)
         return True
 
     def collect(self,p,name):
@@ -472,6 +533,9 @@ class Match:
         if not math.isfinite(dt) or dt < 0: raise ValueError('dt must be finite and non-negative')
         self.elapsed += dt; self.tick += 1
         sounds=[]
+        expired_continues=self.continues.advance(dt)
+        for idx in expired_continues:
+            self.ledger.append(self,'continue_expired',self.players[idx])
         self.time=self.countdown(self.time,dt)
         previous=[p.pos for p in self.players]
         old_foes=list(self.foes)
@@ -549,9 +613,12 @@ class Match:
             self.items=moved; self.item_directions=directions
             self.collect_contacts(sounds)
             self.award_score_lives()
-        if self.rules['match_seconds']>0 and self.time<=0 or not any(p.joined and p.lives>0 for p in self.players):
+        timed_out=self.rules['match_seconds']>0 and self.time<=0
+        if timed_out or not any(p.joined and p.lives>0 for p in self.players) and not self.continues.active:
             self.over=True
-            self.ledger.append(self, 'match_end', reason='time' if self.rules['match_seconds']>0 and self.time<=0 else 'elimination', rankings=self.rankings())
+            if timed_out:self.continues.clear()
+            self.ledger.append(self, 'match_end', reason='time' if timed_out else 'elimination', rankings=self.rankings(),
+                               continue_timeout=not timed_out and bool(expired_continues))
         elif not self.dots:
             for p in self.players:
                 if p.lives>0: self.award(p, 'stage_clear')
@@ -564,12 +631,15 @@ class Match:
 
 def add(a,b): return a[0]+b[0],a[1]+b[1]
 def distance(a,b): return abs(a[0]-b[0])+abs(a[1]-b[1])
-def center(c): return OX+c[0]*TILE+TILE//2,TOP+c[1]*TILE+TILE//2
+def center(c):
+    x=OX+c[0]*TILE+TILE//2
+    if c in _BAY_CELLS:return x,TOP-20 if c[1]==0 else TOP+ROWS*TILE+20
+    return x,TOP+c[1]*TILE+TILE//2
 
 def station_hud(spawn,score=0):
     """Reserve clearance beside each bay for every digit, life and prompt."""
     sx=center(spawn)[0]
-    sy=4 if spawn[1]<ROWS//2 else TOP+ROWS*TILE+10
+    sy=4 if spawn[1]<ROWS//2 else H-45
     label=f'{score:06}'
     scale=max(1,min(3,108//(6*len(label))))
     return {'x':sx+50,'y':sy,'label':label,'scale':scale,
@@ -598,6 +668,7 @@ class App:
         self.seed=None; self.progression='cycle'; self.pair_error=''
         self.tuning=validate_tuning()
         self.untimed=False
+        self.continue_seconds=10.;self.continue_delay=1.
         self.palette_override=None  # Presentation is independent of maze topology.
         self.cabinet=cabinet if cabinet is not None else CabinetStore()
         self.operator_open=False;self.operator_index=0;self.operator_draft={}
@@ -656,12 +727,23 @@ class App:
         if not 0<=idx<8:return
         self.save_result()
         if self.phase in (Phase.GUIDE,Phase.PAUSED): return
+        if self.match and not self.match.over and idx<len(self.match.players):
+            p=self.match.players[idx]
+            if p.joined and p.lives<=0:
+                if not self.match.can_continue_station(idx):return
+                if not self.cabinet.pay(1):
+                    self.status_notice=self.cabinet.error or 'Press INSERT for a credit, then this station Start.';return
+                self.match.continue_station(idx)
+                self.match.players[idx].locate_remaining=self.locator_seconds
+                self.presentation.radii.pop(idx,None)
+                self.status_notice='';return
         fresh=self.phase in (Phase.ATTRACT,Phase.RESULTS)
         needs_join=fresh or idx>=len(self.match.players) or not self.match.players[idx].joined
         if needs_join and not self.cabinet.pay(1):
             self.status_notice='Insert credit: press C in the lobby.';return
         if self.phase in (Phase.ATTRACT,Phase.RESULTS):
-            self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning)
+            self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning,
+                             continue_seconds=self.continue_seconds,continue_delay=self.continue_delay)
             self.session_id=str(uuid.uuid4())
             self.reset_visuals()
         if idx>=len(self.match.players) or not self.match.players[idx].joined:
@@ -700,7 +782,7 @@ class App:
                 self.begin_name_entry();continue
             if e.key==pg.K_F11 and (not self.match or self.match.over):
                 self.operator_open=True;self.operator_draft=dict(self.cabinet.settings);continue
-            if e.key==pg.K_c and not self.match:
+            if e.key==pg.K_c and not self.match or e.key==pg.K_INSERT and self.match and not self.match.over and self.match.continues.active:
                 if self.cabinet.add_credit():self.status_notice=f'{self.cabinet.credits} credits available'
                 else:self.status_notice=self.cabinet.error
                 continue
@@ -727,7 +809,7 @@ class App:
                 if self.muted:self.audio.silence()
             elif e.key==pg.K_F12:
                 current=self.palette_override if self.palette_override is not None else (self.match.arena.theme if self.match else self.theme)
-                self.palette_override=(current+1)%len(THEMES)
+                self.palette_override=(current+1)%len(PALETTES)
             elif e.key==pg.K_RETURN and (not self.match or self.match.over): self.start()
             elif e.key==pg.K_p and self.match: self.match.paused=not self.match.paused
             elif not self.match:
@@ -738,7 +820,8 @@ class App:
         self.save_result()
         if not self.cabinet.pay(self.count):
             self.status_notice=f'{self.count} credits needed. Press C in the lobby.';return False
-        self.match=Match(self.count,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning); self.help=False
+        self.match=Match(self.count,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning,
+                         continue_seconds=self.continue_seconds,continue_delay=self.continue_delay); self.help=False
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
         self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice='';self.name_entry=None
         self.reset_visuals()
@@ -912,15 +995,17 @@ class App:
 
     def draw(self,dt=1/60):
         self.canvas.fill((0,0,4))
-        if self.match and self.phase!=Phase.PLAYING:dt=0.
+        if self.match and self.phase not in (Phase.PLAYING,Phase.CONTINUE):dt=0.
         self.animation_time+=dt
         smooth_item=1-.7**(dt*60)
         smooth_player=1-.62**(dt*60)
         if not self.match:
-            if self.theme not in self.backgrounds:
+            palette=self.theme if self.palette_override is None else self.palette_override
+            lobby_key=('lobby',self.theme,palette)
+            if lobby_key not in self.backgrounds:
                 arena=Arena(self.theme)
-                self.backgrounds[self.theme]=maze_background(arena.space,COLS,ROWS,TILE,THEMES[self.theme][1],arena.lane_radius)
-            self.canvas.blit(self.backgrounds[self.theme],(OX,TOP))
+                self.backgrounds[lobby_key]=maze_background(arena.space,COLS,ROWS,TILE,PALETTES[palette],arena.lane_radius)
+            self.canvas.blit(self.backgrounds[lobby_key],(OX,TOP))
             shade=pg.Surface((W,H),pg.SRCALPHA); shade.fill((0,0,8,215))
             self.canvas.blit(shade,(0,0))
             for i in range(8):
@@ -955,7 +1040,7 @@ class App:
                 elif event['event']=='stage_start':
                     self.visual_positions.clear();self.visual_foes.clear();self.visual_items.clear()
             palette=g.arena.theme if self.palette_override is None else self.palette_override
-            accent=THEMES[palette][1]
+            accent=PALETTES[palette]
             background_key=(g.arena.map_id,g.arena.map_revision,palette)
             if background_key not in self.backgrounds:
                 self.backgrounds[background_key]=maze_background(g.arena.space,COLS,ROWS,TILE,accent,g.arena.lane_radius)
@@ -963,44 +1048,35 @@ class App:
             # Thin enclosure and colored border stations, leaving the maze dominant.
             dx,dy,dw,dh=g.arena.den
             gate=pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10)
-            # Replace the carved-background house edge before drawing its two
-            # explicit contours; otherwise background + overlay creates three.
-            pg.draw.rect(self.canvas,(0,0,4),gate.inflate(28,28))
-            pg.draw.rect(self.canvas,(0,0,4),gate,border_radius=4)
-            pg.draw.rect(self.canvas,accent,gate,2,border_radius=4)
-            pg.draw.rect(self.canvas,accent,gate.inflate(-8,-8),1,border_radius=3)
             door_x=center(g.arena.door)[0]
-            pg.draw.rect(self.canvas,(0,0,4),(door_x-20,gate.top-12,40,21))
-            pg.draw.line(self.canvas,(224,211,255),(door_x-19,gate.top),(door_x+19,gate.top),2)
+            draw_house(self.canvas,gate,accent,door_x)
             for idx,spawn in enumerate(g.arena.spawns):
                 sx=center(spawn)[0]
                 upper=spawn[1]<ROWS//2
                 mouth_y=TOP+4 if upper else TOP+ROWS*TILE-4
-                by=mouth_y-34 if upper else mouth_y
-                box=pg.Rect(sx-24,by,48,34)
-                pg.draw.rect(self.canvas,(0,0,4),box,border_radius=7)
-                pg.draw.rect(self.canvas,accent,box,2,border_radius=7)
-                pg.draw.rect(self.canvas,accent,box.inflate(-7,-7),1,border_radius=4)
-                pg.draw.rect(self.canvas,(0,0,4),(sx-20,mouth_y-6,40,12))
                 active=idx<len(g.players) and g.players[idx].joined
                 color=COLORS[idx] if active else tuple(max(85,c//2) for c in COLORS[idx])
-                occupant=g.players[idx] if active else None
+                occupant=g.players[idx] if idx<len(g.players) and (active or g.players[idx].bot) else None
                 inward=(0,-1) if upper else (0,1)
                 visual=self.visual_positions.get(idx,center(spawn))
-                crossing=occupant and abs(visual[1]-mouth_y)<22
+                crossing=occupant and abs(visual[0]-sx)<24 and (
+                    visual[1]<mouth_y+22 if upper else visual[1]>mouth_y-22)
                 opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
                     or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
-                if not opening:
-                    pg.draw.line(self.canvas,GATE_HATCH,(sx-20,mouth_y),(sx+20,mouth_y),2)
-                    for hatch in range(-18,19,6):
-                        pg.draw.line(self.canvas,GATE_HATCH,(sx+hatch,mouth_y-4),(sx+hatch+4,mouth_y+3),1)
-                hud=station_hud(spawn,occupant.score if occupant else 0)
+                draw_station_gate(self.canvas,sx,mouth_y,upper,accent,opening)
+                hud=station_hud(spawn,g.players[idx].score if active else 0)
                 sx_text,sy=hud['x'],hud['y']
                 if active:
                     p=g.players[idx]
                     arcade_digits(self.canvas,hud['label'],sx_text,sy,color,hud['scale'])
                     for life in range(p.lives): pg.draw.circle(self.canvas,color,(sx_text+3+life*9,sy+28),2)
-                    if p.lives<=0: self.text('OUT',sx_text,sy+22,color,self.small)
+                    if p.lives<=0:
+                        remaining=g.continues.remaining(idx)
+                        if remaining and not g.continues.pending(idx):
+                            prompt=(f'CONTINUE {math.ceil(remaining-1e-10):02}' if int(self.animation_time*2)%2==0 else
+                                    f'F{idx+3} START' if self.cabinet.settings['free_play'] or self.cabinet.credits else 'INSERT COIN')
+                            self.text(prompt,sx_text,sy+(24 if upper else 21),color,self.micro)
+                        elif not remaining:self.text('OUT',sx_text,sy+(24 if upper else 21),color,self.micro)
                 else: self.text(f'F{idx+3} / START',sx_text,sy+1,color,self.small)
             top_bays=sorted(c[0] for c in g.arena.spawns if c[1]==0)
             status_center=round((center((top_bays[1],0))[0]+158+center((top_bays[2],0))[0]-28)/2)
@@ -1087,8 +1163,6 @@ class App:
             for p in g.players:
                 if p.lives<=0: continue
                 target=center(p.pos)
-                if p.pos==g.arena.spawns[p.idx]:
-                    target=(target[0],TOP-5 if p.pos[1]==0 else TOP+ROWS*TILE+5)
                 old=self.visual_positions.get(p.idx,target)
                 wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
                 if wrap: target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
@@ -1117,6 +1191,16 @@ class App:
                                        (cx-p.direction[0]*n*12,cy-p.direction[1]*n*12),max(2,9-n*2))
                 muncher(self.canvas,(cx,cy),COLORS[p.idx],p.direction,self.animation_time+p.idx,r,
                         g.active(p,'Crown') or g.active(p,'Titan'),p.safe>0,150 if g.active(p,'Veil') else 255)
+                spawn=g.arena.spawns[p.idx];sx=center(spawn)[0];upper=spawn[1]==0
+                mouth=TOP+4 if upper else TOP+ROWS*TILE-4
+                if abs(cx-sx)<32+r and (cy<TOP+40 if upper else cy>TOP+ROWS*TILE-40):
+                    # The public-maze clip must not hide a body inside its own
+                    # outside pocket. A separate bounded pass protects the HUD.
+                    pocket=gate_geometry(sx,mouth,upper)['outer'].inflate(-3,-3)
+                    self.canvas.set_clip(pocket)
+                    muncher(self.canvas,(cx,cy),COLORS[p.idx],p.direction,self.animation_time+p.idx,r,
+                            g.active(p,'Crown') or g.active(p,'Titan'),p.safe>0,150 if g.active(p,'Veil') else 255)
+                    self.canvas.set_clip(pg.Rect(OX,TOP,COLS*TILE,ROWS*TILE))
                 if p.pos[1] in g.arena.portals and (cx<=OX+r+9 or cx>=OX+COLS*TILE-r-9):
                     twin=cx+COLS*TILE if cx<OX+COLS*TILE/2 else cx-COLS*TILE
                     muncher(self.canvas,(twin,cy),COLORS[p.idx],p.direction,self.animation_time+p.idx,r,
@@ -1145,13 +1229,24 @@ class App:
                 popup[2]-=30*dt; popup[3]-=dt
                 if popup[3]<=0: self.popups.remove(popup)
             self.canvas.set_clip(None)
-            footer='AUTOPLAY - COMPUTER PLAYERS' if self.demo else 'LOCAL ARCADE BATTLE'
-            bots=sum(p.bot and p.lives>0 for p in g.players)
-            if bots:footer+=f' | {g.count} HUMAN / {bots} AI'
             status=self.controller_status()
-            message=footer+' | '+status['message']+' | F1 guide  P pause  F2 sound  ESC lobby'
             color=(255,188,87) if status['missing'] or status['disconnected'] else (127,168,198)
-            self.text(message,OX,H-12,color,self.micro)
+            if status['simulated']:message=f"SIMULATED {status['effective']}"
+            elif status['disconnected']:message='PAD DISCONNECTED'
+            elif status['missing']:message=f"MISSING {status['missing']}/{status['expected']}"
+            else:message=f"PADS {status['actual']}/{status['expected']}"
+            if self.status_notice.startswith('CONTROLLED TEST'):message='TEST | '+message
+            bottom=sorted(c[0] for c in g.arena.spawns if c[1]==ROWS-1)
+            left=center((bottom[1],ROWS-1))[0]+164
+            right=center((bottom[2],ROWS-1))[0]-39
+            label=self.micro.render(message,True,color)
+            if label.get_width()>right-left:
+                label=pg.transform.smoothscale(label,(right-left,label.get_height()))
+            self.canvas.blit(label,(left+(right-left-label.get_width())//2,H-12))
+            if self.status_notice and not self.status_notice.startswith('CONTROLLED TEST'):
+                notice=pg.Rect(180,H//2+70,920,34)
+                pg.draw.rect(self.canvas,(8,15,28),notice,border_radius=6)
+                self.text(self.status_notice,notice.x+12,notice.y+7,(255,200,110),self.small)
             if g.paused: self.overlay('PAUSED','Press P to continue')
             if g.over and self.name_entry is None:
                 self.draw_results()
@@ -1185,7 +1280,7 @@ class App:
 
     def advance(self,dt):
         """Fixed 60Hz logic independent of native display frame cadence."""
-        if self.phase!=Phase.PLAYING:
+        if self.phase not in (Phase.PLAYING,Phase.CONTINUE):
             self.fixed_accumulator=0.; return []
         self.fixed_accumulator+=max(0,dt)
         sounds=[]
@@ -1195,6 +1290,13 @@ class App:
                 p.locate_remaining=self.match.countdown(p.locate_remaining,1/60)
             sounds.extend(self.match.update(1/60))
             self.fixed_accumulator-=1/60
+            if self.match.over:
+                self.fixed_accumulator=0.
+                ended=self.match.ledger.events[-1]
+                if ended['event']=='match_end' and ended['context'].get('continue_timeout'):
+                    self.save_result()
+                    self.begin_name_entry()
+                break
         return sounds
 
     def draw_results(self):
@@ -1242,7 +1344,7 @@ class App:
                     pg.image.save(self.canvas,str(temporary));temporary.replace(frame)
                     atomic_json(feed_path,spectator_view(self.match,self.phase.value,
                         THEMES[self.match.arena.theme][0] if self.match else ''))
-                except OSError:self.status_notice='Spectator feed could not be saved.'
+                except (OSError,pg.error):self.status_notice='Spectator feed could not be saved.'
             if frames and n>=frames: break
         pg.quit()
 
@@ -1264,16 +1366,21 @@ if __name__=='__main__':
     parser.add_argument('--progression',choices=('cycle','repeat','random'),default='cycle',help='Authored map selection policy, not a verified DX rule.')
     parser.add_argument('--locator-seconds',type=float,default=2.,help='Custom locator highlight duration.')
     parser.add_argument('--event-log',help='Save the final match event ledger as JSON on exit.')
-    parser.add_argument('--palette',type=int,choices=range(4),help='Select wall palette independently of the starting maze layout. F12 cycles it.')
+    parser.add_argument('--palette',type=int,choices=range(5),help='Independent wall color; palette4 is luminous blue. F12 cycles all five.')
     parser.add_argument('--spectator-state',help='Publish an optional local spectator feed JSON file.')
     parser.add_argument('--data-dir',help='Directory for local operator settings, credits and high scores.')
-    parser.add_argument('--arena',type=int,choices=range(4),default=3,help='Starting visual profile; four profiles use two reconstructed layouts.')
+    parser.add_argument('--arena',type=int,choices=range(4),default=3,help='Starting visual profile; four independently reconstructed observed layouts.')
     parser.add_argument('--tuning',help='JSON overrides for explicitly approximate power timings, speeds, ranges and item cadence.')
     parser.add_argument('--untimed',action='store_true',help='Play until all humans lose their lives; optional inferred DX-style survival mode.')
+    parser.add_argument('--continue-seconds',type=float,default=10.,help='Continue window (0 disables, maximum60);10s is a footage-derived estimate.')
+    parser.add_argument('--continue-delay',type=float,default=1.,help='Custom final-death reveal delay,0..5seconds.')
     args=parser.parse_args()
     if not math.isfinite(args.locator_seconds) or not 0<args.locator_seconds<=10: parser.error('Locator duration must be in (0,10].')
+    try:ContinueOffers(args.continue_seconds,args.continue_delay)
+    except ValueError as error:parser.error(str(error))
     app=App(simulate_controllers=args.simulate_controllers,cabinet=CabinetStore(args.data_dir))
     app.untimed=args.untimed
+    app.continue_seconds=args.continue_seconds;app.continue_delay=args.continue_delay
     if args.tuning:
         try:app.tuning=load_tuning(args.tuning)
         except (OSError,ValueError,TypeError) as error:parser.error(str(error))

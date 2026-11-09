@@ -54,15 +54,23 @@ class FixedStepper:
         return sounds
 
 
-def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots=False,rules=None,tuning=None):
-    match = Match(count, theme, seed, progression=progression,rules=rules,tuning=tuning)
+def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots=False,rules=None,tuning=None,
+           continue_seconds=0,continue_delay=1,auto_continue=False):
+    match = Match(count, theme, seed, progression=progression,rules=rules,tuning=tuning,
+                  continue_seconds=continue_seconds,continue_delay=continue_delay)
     if fill_bots:match.fill_vacancies()
     commands = []
     checkpoints = []
     movement = []
     for frame in range(frames):
+        continued=[]
+        if auto_continue:
+            for player in match.players:
+                if match.can_continue_station(player.idx) and match.continue_station(player.idx):continued.append(player.idx)
         steer_demo(match)
-        commands.append({'directions': [list(p.wanted) for p in match.players]})
+        command={'directions': [list(p.wanted) for p in match.players]}
+        if continued:command['continue_stations']=continued
+        commands.append(command)
         match.update(STEP)
         if (frame + 1) % 60 == 0 or frame + 1 == frames:
             checkpoints.append({'frame': frame + 1, 'digest': digest(match)})
@@ -70,7 +78,8 @@ def record(count=8, theme=0, seed=42, frames=1200, progression='cycle',fill_bots
             movement.append(movement_sample(match))
     return {'schema_version': 1, 'step': STEP,'fill_bots':fill_bots,
             'initial': {'count': count, 'theme': theme, 'seed': seed,
-                          'score_values': match.score_values, 'progression': progression,'rules':match.rules,'tuning':match.tuning},
+                          'score_values': match.score_values, 'progression': progression,'rules':match.rules,'tuning':match.tuning,
+                          'continue_seconds':continue_seconds,'continue_delay':continue_delay},
             'commands': commands, 'checkpoints': checkpoints, 'movement_trace': movement,
             'events': match.ledger.events, 'final_digest': digest(match)}
 
@@ -85,6 +94,8 @@ def replay(document):
     for frame, command in enumerate(document['commands'], 1):
         for idx in command.get('join_stations', []):
             match.join_station(idx)
+        for idx in command.get('continue_stations',[]):
+            if not match.continue_station(idx):raise ValueError('Invalid station continue command')
         directions = command['directions']
         if len(directions) != len(match.players): raise ValueError('Replay roster does not match')
         for player, direction in zip(match.players, directions):
@@ -115,12 +126,16 @@ def main():
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--fill-bots',action='store_true',help='Fill vacant stations with AI opponents.')
     parser.add_argument('--tuning',help='JSON gameplay tuning overrides, captured completely in the replay.')
+    parser.add_argument('--continue-seconds',type=float,default=0,help='Enable deterministic continuation windows (0 disables).')
+    parser.add_argument('--continue-delay',type=float,default=1)
+    parser.add_argument('--auto-continue',action='store_true',help='Record authorized simulated continue inputs when offers are ready; not physical payment.')
     args = parser.parse_args()
     if args.action == 'record':
         if not 0 < args.seconds <= 180: parser.error('Seconds must be in (0, 180]')
         from gameplay_tuning import load_tuning
         data = record(args.players, args.theme, args.seed, round(args.seconds * 60),fill_bots=args.fill_bots,
-                      tuning=load_tuning(args.tuning) if args.tuning else None)
+                      tuning=load_tuning(args.tuning) if args.tuning else None,
+                      continue_seconds=args.continue_seconds,continue_delay=args.continue_delay,auto_continue=args.auto_continue)
         args.path.write_text(json.dumps(data, indent=2), encoding='utf-8')
     else:
         data = json.loads(args.path.read_text(encoding='utf-8'))

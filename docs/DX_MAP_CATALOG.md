@@ -1,3 +1,24 @@
+# DX map catalog - revision 14 current status
+
+The production catalog now contains four independently reconstructed observed topology families, each with an original palette and name. This does not establish that the commercial catalog contains only four maps. Exact coordinates, widths, hidden endpoints and transition rules remain approximate or unverified.
+
+| Slot | Profile | Family / revision | Lane cells | Paired tunnel rows | Direct evidence |
+|---|---|---|---:|---|---|
+| 0 | Golden Rails | D / 4 | 569 | 17 | [5:05](https://www.youtube.com/watch?v=qcO9tzgsdjo&t=305s), complementary5:15 tabletop view |
+| 1 | Violet Crosscurrent | B / 3 | 569 | 17 | [1:13](https://www.youtube.com/watch?v=-cNOhumVZ74&t=73s) |
+| 2 | Ember Courtyard | C / 4 | 585 | 5,25 | [4:10](https://www.youtube.com/watch?v=qcO9tzgsdjo&t=250s), complementary4:30/4:53/4:59 |
+| 3 | Cyan Archway | A / 3 | 582 | 5,25 | [1:08](https://www.youtube.com/watch?v=-cNOhumVZ74&t=68s), corroborated in red at [9:34](https://www.youtube.com/watch?v=43DcDXxEgzk&t=574s) |
+
+All four records use a59x31 movement grid, house `(25,15,9,5)` and bay columns6/20/38/52. C has manually authored offset side-column corridors; D has long center rails and short center capsules. C/D replace the duplicated A/B profiles from revision13. Catalog version5 stores explicit lane rows and source/inference metadata. Runtime does not derive new maps by mirroring.
+
+The renderer keeps26px corridors, preserves narrow connected stems, rounds observed capsule/branch ends and widens only isolated quantized8px bars to16px. This16px choice is a bounded approximation; apparent source widths are roughly18-24px after normalization. Every rendered route retains at least20px radius of opaque-wall clearance. Source screenshots are used only in separate research comparisons, never as game assets.
+
+Nineteen map tests pass, including counts1-8 on all four maps, graph invariants, visible movement edges, body clearance, station transitions and house/capsule contours. See `audits/revision14_maps.md` and the external `outputs/DX-maze-comparison-r14.png` evidence figure.
+
+---
+
+## Historical catalog notes (superseded by revision14 above)
+
 # DX map catalog — revision 12 current status
 
 Two layouts are now independently reconstructed from complete, same-camera DX spectator-screen frames. All four selectable profiles use these two families with original palettes; unsupported authored maze geometries have been retired. **This is not the full commercial catalog, and geometry is quantized rather than pixel-exact.**

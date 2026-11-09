@@ -74,7 +74,7 @@ class GameplayQA(unittest.TestCase):
                 g=Match(0,seed=1);g.join_station(station);p=g.players[station]
                 p.entry=p.safe=0;p.pos=(5,1)
                 g.collect(p,name);g.collect(p,name)
-                self.assertEqual(p.score,150)
+                self.assertEqual(p.score,2*{'Crown':100,'Titan':1000}.get(name,75))
                 if name in ('Heart','Spark','Quake'):
                     self.assertNotIn(name,p.effects)
                 else:
@@ -94,9 +94,7 @@ class GameplayQA(unittest.TestCase):
                     for value in (0,999999,999999999):
                         for p in app.match.players:
                             p.effects={'Titan':7};p.locate_remaining=2 if p.joined else 0;p.score=value
-                        expected={(center(app.match.arena.spawns[p.idx])[0],
-                                   TOP-5 if app.match.arena.spawns[p.idx][1]==0
-                                   else TOP+ROWS*TILE+5) for p in app.match.players}
+                        expected={center(app.match.arena.spawns[p.idx]) for p in app.match.players}
                         circles=[];draw_circle=pg.draw.circle
                         def capture(surface,color,position,radius,width=0,**kwargs):
                             if width==3 and tuple(position) in expected:

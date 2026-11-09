@@ -1,2 +1,2 @@
-Revision13 — rounded observed mazes, scoring accounts, safer AI, tunable powers, survival and initials
+Revision14 — four observed mazes, source pellet scores and per-station continue flow
 2026-11-08

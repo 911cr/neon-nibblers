@@ -1,116 +1,115 @@
 # Neon Nibblers
 
-Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to eight human stations, USB joystick/gamepad support, keyboard fallback and AI opponents. Commercial sprites, recordings, logos, ROMs and source code are not included.
+Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to8 human stations, USB gamepad/joystick support, keyboard fallback and AI opponents. No commercial sprites, ROMs, source code, logos or recordings are included.
 
-Revision 13 uses two independently reconstructed observed DX layouts, offered as four color profiles, with rounded wall ends and preserved narrow passages. It adds AI vacancy filling, lifecycle animation, operator settings, local high scores, credits and spectator windows. Exact commercial scoring, timing, AI difficulty, joining rules and the complete DX map inventory remain unverified. This is an independent adaptation, not a certified exact reproduction.
+Revision14 adds two observed maze reconstructions (four distinct layouts total), source-supported pellet awards and a per-station continue flow. Exact remaining scoring, power timings, AI, paid continuation and the complete commercial maze catalog are not certified.
 
-## Install and play
+## Install and run
 
-Requires Python 3.10+ and a graphical desktop. Python and pygame-ce are not bundled.
+Requires Python3.10+ and a graphical desktop. Python/pygame are not bundled.
 
-- Windows: extract the entire ZIP, install Python with the `py` launcher, and double-click `dev_windows.bat` for current development. It creates a virtual environment and installs pygame-ce.
-- Linux: install Python 3, pip and venv, extract the ZIP, then run `sh dev_linux.sh`. Debian/Ubuntu may need `python3-venv`.
-- Normal `run_windows.bat` / `sh run_linux.sh` use real controller detection. Development launchers visibly label assumed availability SIMULATED. Neither invents physical input.
+- Windows: extract the entire ZIP, install Python with the `py` launcher, then double-click `dev_windows.bat`.
+- Linux: install Python3, pip and venv, extract, then run `sh dev_linux.sh`. Ubuntu/Debian may need `python3-venv`.
+- Development launchers visibly assume controller availability as SIMULATED. They never create physical input. Normal `run_windows.bat` / `sh run_linux.sh` use real controller detection and missing/disconnect warnings.
 
-Manual setup: `python -m venv .venv`, activate it, then `python -m pip install -r requirements.txt` and `python game.py`. After installation, offline play is supported. Convenience launchers check dependencies online.
+Manual setup: `python -m venv .venv`, activate it, `python -m pip install -r requirements.txt`, then `python game.py`. Launchers create the environment/install dependencies online; offline play works after setup.
 
-## Stations and controls
+Use `dev_windows.bat --untimed` or `sh dev_linux.sh --untimed` for life-survival without a fixed timer. Default180-second score attack is an explicit adaptation option; F11 time limit0 also enables survival.
 
-F3–F10 are the independent Start/Find actions for P1–P8. Controller button 1 acts at its assigned station. An unjoined station can replace its AI; a living human gets a locator highlight. Eliminated humans cannot obtain a free life by joining again. Immediate takeover, highlight duration and joining windows are explicitly adaptation rules.
+## Start, movement and controls
 
-Enter starts the selected quick-play roster; keys 1–8 choose its human count in the lobby. Tab selects a starting visual profile. Default AI fill adds seven opponents for one human, six for two, and none for eight. Bots are marked AI, do not receive human input, require no controller, do not occupy human score/ranking slots and cannot prolong play after all humans are eliminated. F11 can disable AI fill. `--demo` steers every actor for demonstrations; videos are automated gameplay, not human/controller acceptance.
+Enter starts the quick-play roster;1–8 select its human count in the lobby. F3–F10 independently Start/Find P1–P8. Controller button1 serves its assigned station. Unjoined stations can replace AI; living humans receive a locator highlight. Stable numbering is top4/8/7/3, bottom1/5/6/2.
 
-| Station | Color | Movement |
-|---|---|---|
-| P1 | Yellow | Arrow keys |
-| P2 | Pink | WASD |
-| P3 | Cyan | IJKL |
-| P4 | Red | Numpad 8246 |
-| P5 | Green | TFGH |
-| P6 | Orange | EXCV |
-| P7 | Purple | YBNM |
-| P8 | Blue |8456 |
-
-P pauses. F1 opens the power guide and freezes gameplay. F2 mutes immediately. F12 cycles wall colors independently of maze geometry. Escape returns to lobby or exits; from guide/operator it closes that panel. Resizing preserves aspect ratio.
-
-USB directions use axes 0/1 or a D-pad hat, deadzone 0.35. Removing a device never renumbers surviving stations. Unique model GUIDs can reclaim a reserved station; indistinguishable controllers require manual pairing. In the lobby press Shift+F3..F10 then the desired controller's button 1. Occupied live stations cannot be stolen. Bindings are session-local. Missing-controller warnings check the joined human stations, not raw device count. Physical input/latency/mixed-device testing remains for production.
-
-## Operator, credits and scores
-
-F11 in the lobby/results opens original operator controls: starting lives, bonus threshold, match duration, free play, attract sound and AI fill. Up/Down select, Left/Right change, Enter saves, Escape cancels. Changes apply to the next match. Default 3 lives and 10,000 bonus are supported manual examples; exact repeat policy and other durations are our choices.
-
-Default free play needs no credits. With it off, C in the lobby inserts a software credit and each new human station costs one. Find and bot replacement cannot grant free lives to an already joined eliminated human. No real payment hardware is integrated. Failed saves do not debit credits.
-
-H shows the local high-score table. Completed human results are stored once per session, ranked with ties and recorded as P1..P8. On results, N opens optional three-letter initials for qualifying saved rows; type A-Z, use arrows/Backspace, Enter to save each, Escape to cancel the current draft. Names are keyboard-entry in this build; controller acceptance stays in production. Failed score writes remain queued in memory for retry even after leaving results; unsaved data cannot survive closing the program while storage remains unavailable. Corrupt data falls back to defaults with a status message.
-
-Data: `%LOCALAPPDATA%/NeonNibblers` on Windows; `$XDG_DATA_HOME/neon-nibblers` or `~/.local/share/neon-nibblers` on Linux. Override with `--data-dir PATH` or `NEON_NIBBLERS_DATA`. Tests use isolated workspace profiles.
-
-After 12 idle seconds, the original attract sequence cycles power-up instructions and saved scores. Any input returns to the lobby. Attract sound is configurable. This is not extracted commercial attract artwork or a measured copy of its timing.
-
-## Maps, rules and animation
-
-Golden Archway and Cyan Archway share observed layout A; Violet Crosscurrent and Ember Crosscurrent share observed layout B. Both were reconstructed from full DX spectator-screen views at 68/73 seconds in the IAAPA2022 reference. Four profiles do not mean four recovered commercial topologies. Quantization, hidden endpoints, wall widths/rounding and dot placement retain documented approximations. Old unsupported routes remain only in Git history.
-
-Every map supplies its own house, doorway, homes, tunnels, bays and corridor radius. Navigation, dots and wall rendering share a graph. Default dot-clear/profile cycling and 3-minute score attack remain adaptation rules. Humans retain score/lives through transitions; positions/effects reset. Bonus lives are once per human/bot at the configured threshold;0 disables the score bonus. Life cap 5 is custom.
-
-Points remain configurable simulation defaults: dots 10, pickups 75, ghosts 200, rival attacks 300, surviving a dot-clear stage 500. Visible DX800/1600 bursts have not been isolated enough to recover their exact cause or multiplier. `score_ledger.py` centralizes event values; every award carries player/time/stage/context and resulting score. HUD popups consume those same events.
-
-| Power | Implemented behavior |
+| Station/color | Movement |
 |---|---|
-| Gold Orb | Eat ghosts for 7 s |
-| Giant Orb | Grow, eat smaller rivals/ghosts, physical damage immunity for 7 s |
-| Caffeine | Faster movement for 7 s |
-| Smoke Bomb | Trail slows nearby ghosts |
-| Banana Peel | Uncontrolled quick skid for 2 s |
-| Lightning | Nearby ghost/human/AI stun for 2 s |
-| Ghost Sheet | Ghost targeting invisibility for 7 s; incidental contact still dangerous |
-| Chili Pepper |3 s fire along up to 5 reachable corridor cells, stopped by walls and split at tunnels |
-| Earthquake | Slow everyone for 5 s |
-| Extra Life | Gain one life, cap 5 |
-| Ghost Magnet | Carry contacted ghosts as weapons for 7 s |
+| P1 Yellow | Arrows |
+| P2 Pink | WASD |
+| P3 Cyan | IJKL |
+| P4 Red | Numpad8246 |
+| P5 Green | TFGH |
+| P6 Orange | EXCV |
+| P7 Purple | YBNM |
+| P8 Blue |8456 |
 
-The 11 categories are documented; ranges, durations, stacking, protection and expiration details are still approximations. Pickup contact works for moving, stationary and stunned actors. Repeated powers refresh; damage clears them. New item cadence 3 s/cap 12, orb anchors and other-item roaming 0.24 s are custom settings. Ghost house release/AI and normal/equal-giant bumps are not measured exact DX rules.
+Tab selects a starting maze in the lobby. F12 changes wall color independently. P pauses; F1 guide freezes play; F2 mutes immediately. Escape closes guide/editor, returns to lobby or exits. Resize preserves aspect ratio.
 
-Original growth/shrink tweens, death dissolve at the previous position and bay arrival pulses are presentation-only. They never delay physics or alter scoring. Pause/guide/results freeze world animation. Lighting stays fixed when facing changes; collectible icons are supersampled and cached. Render interpolation, timer boundaries, simultaneous lightning and bot takeover have regressions.
+AI fills vacant stations by default:1human+7AI,2+6,8+0. F11 can disable fill. Human input/rankings/controller requirements exclude bots. `--demo` steers every actor for demonstrations. AI routes and difficulty are independently authored.
 
-## Spectator displays
+USB uses axes0/1 or D-pad hats, deadzone0.35. Disconnects do not renumber remaining stations. Unique model GUIDs may reclaim a reservation; identical models require explicit pairing: lobby Shift+F3..F10, then that controller's button1. Physical input/latency/mixed-device acceptance remains for production.
 
-Start the game with a local feed:
+## Final life and continue
+
+After a human loses its last life, a custom1-second reveal delay precedes an approximately10-second continue countdown. Other humans, AI and ghosts keep playing. Press that station's Start after the prompt appears. Free play permits it; with free play off, one software credit is required. INSERT adds a development credit while an offer is active. C adds a lobby credit and remains P6 down during play.
+
+An accepted continuation preserves score and the earned bonus flag, restores configured starting lives and releases a fresh avatar from its bay. This restoration policy is our explicit approximation: footage establishes a countdown and continuing AI, but actual paid score/life restoration was not observed. Pending/expired/paused offers and failed payments do not debit. An expired station remains out until a new match. Timed expiration overrides offers.
+
+When the last offer expires, results save once and qualifying scores automatically open original three-letter initials. Other results use N for initials. Type A-Z, use arrows/Backspace, Enter to save each, Escape to discard the current draft. Only current-session qualifying top20 human rows are edited; ties/old entries remain safe. Failed writes roll back and allow retry. Immediate restart preserves queued score saves.
+
+Use `--continue-seconds 0` to disable offers. `--continue-delay 1` changes the custom reveal. Raw Match/replay defaults disable offers unless explicitly configured; normal application default is10seconds.
+
+## Operator, saved data and spectator displays
+
+F11 in lobby/results edits starting lives, bonus threshold, time limit, free play, attract sound and AI fill. Up/Down select; Left/Right change; Enter saves; Escape cancels. Changes apply next match. Default3 lives/10000 bonus are documented manual examples; once-only bonus/life cap5 remain adaptation choices. H shows local scores. Idle12-second original instruction/high-score attraction uses configurable sound.
+
+Data: Windows `%LOCALAPPDATA%/NeonNibblers`; Linux `$XDG_DATA_HOME/neon-nibblers` or `~/.local/share/neon-nibblers`. Override `--data-dir PATH` or `NEON_NIBBLERS_DATA`. Failed result writes retry in memory; unsaved data cannot survive closing while storage is unavailable. Corrupt data falls back to defaults with a message.
 
 ```text
-python game.py --spectator-state live/state.json
+python game.py --untimed --spectator-state live/state.json
 python spectator.py --state live/state.json
 ```
 
-Run the second command in another terminal. Move the spectator window to another monitor; launch it twice for two spectator displays. No network service is needed. `--mode game` mirrors the playfield; `--mode scores` uses an independent original ranking view; default `auto` mirrors active play and shows rankings otherwise. It detects stale/malformed feeds and safely falls back. Exact DX overhead content by state is not established; these modes are configurable adaptations. Actual game/viewer pairs were tested on Windows and Ubuntu/WSLg.
+Run the second command separately; move its window to another monitor. Two viewers may share a feed. Each running game should use its own feed path. Default auto mirrors active/continue play and shows rankings otherwise; `--mode game` / `--mode scores` select a view. Exact DX overhead behavior by state remains unknown.
 
-## Verification and recordings
+## Mazes, points and powers
 
-Run `python -m unittest discover -p "test*.py" -v`. Revision 13 has 187 checks, including 1–8 human rosters across every profile, bots/takeover, powers, continuous ghost return, all visible route edges, collisions, replay, credits/storage failures, spectator feeds, lifecycle animation, HUD/tunnel clipping and 720/1080 resizing. Twelve complete automated matches validate event totals and human rankings. Native graphics checks cover 1/2/8 on all profiles on Windows and Ubuntu/WSLg; standalone Linux hardware and audible speaker quality remain unconfirmed.
+| Profile | Observed family | Public lane cells |
+|---|---|---|
+|0 Golden Rails | D |569|
+|1 Violet Crosscurrent | B |569|
+|2 Ember Courtyard | C |585|
+|3 Cyan Archway | A |582|
 
-The three MP4s are 48-second 1280 x 720/60 fps tours with original event audio, one for each 1/2/8 human-station setup. AI fills vacant stations; all actors are computer-controlled during capture. Each tour visits four palette profiles of two layouts. GIFs are silent 12 fps previews. They do not assert the commercial game uses this sequence.
+These are independently reconstructed observed topologies with original names/palettes. Perspective, hidden endpoints and20px coordinate quantization remain estimates. Four observed families do not prove the complete catalog. Dot-clear transitions and cycle/repeat/random order remain adaptation policies, preserving scores/lives while clearing effects and repositioning actors. Default starts on Cyan.
 
-Optional capture tools: `python -m pip install -r requirements-capture.txt`, then `python record_video.py --players 1 --seconds 6` or `python record_demo.py --players 1 --tour --seconds 6 --simulate-controllers`. Optional video encoding was tested on Windows.
+The actual DX instruction legend in `qcO9tzgsdjo` at0:01/0:03 shows dot10, Gold100, Giant1000. These now have separate score rules. Other item75, ghost200, rival300 and stage500 remain configurable simulation estimates in `score_ledger.DEFAULT_SCORES` / Match score_values. All awards share one event ledger used by HUD/ranking/replay.
 
-Replay and configuration examples:
+| Power | Implemented effect (durations are estimates) |
+|---|---|
+| Gold Orb | Eat ghosts7s;100points |
+| Giant Orb | Grow/eat smaller rivals and ghosts7s;1000points |
+| Caffeine | Faster movement7s |
+| Smoke Bomb | Trail slows nearby ghosts7s; clouds2.5s |
+| Banana Peel | Uncontrolled fast skid2s |
+| Lightning | Nearby ghost/rival stun2s |
+| Ghost Sheet | Ghost target concealment7s; incidental contact still dangerous |
+| Chili Pepper |3s wall-bounded fire, up to5 corridor cells |
+| Earthquake | Slow everyone5s |
+| Extra Life | One life, cap5 |
+| Ghost Magnet | Carry contacted ghosts as weapons7s |
+
+`--tuning tuning.example.json` loads validated partial duration/range/speed/cadence/cap overrides. The guide shows effective durations. Defaults do not claim recovered exact timers. Repeated powers refresh; damage clears effects. Stacking, spawn frequencies/probabilities, house release and combat details retain documented approximations.
+
+## Checks and recordings
 
 ```text
-python game.py --demo --players 1 --arena 3 --seed 42 --event-log events.json
-python replay.py record replay.json --players 1 --fill-bots --theme 3 --seconds 20 --seed 42
-python replay.py verify replay.json
+python -m unittest discover -p "test*.py" -v
 python replay.py verify replay_sample.json
+python replay.py record continued.json --players 1 --fill-bots --seconds 60 --continue-seconds 10 --auto-continue
+python replay.py verify continued.json
 python check_controllers.py --expected 8
 ```
 
-Physical controllers are explicitly deferred to production; simulation never counts as physical testing. See docs/DX_RELEASE_STATUS.md and the evidence/audit files for the remaining reference uncertainties. Repository: https://github.com/911cr/neon-nibblers .
+238 checks cover all1–8 counts/maps,11powers, ledger/replay, AI, continuous house return, rendered routes, HUD, operator/storage failures, continuation/initials and spectator feeds. Windows and Ubuntu/WSLg native checks include1/2/8 per maze and full continue acceptance/timeout/name entry. Tests and screenshots are automated; physical controllers, eight-human acceptance, speaker audibility and standalone Linux hardware remain production checks.
+
+Three current MP4s are80seconds each,1280x720/60fps with original AAC event audio:48seconds touring all four mazes, then two16-second labelled controlled tests of continue acceptance and expiry/initials. All actors are automated. Logical1/2/8 human stations have7/6/0AI. Controlled final-life setup is explicitly labelled, not presented as unassisted human gameplay. GIF previews are24-second silent map tours and may be provided alongside the ZIP.
+
+Optional capture dependencies: `python -m pip install -r requirements-capture.txt`; then `python record_video.py --players 1 --seconds 12 --untimed --continue-showcase`. The ZIP includes current source/tests/docs and three HD videos; historical captures stay in workspace/history. Commercial reference comparisons are separate research artifacts.
+
+See docs/DX_RELEASE_STATUS.md and revision14 audits for evidence boundaries. Repository: https://github.com/911cr/neon-nibblers
 
 
-## Revision 13 options and evidence
+## Map from the clearer photo
 
-Run `python game.py --untimed` to play until all human lives are exhausted. F11 also permits time limit0; the CLI option affects only the current application run. A fixed180-second limit remains a custom selectable mode. Fresh DX footage supports investigating life-survival and shows a continue interval/name entry, but exact paid-continuation and multiplayer termination rules remain unknown. Our immediate results and optional keyboard initials are documented adaptations.
+Yes: the photo is our Golden Rails / observed family D. Double-click `photo_map_windows.bat`, or run `sh photo_map_linux.sh`, to open it in the fifth blue palette and untimed mode with the visibly labelled development controller stub. Manual equivalent: `python game.py --arena 0 --palette 4 --untimed --simulate-controllers`.
 
-`python game.py --tuning tuning.example.json` loads partial overrides for power durations, player/ghost/item movement intervals, effect ranges, smoke/quake multipliers, spawn cadence and item cap. The included file lists all current approximate defaults. Invalid/unknown/nonfinite values are rejected. Use `python replay.py record tuned.json --players 1 --fill-bots --tuning tuning.example.json`. Replays and match-start events store the complete effective settings. Recorded pickup expiry is the nominal deadline; refresh, damage or a stage transition may end/replace the effect.
-
-Four ordinary dots producing+40 in fresh footage supports the existing10-point dot value. Other point values and power durations were not changed on ambiguous evidence. Independent AI now avoids lethal routes when alternatives exist; its target costs are original choices.
-
-The ZIP contains current source, launchers, tests, documentation and the three current HD gameplay videos. Larger GIF previews and historical revision captures are provided alongside downloads or retained in the workspace/history. Research screenshots/comparisons of the commercial reference are separate and are not playable game assets.
+The current build has larger glowing64x48 gate pockets, filled striped48x10 thresholds, visible bodies inside their pockets, corrected AI opening, bright wall cores/halos and rounded outer corners. Gate/border graphics remain independently drawn. Desktop scores stay upright. The photo is retained only as separate research evidence and is excluded from the runnable ZIP. F12 cycles all five palettes without changing the maze.

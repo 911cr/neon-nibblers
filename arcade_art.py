@@ -3,6 +3,11 @@ import math
 from functools import lru_cache
 import pygame as pg
 
+def wall_highlight(accent):
+    """Pale inner ink for the original luminous wall treatment."""
+    return tuple(round(c+(255-c)*.55) for c in accent)
+
+
 def maze_background(floor, cols, rows, tile, accent,radius=32):
     size=(cols*tile,rows*tile)
     raw=pg.Surface(size,pg.SRCALPHA)
@@ -80,6 +85,28 @@ def maze_background(floor, cols, rows, tile, accent,radius=32):
             pg.draw.rect(capsule, (255,255,255), bounds, border_radius=short//2)
             rounded.erase(component, (0,0))
             rounded.draw(pg.mask.from_surface(capsule).overlap_mask(component, (0,0)), (0,0))
+    if radius < 30:
+        # Normalize isolated thin quantized bars toward the observed capsule width.
+        # Expansion is at most six pixels/side, preserving at least20px of the
+        # 26px lane radius. This is a bounded visual estimate, not exact DX size.
+        for component in rounded.connected_components(20):
+            box=component.get_bounding_rects()[0]
+            short,long=min(box.size),max(box.size)
+            if (4<=short<=10 and long>=60 and
+                    component.count()>=box.width*box.height*.85 and
+                    box.left>tile and box.top>tile and
+                    box.right<size[0]-tile and box.bottom<size[1]-tile):
+                expansion=(16-short,0) if box.width<box.height else(0,16-short)
+                target=box.inflate(*expansion)
+                stem=pg.Surface(size,pg.SRCALPHA)
+                pg.draw.rect(stem,(255,255,255),target,border_radius=8)
+                rounded.draw(pg.mask.from_surface(stem),(0,0))
+    if radius < 30:
+        # The observed perimeter bends around each board corner; do not retain
+        # the old square outermost frame pixel outside that rounded boundary.
+        corner_clip=pg.Surface(size,pg.SRCALPHA)
+        pg.draw.rect(corner_clip,(255,255,255),corner_clip.get_rect(),border_radius=16)
+        rounded=rounded.overlap_mask(pg.mask.from_surface(corner_clip),(0,0))
     mask=rounded
     inner=mask.copy()
     for offset in ((2,0),(-2,0),(0,2),(0,-2)):
@@ -87,11 +114,21 @@ def maze_background(floor, cols, rows, tile, accent,radius=32):
         inner=inner.overlap_mask(shifted,(0,0))
     edge=mask.copy(); edge.erase(inner,(0,0))
     result=pg.Surface(size); result.fill((0,0,4))
-    glow=edge.to_surface(setcolor=tuple(int(c*.16) for c in accent),unsetcolor=(0,0,0,0))
-    for offset in ((-3,0),(3,0),(0,-3),(0,3),(-2,-2),(2,2)):
-        result.blit(glow,offset,special_flags=pg.BLEND_RGB_ADD)
+    # Original luminous wall treatment: a soft colored halo and a brighter
+    # inner stroke. The opaque silhouette is unchanged, preserving clearance.
+    glow_source=edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0))
+    for blur_radius in (6,3):
+        halo=pg.transform.gaussian_blur(glow_source,blur_radius)
+        result.blit(halo,(0,0),special_flags=pg.BLEND_RGB_ADD)
     result.blit(mask.to_surface(setcolor=(1,2,8),unsetcolor=(0,0,0,0)),(0,0))
     result.blit(edge.to_surface(setcolor=accent,unsetcolor=(0,0,0,0)),(0,0))
+    one_inside=mask.copy()
+    for offset in ((1,0),(-1,0),(0,1),(0,-1)):
+        shifted=pg.mask.Mask(size);shifted.draw(mask,offset)
+        one_inside=one_inside.overlap_mask(shifted,(0,0))
+    bright=edge.overlap_mask(one_inside,(0,0))
+    highlight=wall_highlight(accent)
+    result.blit(bright.to_surface(setcolor=highlight,unsetcolor=(0,0,0,0)),(0,0))
     # The reconstructed A/B layouts use ordinary single-contour capsules.
     # Preserve their two outer edges; do not add an inner rectangle merely
     # because a long narrow wall happens to exceed the old area threshold.

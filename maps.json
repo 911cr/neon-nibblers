@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "catalog_version": 4,
+  "catalog_version": 5,
   "maps": [
     {
       "id": "golden-junction",
-      "revision": 3,
-      "name": "Golden Archway",
+      "revision": 4,
+      "name": "Golden Rails",
       "accent": [
         238,
         221,
@@ -13,38 +13,38 @@
       ],
       "cols": 59,
       "rows": 31,
-      "provenance": "Independent topology reconstruction from observed DX spectator-screen layout at 68s in Arcade Heroes IAAPA 2022 footage; manually traced and quantized to our 59x31 movement grid. Not an exact commercial map or pixel reconstruction. Wall thickness, rounding, dot spacing, gate width and palette are original adaptation choices; glare-obscured wall endpoints inferred from continuous adjoining contours.",
+      "provenance": "Independent topology reconstruction of observed DX familyD from qcO9tzgsdjo at305s, corroborated by adjacent full-board footage. Manually authored59x31 graph with perspective-estimated coordinates. Not an exact commercial map or full catalog. Gate columns retained from observed cabinet proportions; local widths, half-grid rounding and original palette are adaptation estimates.",
       "derived_from": "Independently reconstructed observed IAAPA2022 DX layout observed-A",
       "lane_rows": [
         "###########################################################",
         "#.........................................................#",
-        "#.###########.######.#################.######.###########.#",
-        "#.###########.######.#################.######.###########.#",
-        "#.###########.######.#################.######.###########.#",
-        ".....................###............##.....................",
-        "#.#####.#####.##########.##########.#########.#####.#####.#",
-        "#.#####.#####.##########.##########.#########.#####.#####.#",
-        "#.#####.#####.##########.##########.#########.#####.#####.#",
-        "#.........................................................#",
-        "#.###########.##########.##########.#########.###########.#",
-        "#.###########.##########.##########.#########.###########.#",
-        "#.###########.##########.##########.#########.###########.#",
+        "#.###.##########.#########################.##########.###.#",
+        "#.###.##########.#########################.##########.###.#",
+        "#.###.##########.#########################.##########.###.#",
         "#.###.................................................###.#",
-        "#.###.##############.##.###########.##.##############.###.#",
-        "#.###.##############.##.###########.##.##############.###.#",
-        "#.###.##############.##.###########.##.##############.###.#",
-        "#....................##.###########.##....................#",
-        "#.###.#######.######.##.###########.##.######.#######.###.#",
-        "#.###.#######.######.##.###########.##.######.#######.###.#",
-        "#.###.#######.######.##.###########.##.######.#######.###.#",
-        "#.###.....###.###..........................##.###.....###.#",
-        "#.####.##.###.###.######.##########.######.##.###.##.####.#",
-        "#.####.##.###.###.######.##########.######.##.###.##.####.#",
-        "#.####.##.###.###.######.##########.######.##.###.##.####.#",
-        ".......##............###............##............##.......",
-        "#.#######.##########.###.##########.##.##########.#######.#",
-        "#.#######.##########.###.##########.##.##########.#######.#",
-        "#.#######.##########.###.##########.##.##########.#######.#",
+        "#.##########.#############.#####.#############.##########.#",
+        "#.##########.#############.#####.#############.##########.#",
+        "#.##########.#############.#####.#############.##########.#",
+        "#.........................................................#",
+        "#.##########.###.#########################.###.##########.#",
+        "#.##########.###.#########################.###.##########.#",
+        "#.##########.###.#########################.###.##########.#",
+        "#............###...........................###............#",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        ".................###.##.###########.##.###.................",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        "#.####.#########.###.##.###########.##.###.#########.####.#",
+        "#............###.###...................###.###............#",
+        "#.##########.###.###.#################.###.###.##########.#",
+        "#.##########.###.###.#################.###.###.##########.#",
+        "#.##########.###.###.#################.###.###.##########.#",
+        "#.........................................................#",
+        "#.##########.#############.#####.#############.##########.#",
+        "#.##########.#############.#####.#############.##########.#",
+        "#.##########.#############.#####.#############.##########.#",
         "#.........................................................#",
         "###########################################################"
       ],
@@ -117,8 +117,7 @@
         ]
       ],
       "portals": [
-        5,
-        25
+        17
       ],
       "den": [
         25,
@@ -128,38 +127,43 @@
       ],
       "observations": [
         {
-          "source": "https://www.youtube.com/watch?v=-cNOhumVZ74&t=68s",
-          "timestamp_seconds": 68,
-          "observation": "Complete spectator-screen board: wall branches, eight bays, house perimeter and side tunnels traced independently. Same camera confirms layouts at68s and73s differ while both appear cyan.",
-          "confidence": "observed topology with quantized geometry; local glare inferences documented",
+          "source": "https://www.youtube.com/watch?v=qcO9tzgsdjo&t=305s",
+          "timestamp_seconds": 305,
+          "supporting_timestamps": [
+            305,
+            315
+          ],
+          "observation": "Full spectator-screen topology independently traced; dot-visible frames corroborate routes and enclosure gaps.",
+          "confidence": "observed route topology, inferred perspective normalization/grid coordinates",
           "normalization_corners": [
             [
-              401,
-              194
+              583,
+              233
             ],
             [
-              1130,
-              290
+              1119,
+              332
             ],
             [
-              1198,
-              600
+              1193,
+              513
             ],
             [
-              390,
-              569
+              485,
+              404
             ]
           ],
           "inferred_regions": [
-            "House door under glare; opening orientation confirmed in complementary footage",
-            "Upper endpoint of wall immediately left of house hidden by glare",
-            "Gate center rounding \u00b1 one half grid cell; original station numbering retained"
+            "Pixel positions estimated under oblique camera perspective",
+            "Short wall endpoints and half-grid offsets quantized to20px movement cells",
+            "Bay centers retained at6/20/38/52; exact software-space coordinates unverified",
+            "Brief actor occlusions cross-checked against complementary frames"
           ]
         }
       ],
       "lane_radius": 26,
-      "layout_family": "observed-A",
-      "palette_provenance": "Original palette profile; source footage shows both observed layout families in cyan."
+      "layout_family": "observed-D",
+      "palette_provenance": "Original profile palette; reference C/D footage is gold. Topology and palette are independent."
     },
     {
       "id": "violet-switchback",
@@ -321,8 +325,8 @@
     },
     {
       "id": "ember-crossroads",
-      "revision": 3,
-      "name": "Ember Crosscurrent",
+      "revision": 4,
+      "name": "Ember Courtyard",
       "accent": [
         255,
         140,
@@ -330,38 +334,38 @@
       ],
       "cols": 59,
       "rows": 31,
-      "provenance": "Independent topology reconstruction from observed DX spectator-screen layout at 73s in Arcade Heroes IAAPA 2022 footage; manually traced and quantized to our 59x31 movement grid. Not an exact commercial map or pixel reconstruction. Wall thickness, rounding, dot spacing, gate width and palette are original adaptation choices; glare-obscured wall endpoints inferred from continuous adjoining contours.",
+      "provenance": "Independent topology reconstruction of observed DX familyC from qcO9tzgsdjo at250s, corroborated by adjacent full-board footage. Manually authored59x31 graph with perspective-estimated coordinates. Not an exact commercial map or full catalog. Gate columns retained from observed cabinet proportions; local widths, half-grid rounding and original palette are adaptation estimates.",
       "derived_from": "Independently reconstructed observed IAAPA2022 DX layout observed-B",
       "lane_rows": [
         "###########################################################",
         "#.........................................................#",
-        "#.###########.##########.##########.#########.###########.#",
-        "#.###########.##########.##########.#########.###########.#",
-        "#.###########.##########.##########.#########.###########.#",
-        "#.............###...........##.............##.............#",
-        "#########.###.###.#########.##.###########.##.##.##########",
-        "#########.###.###.#########.##.###########.##.##.##########",
-        "#########.###.###.#########.##.###########.##.##.##########",
-        "#.........###.###.##........##.........###.##.##..........#",
-        "#.#######.###.###.##.###.##########.##.###.##.###.#######.#",
-        "#.#######.###.###.##.###.##########.##.###.##.###.#######.#",
-        "#.#######.###.###.##.###.##########.##.###.##.###.#######.#",
-        "#.........###........##.............##........###.........#",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "..............###.......###########........##..............",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "#.###########.###.#####.###########.######.##.###########.#",
-        "#.........###........##.............##........###.........#",
-        "######.##.###.######.###.##########.##.######.###.##.######",
-        "######.##.###.######.###.##########.##.######.###.##.######",
-        "######.##.###.######.###.##########.##.######.###.##.######",
-        "#......##.....###..........................##.....##......#",
-        "#.###########.###.########.#####.#########.##.###########.#",
-        "#.###########.###.########.#####.#########.##.###########.#",
-        "#.###########.###.########.#####.#########.##.###########.#",
+        "#.###########.##.#######.##########.######.##.###########.#",
+        "#.###########.##.#######.##########.######.##.###########.#",
+        "#.###########.##.#######.##########.######.##.###########.#",
+        "..###.....###.##.###...................###.##.###.....###..",
+        "#.###.###.###.##.###.#################.###.##.###.###.###.#",
+        "#.###.###.###....###.#################.###....###.###.###.#",
+        "#.###.###.###.##.###.#################.###.##.###.###.###.#",
+        "#.###.###.###.##.###.##.............##.###.##.###.###.###.#",
+        "#.###.###.###.##.###.##.###########.##.###.##.###.###.###.#",
+        "#.............##.###.##.###########.##.###.##.............#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.###.#######.##...........................##.#######.###.#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.###.........##.###.##.###########.##.###.##.........###.#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.............##.###.##.###########.##.###.##.............#",
+        "#.###.#######.##.###.##.###########.##.###.##.#######.###.#",
+        "#.###.#######.##.....##.............##.....##.#######.###.#",
+        "#.###.#######.##.###.#################.###.##.#######.###.#",
+        "#.###............###.#################.###............###.#",
+        "#.###.#######.##.###.#################.###.##.#######.###.#",
+        "..###.#######.##.###...................###.##.#######.###..",
+        "#.###.#######.##.#######.##########.######.##.#######.###.#",
+        "#.###.#######.##.#######.##########.######.##.#######.###.#",
+        "#.###.#######.##.#######.##########.######.##.#######.###.#",
         "#.........................................................#",
         "###########################################################"
       ],
@@ -434,7 +438,8 @@
         ]
       ],
       "portals": [
-        17
+        5,
+        25
       ],
       "den": [
         25,
@@ -445,37 +450,44 @@
       "lane_radius": 26,
       "observations": [
         {
-          "source": "https://www.youtube.com/watch?v=-cNOhumVZ74&t=73s",
-          "timestamp_seconds": 73,
-          "observation": "Complete spectator-screen board: wall branches, eight bays, house perimeter and side tunnels traced independently. Same camera confirms layouts at68s and73s differ while both appear cyan.",
-          "confidence": "observed topology with quantized geometry; local glare inferences documented",
+          "source": "https://www.youtube.com/watch?v=qcO9tzgsdjo&t=250s",
+          "timestamp_seconds": 250,
+          "supporting_timestamps": [
+            250,
+            270,
+            293,
+            299
+          ],
+          "observation": "Full spectator-screen topology independently traced; dot-visible frames corroborate routes and enclosure gaps.",
+          "confidence": "observed route topology, inferred perspective normalization/grid coordinates",
           "normalization_corners": [
             [
-              406,
-              190
+              583,
+              233
             ],
             [
-              1137,
-              283
+              1119,
+              332
             ],
             [
-              1200,
-              599
+              1193,
+              513
             ],
             [
-              396,
-              569
+              485,
+              404
             ]
           ],
           "inferred_regions": [
-            "House door under glare; opening orientation confirmed in complementary footage",
-            "Upper endpoint of wall immediately left of house hidden by glare",
-            "Gate center rounding \u00b1 one half grid cell; original station numbering retained"
+            "Pixel positions estimated under oblique camera perspective",
+            "Short wall endpoints and half-grid offsets quantized to20px movement cells",
+            "Bay centers retained at6/20/38/52; exact software-space coordinates unverified",
+            "Brief actor occlusions cross-checked against complementary frames"
           ]
         }
       ],
-      "layout_family": "observed-B",
-      "palette_provenance": "Original palette profile; source footage shows both observed layout families in cyan."
+      "layout_family": "observed-C",
+      "palette_provenance": "Original profile palette; reference C/D footage is gold. Topology and palette are independent."
     },
     {
       "id": "cyan-circuit",
@@ -637,5 +649,5 @@
       "palette_provenance": "Original palette profile; source footage shows both observed layout families in cyan."
     }
   ],
-  "catalog_note": "Four original palette profiles of TWO observed topology families. No claim of four distinct DX maps or complete commercial catalog."
+  "catalog_note": "Four independently reconstructed observed topology families A/B/C/D with original palette profiles; no claim that these exhaust the commercial catalog."
 }

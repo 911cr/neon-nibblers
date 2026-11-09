@@ -1,9 +1,11 @@
-"""Versioned, JSON-safe simulation events; values are adaptation tuning, not DX facts."""
+"""Versioned simulation events. DX legend supports dot10/gold100/green1000;
+other values are explicit adaptation estimates, not recovered DX facts.
+"""
 import copy
 import json
 from pathlib import Path
 
-DEFAULT_SCORES = {'dot': 10, 'pickup': 75, 'ghost_eaten': 200,
+DEFAULT_SCORES = {'dot': 10, 'pickup': 75, 'gold_pickup':100,'giant_pickup':1000,'ghost_eaten': 200,
                   'ghost_burned': 200, 'rival_eaten': 300, 'rival_burned': 300,
                   'carried_ghost_hit': 300, 'stage_clear': 500}
 

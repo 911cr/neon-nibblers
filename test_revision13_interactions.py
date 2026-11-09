@@ -35,7 +35,7 @@ class Interactions(unittest.TestCase):
             events=[e for e in g.ledger.events if e['tick']==1]
             for name in ('dot','pickup','ghost_eaten','rival_eaten','score_bonus_life'):
                 self.assertEqual(sum(e['event']==name for e in events),1,(theme,name,events))
-            self.assertEqual(p.score,585)
+            self.assertEqual(p.score,1510)
             self.assertEqual((p.lives,q.lives),(4,2))
             self.assertEqual(g.ledger.totals()[1],p.score)
             for _ in range(3):g.update(1/60)

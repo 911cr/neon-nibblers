@@ -1,5 +1,6 @@
-Revision13:187 Windows checks PASS;187 Ubuntu checks PASS.
-Native1/2/8 per all4profiles on bothOS; game/spectator pairs PASS.
-12 complete automated matches reconcile score accounts/rankings.
-48s720p60AAC recordings fully decoded. See VIDEO_REVISION13.json.
-Physical controllers deferred. Exact DX rules remain unverified where documented.
+Revision14 final photo build:238 Windows tests PASS;238 Ubuntu tests PASS.
+Native1/2/8 on each of4mazes; native continue+initials and game/spectator pairs PASSbothOS.
+12 complete automated matches reconcile scores/rankings; continued1/2/8 replays verified.
+3x80s720p60AAC videos fully decode,21frames sampled, controlled continue checks labelled.
+Larger gate pockets and luminous blue photo palette regenerated and checked.
+Physical controllers remain production acceptance. Exact remaining DX rules not certified.

@@ -72,11 +72,11 @@ class RenderQA(unittest.TestCase):
         a=self.app;g=a.match;p=g.players[0]
         p.pos=g.arena.entries[0];p.entry=p.safe=0;p.direction=p.wanted=(0,0)
         a.draw();self.assertTrue(g.hurt(p));a.draw()
-        self.assertEqual(a.visual_positions[0],(game.center(p.pos)[0],game.TOP+game.ROWS*game.TILE+5))
+        self.assertEqual(a.visual_positions[0],game.center(p.pos))
         p.pos=g.arena.entries[0];p.entry=0;a.draw()
         g.dots.clear();g.update(1/60);a.draw()
         self.assertEqual(g.stage,2)
-        self.assertEqual(a.visual_positions[0],(game.center(p.pos)[0],game.TOP+game.ROWS*game.TILE+5))
+        self.assertEqual(a.visual_positions[0],game.center(p.pos))
 
     def test_all_maps_counts_and_720_1080_render_without_footer_clipping(self):
         a=self.app
@@ -86,17 +86,23 @@ class RenderQA(unittest.TestCase):
                 for count in (1,2,8):
                     a.theme=theme;a.count=count;a.start()
                     a.simulate_controllers=False;a.pads={}
-                    footer=[];original=a.text
-                    def capture(s,x,y,color=(224,234,247),font=None):
-                        if y>=700:
-                            footer.append((font or a.font).render(str(s),True,color).get_rect(topleft=(x,y)))
-                        return original(s,x,y,color,font)
+                    footer=[]
+                    class CaptureSurface(game.pg.Surface):
+                        def blit(self,source,dest,*args,**kwargs):
+                            point=dest.topleft if isinstance(dest,game.pg.Rect) else dest
+                            if point[1]>=700:footer.append(source.get_rect(topleft=point))
+                            return super().blit(source,dest,*args,**kwargs)
+                    a.canvas=CaptureSurface((game.W,game.H))
                     before=digest(a.match)
-                    with patch.object(a,'text',capture):a.draw()
+                    a.draw()
                     self.assertEqual(digest(a.match),before)
                     self.assertEqual(a.screen.get_size(),size)
                     self.assertTrue(footer)
                     self.assertTrue(all(game.pg.Rect(0,0,game.W,game.H).contains(rect) for rect in footer))
+                    bottom=sorted(c[0] for c in a.match.arena.spawns if c[1]==game.ROWS-1)
+                    left=game.center((bottom[1],game.ROWS-1))[0]+164
+                    right=game.center((bottom[2],game.ROWS-1))[0]-39
+                    self.assertTrue(all(left<=rect.left and rect.right<=right for rect in footer),(theme,count,footer))
 
     def test_timer_and_station_scores_have_disjoint_actual_draw_bounds(self):
         a=self.app
@@ -193,20 +199,20 @@ class RenderQA(unittest.TestCase):
         for theme in range(4):
             a.theme=theme;a.palette_override=None;a.start()
             before=digest(a.match);images=[]
-            for step in range(4):
+            for step in range(len(game.PALETTES)):
                 game.pg.event.clear()
                 game.pg.event.post(game.pg.event.Event(game.pg.KEYDOWN,key=game.pg.K_F12))
                 a.events();a.draw(0)
-                palette=(theme+step+1)%4
+                palette=(theme+step+1)%len(game.PALETTES)
                 self.assertEqual(a.palette_override,palette)
                 self.assertEqual(digest(a.match),before)
                 key=(a.match.arena.map_id,a.match.arena.map_revision,palette)
                 background=a.backgrounds[key]
-                color=game.THEMES[palette][1]
+                color=game.PALETTES[palette]
                 count=game.pg.mask.from_threshold(background,color,(1,1,1,255)).count()
                 self.assertGreater(count,100)
                 images.append(game.pg.image.tobytes(background,'RGB'))
-            self.assertEqual(len(set(images)),4)
+            self.assertEqual(len(set(images)),len(game.PALETTES))
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

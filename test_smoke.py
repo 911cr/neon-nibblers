@@ -175,6 +175,9 @@ class Smoke(unittest.TestCase):
     def test_roaming_collectibles(self):
         for theme in range(4):
             g=Match(1,theme,seed=20); g.foes=[]
+            # Isolate item motion from legitimate pickups near the new bays.
+            # The stunned player stays in its bay, which items cannot enter.
+            g.players[0].stun=100
             fixed={c:n for c,n in g.items.items() if n in ('Crown','Titan')}
             roaming={c for c,n in g.items.items() if n not in ('Crown','Titan')}
             count=len(g.items)
@@ -369,12 +372,14 @@ class Smoke(unittest.TestCase):
         self.assertTrue(all(record['observed'].values()))
 
     def test_gate_hatch_color_is_independent_of_maze_theme(self):
-        from game import center,TOP,GATE_HATCH
-        app=App(); app.count=1
+        from game import center,TOP,ROWS,TILE,GATE_HATCH
+        app=App(); app.count=1;app.cabinet.settings['fill_bots']=False
         for theme in range(4):
             app.theme=theme; app.start(); app.draw()
-            x=center(app.match.arena.spawns[3])[0]-18
-            self.assertEqual(tuple(app.canvas.get_at((x,TOP)))[:3],GATE_HATCH)
+            spawn=app.match.arena.spawns[3];x=center(spawn)[0]
+            mouth=TOP+4 if spawn[1]==0 else TOP+ROWS*TILE-4
+            band=app.canvas.subsurface(pg.Rect(x-24,mouth-5,48,10))
+            self.assertGreater(pg.mask.from_threshold(band,GATE_HATCH,(1,1,1,255)).count(),100)
         pg.quit()
 
     def test_development_presence_stub_does_not_fabricate_devices(self):

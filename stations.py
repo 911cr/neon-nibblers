@@ -5,6 +5,7 @@ from enum import Enum
 class Phase(str, Enum):
     ATTRACT = 'attract'
     PLAYING = 'playing'
+    CONTINUE = 'continue'
     PAUSED = 'paused'
     GUIDE = 'guide'
     RESULTS = 'results'
@@ -15,6 +16,7 @@ def phase_for(match, guide=False):
     if match is None: return Phase.ATTRACT
     if match.over: return Phase.RESULTS
     if match.paused: return Phase.PAUSED
+    if getattr(match,'continues',None) and match.continues.active and not any(p.joined and p.lives>0 for p in match.players):return Phase.CONTINUE
     return Phase.PLAYING
 
 

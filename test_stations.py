@@ -221,14 +221,17 @@ class Stations(unittest.TestCase):
             g=self.app.match; dx,dy,dw,dh=g.arena.den
             left,top=OX+dx*TILE+5,TOP+dy*TILE+5
             accent=THEMES[theme][1]
-            self.assertEqual(tuple(self.app.canvas.get_at((left+20,top)))[:3],accent)
-            self.assertEqual(tuple(self.app.canvas.get_at((left+20,top+4)))[:3],accent)
-            self.assertEqual(tuple(self.app.canvas.get_at((left+20,top-3)))[:3],(0,0,4))
-            marks=[tuple(self.app.canvas.get_at((left+20,y)))[:3]==accent for y in range(top-10,top+10)]
+            self.assertGreater(max(self.app.canvas.get_at((left+20,top))[:3]),150)
+            self.assertGreater(max(self.app.canvas.get_at((left+20,top+10))[:3]),150)
+            self.assertLess(max(self.app.canvas.get_at((left+20,top+6))[:3]),150)
+            # Count bright contour bands, including their pale highlight cores;
+            # exact-accent runs would split one highlighted stroke in two.
+            marks=[max(self.app.canvas.get_at((left+20,y))[:3])>150 for y in range(top-10,top+20)]
             runs=sum(mark and (i==0 or not marks[i-1]) for i,mark in enumerate(marks))
             self.assertEqual(runs,2)
             door_x=center(g.arena.door)[0]
-            self.assertEqual(tuple(self.app.canvas.get_at((door_x,top+4)))[:3],(0,0,4))
+            for offset in range(2,15):
+                self.assertEqual(tuple(self.app.canvas.get_at((door_x,top+offset)))[:3],(0,0,4),(theme,offset))
 
 if __name__=='__main__': unittest.main(verbosity=2)
 

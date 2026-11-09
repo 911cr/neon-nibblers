@@ -17,7 +17,7 @@ def read_feed(path):
         if type(value.get('remaining')) not in (int,float) or not math.isfinite(value['remaining']) or not 0<=value['remaining']<=86400:return None
         if 'timed' in value and type(value['timed']) is not bool:return None
         if type(value.get('stage')) is not int or not 0<=value['stage']<=100000:return None
-        if value.get('phase') not in ('attract','playing','paused','guide','results'):return None
+        if value.get('phase') not in ('attract','playing','continue','paused','guide','results'):return None
         if not isinstance(value.get('map',''),str):return None
         value['map']=''.join(c for c in value.get('map','') if c.isprintable())[:80]
         rows=[]
@@ -69,7 +69,7 @@ def main():
         for event in pg.event.get():
             if event.type==pg.QUIT or event.type==pg.KEYDOWN and event.key==pg.K_ESCAPE:running=False
         feed=read_feed(args.state)
-        show_game=args.mode=='game' or args.mode=='auto' and feed and feed['phase'] in ('playing','paused','guide')
+        show_game=args.mode=='game' or args.mode=='auto' and feed and feed['phase'] in ('playing','continue','paused','guide')
         frame=args.state.with_suffix('.frame.jpg')
         mirrored=False
         if show_game and feed and time.time()-feed['updated']<=3:

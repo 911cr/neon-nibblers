@@ -68,7 +68,7 @@ class LifecyclePresentation:
                     self.deaths.append(Burst(idx,tuple(position),self.time))
                 if event['context'].get('lives',0)>0 and 0<=idx<len(match.players):
                     self.arrivals.append(Burst(idx,tuple(match.arena.spawns[idx]),self.time))
-            elif kind=='station_join' and event['player_id'] is not None:
+            elif kind in ('station_join','station_continue') and event['player_id'] is not None:
                 idx=event['player_id']-1
                 self.radii.pop(idx,None)
                 if 0<=idx<len(match.players):
@@ -120,10 +120,9 @@ class LifecyclePresentation:
             for point in centers:surface.blit(tile,tile.get_rect(center=point))
         for burst in self.arrivals:
             progress=max(0.,min(1.,(self.time-burst.began)/self.arrival_seconds))
-            x,_=center_fn(burst.position)
+            x,y=center_fn(burst.position)
             upper=burst.position[1]==0
-            y=board.top-5 if upper else board.bottom+5
-            pocket=pg.Rect(x-28,board.top-32 if upper else board.bottom-12,56,44)
+            pocket=pg.Rect(x-32,board.top-44 if upper else board.bottom-4,64,48)
             surface.set_clip(pocket.clip(prior))
             tile=pg.Surface((64,64),pg.SRCALPHA)
             radius=round(24-7*progress)

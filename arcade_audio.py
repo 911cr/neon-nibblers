@@ -9,10 +9,11 @@ PATTERNS={
  'rival':((330,660,990,1320),.25), 'join':((392,523,784),.24),
  'find':((880,1174),.10), 'bonus':((523,659,784,1047),.35),
  'stage':((392,523,659,784),.40), 'finish':((784,659,523,1047),.60)}
-EVENT_CUES={'match_start':'join','station_join':'join','locate':'find',
+EVENT_CUES={'match_start':'join','station_join':'join','station_continue':'join','locate':'find',
  'dot':'dot','pickup':'power','player_hurt':'hurt','ghost_eaten':'ghost',
  'ghost_burned':'ghost','rival_eaten':'rival','rival_burned':'rival',
- 'carried_ghost_hit':'rival','bonus_life':'bonus','stage_start':'stage','match_end':'finish'}
+ 'carried_ghost_hit':'rival','bonus_life':'bonus','score_bonus_life':'bonus','extra_life':'bonus',
+ 'stage_start':'stage','match_end':'finish'}
 
 def synthesize(name,rate=44100,channels=2):
     notes,duration=PATTERNS[name];samples=array('h')
@@ -46,7 +47,10 @@ class ArcadeAudio:
 
     def consume(self,ledger,muted=False):
         if self.ledger is not ledger:self.ledger=ledger;self.cursor=0
-        cues=[EVENT_CUES[e['event']] for e in ledger.events[self.cursor:] if e['event'] in EVENT_CUES]
+        cues=[EVENT_CUES[e['event']] for e in ledger.events[self.cursor:]
+              if e['event'] in EVENT_CUES and
+              (e['event'] not in ('score_bonus_life','extra_life')
+               or e.get('context',{}).get('gained',0)>0)]
         self.cursor=len(ledger.events)
         if muted:
             self.silence();return []
