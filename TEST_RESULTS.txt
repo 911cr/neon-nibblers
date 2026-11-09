@@ -1,5 +1,4 @@
-Revision16:288 checks PASS Windows and Ubuntu/WSLg.
+Revision17:328 checks PASS Windows and Ubuntu/WSLg.
 24 native map/count cases and6 native transition cases.
-12 complete automated matches;720-frame472-event replay.
-See current NATIVE_REVISION16/NATIVE_TRANSITION_R16/VIDEO_REVISION16 reports.
-Physical controllers deferred; exact DX fidelity not certified.
+See NATIVE_REVISION17, NATIVE_TRANSITION_R17, VIDEO_REVISION17 and PACING_R17 reports.
+Physical controllers deferred; subjective fun/exact DX fidelity not certified.

@@ -22,6 +22,7 @@ from cabinet_flow import ContinueOffers
 from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH
 from player_contacts import resolve_bumps,approaching_contact
 from maze_transition import render_background,actor_scale
+from corridor_motion import CorridorTrack
 
 MAZE_TRANSITION_SECONDS=1.1  # Observed sequence; exact duration remains estimated.
 
@@ -432,6 +433,12 @@ class Match:
 
     def active(self,p,key): return p.effects.get(key,0)>0
 
+    def player_interval(self,p):
+        interval=self.tuning['rush_step_seconds'] if self.active(p,'Rush') else self.tuning['player_step_seconds']
+        if self.active(p,'Slick'):interval=self.tuning['slick_step_seconds']
+        if self.quake>0:interval*=self.tuning['quake_multiplier']
+        return interval
+
     def hurt(self,p):
         if p.lives<=0 or p.safe>0 or self.active(p,'Titan'): return False
         old_position = list(p.pos)
@@ -601,10 +608,12 @@ class Match:
                     p.direction=(0,1) if p.pos[1]==1 else (0,-1)
                 continue
             p.entry=0
+            # A legal fresh turn can face immediately without granting extra
+            # distance. Movement still spends the same cadence budget.
+            if p.recoil==(0,0) and not self.active(p,'Slick') and p.wanted!=(0,0):
+                if self.arena.can_enter(self.arena.step(p.pos,p.wanted),p):p.direction=p.wanted
             p.clock+=dt
-            speed=self.tuning['rush_step_seconds'] if self.active(p,'Rush') else self.tuning['player_step_seconds']
-            if self.active(p,'Slick'): speed=self.tuning['slick_step_seconds']
-            if self.quake>0: speed*=self.tuning['quake_multiplier']
+            speed=self.player_interval(p)
             if p.clock+1e-10>=speed:
                 p.clock=max(0.,p.clock-speed)%speed
                 if p.recoil!=(0,0):
@@ -724,6 +733,8 @@ class App:
         self.pending_results=[];self.next_save_retry=0.;self.name_entry=None
         self.presentation=LifecyclePresentation()
         self.demo=False; self.visual_positions={}; self.animation_time=0.
+        self.motion_tracks={'players':{},'ghosts':{},'items':{}}
+        self.keyboard_pressed={};self.keyboard_serial=0
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
         self.micro=pg.font.Font(None,16)
         self.audio=ArcadeAudio();self.sounds=self.audio.sounds
@@ -794,6 +805,7 @@ class App:
                              continue_seconds=self.continue_seconds,continue_delay=self.continue_delay)
             self.session_id=str(uuid.uuid4())
             self.reset_visuals()
+            self.prepare_mazes()
         if idx>=len(self.match.players) or not self.match.players[idx].joined:
             self.match.join_station(idx)
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
@@ -815,6 +827,10 @@ class App:
                 if e.type==pg.KEYDOWN:self.operator_event(e.key)
                 continue
             if e.type in (pg.JOYDEVICEADDED,pg.JOYDEVICEREMOVED): self.refresh_pads()
+            if e.type==pg.KEYUP:self.keyboard_pressed.pop(e.key,None)
+            if e.type==pg.KEYDOWN and any(e.key in keys for keys in KEYS):
+                if e.key not in self.keyboard_pressed:
+                    self.keyboard_serial+=1;self.keyboard_pressed[e.key]=self.keyboard_serial
             if e.type==pg.JOYBUTTONDOWN and e.button==0:
                 iid=getattr(e,'instance_id',None)
                 if self.pair_station is not None and self.match is None and iid in self.pads:
@@ -874,7 +890,23 @@ class App:
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
         self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice='';self.name_entry=None
         self.reset_visuals()
+        self.prepare_mazes()
         return True
+
+    def prepare_mazes(self):
+        """Build costly wall geometry before play, avoiding a first-clear hitch."""
+        palette,accent=self.wall_style()
+        missing=[Arena(theme) for theme in range(4)
+                 if (get_map(theme).id,get_map(theme).revision,palette) not in self.backgrounds]
+        if not missing:return
+        self.canvas.fill((0,0,4))
+        self.text('Preparing mazes...',W//2-105,H//2-20,(220,230,255),self.font)
+        self.screen.blit(pg.transform.smoothscale(self.canvas,self.screen.get_size()),(0,0))
+        pg.display.flip();pg.event.pump()
+        for arena in missing:
+            key=(arena.map_id,arena.map_revision,palette)
+            if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
+            self.backgrounds[key]=maze_background(arena.space,COLS,ROWS,TILE,accent,arena.lane_radius)
 
     def wall_palette(self):
         if self.palette_override is not None:return self.palette_override
@@ -1020,6 +1052,18 @@ class App:
         self.fixed_accumulator=0.; self.ledger_cursor=0
         self.visual_positions={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
         self.presentation.reset()
+        self.motion_tracks={'players':{},'ghosts':{},'items':{}}
+
+    def corridor_position(self,kind,key,old,target,dt,interval,wrap):
+        """Render logical waypoint motion without exponential corner cutting."""
+        local=(old[0]-OX,old[1]-TOP)
+        track=self.motion_tracks[kind].get(key)
+        if track is None:
+            track=CorridorTrack(local);self.motion_tracks[kind][key]=track
+        elif distance(track.position,local)>1e-5:track.reset(local)
+        point=track.sample((target[0]-OX,target[1]-TOP),dt,TILE/interval,
+                           (COLS*TILE,None) if wrap else None)
+        return point[0]+OX,point[1]+TOP
 
     def item_tracks(self,items,portals):
         """Match equal-looking items by proximity, never by sorted-list index."""
@@ -1045,12 +1089,22 @@ class App:
 
     def inputs(self):
         keys=pg.key.get_pressed()
+        # Most recently pressed direction wins when two keys overlap. Fixed
+        # iteration priority used to overwrite fresh RIGHT turns with held UP.
+        for key in tuple(self.keyboard_pressed):
+            if not keys[key]:self.keyboard_pressed.pop(key,None)
+        for group in KEYS:
+            for key in group:
+                if keys[key] and key not in self.keyboard_pressed:
+                    self.keyboard_serial+=1;self.keyboard_pressed[key]=self.keyboard_serial
         self.bindings.sync(self.pads)
         for p in self.match.players:
             if p.bot:continue
             wanted=None
-            for k,d in zip(KEYS[p.idx],DIRS):
-                if keys[k]: wanted=d
+            held=[key for key in KEYS[p.idx] if keys[key]]
+            if held:
+                latest=max(held,key=lambda key:self.keyboard_pressed[key])
+                wanted=DIRS[KEYS[p.idx].index(latest)]
             joy=self.bindings.device_for(p.idx,self.pads)
             if joy is not None:
                 x=joy.get_axis(0) if joy.get_numaxes()>0 else 0
@@ -1086,8 +1140,6 @@ class App:
         self.canvas.fill((0,0,4))
         if self.match and self.phase not in (Phase.PLAYING,Phase.CONTINUE):dt=0.
         self.animation_time+=dt
-        smooth_item=1-.7**(dt*60)
-        smooth_player=1-.62**(dt*60)
         if not self.match:
             palette=self.theme if self.palette_override is None else self.palette_override
             lobby_key=('lobby',self.theme,palette)
@@ -1217,13 +1269,13 @@ class App:
             for c,(owner,_) in g.traps.items(): pg.draw.circle(self.canvas,COLORS[owner],center(c),11,2)
             self.canvas.set_clip(pg.Rect(OX-28,TOP,COLS*TILE+56,ROWS*TILE))
             tracks=self.item_tracks(g.items,g.arena.portals)
+            self.motion_tracks['items']={key:value for key,value in self.motion_tracks['items'].items() if key in tracks.values()}
             for c,name in sorted(g.items.items()):
                 key=tracks[c]
                 target=center(c); old=self.visual_items.get(key,target)
-                if c[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2:
-                    target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
-                elif distance(old,target)>TILE*3: old=target
-                smooth=(old[0]+(target[0]-old[0])*smooth_item,old[1]+(target[1]-old[1])*smooth_item)
+                wrap=c[1] in g.arena.portals
+                if distance(old,target)>TILE*3 and not (wrap and abs(target[0]-old[0])>COLS*TILE/2):old=target
+                smooth=self.corridor_position('items',key,old,target,dt,g.tuning['item_step_seconds'],wrap)
                 if c[1] in g.arena.portals:
                     if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
                     elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
@@ -1235,10 +1287,15 @@ class App:
             self.canvas.set_clip(pg.Rect(OX-28,TOP-32,COLS*TILE+56,ROWS*TILE+64))
             for i,c in enumerate(g.foes):
                 target=center(c); old=self.visual_foes.get(i,target)
-                if c[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2:
-                    target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
-                elif distance(old,target)>TILE*3: old=target
-                smooth=(old[0]+(target[0]-old[0])*smooth_item,old[1]+(target[1]-old[1])*smooth_item)
+                wrap=c[1] in g.arena.portals
+                if distance(old,target)>TILE*3 and not (wrap and abs(target[0]-old[0])>COLS*TILE/2):old=target
+                interval=g.tuning['ghost_step_seconds']
+                if g.foe_modes[i]=='carried' and i in g.foe_carriers:
+                    interval=g.player_interval(g.players[g.foe_carriers[i]])
+                elif g.foe_modes[i]=='roaming':
+                    if g.quake>0:interval*=g.tuning['quake_multiplier']
+                    if any(distance(c,cloud)<=g.tuning['smoke_radius'] for cloud in g.smoke):interval*=g.tuning['smoke_multiplier']
+                smooth=self.corridor_position('ghosts',i,old,target,dt,interval,wrap)
                 if c[1] in g.arena.portals:
                     if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
                     elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])
@@ -1257,9 +1314,15 @@ class App:
                 target=center(p.pos)
                 old=self.visual_positions.get(p.idx,target)
                 wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
-                if wrap: target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
-                elif distance(old,target)>TILE*3: old=target
-                smooth=(old[0]+(target[0]-old[0])*smooth_player,old[1]+(target[1]-old[1])*smooth_player)
+                if not wrap and distance(old,target)>TILE*3:old=target
+                interval=g.player_interval(p)
+                spawn=g.arena.spawns[p.idx];entry=g.arena.entries[p.idx]
+                outside=old[1]<center(entry)[1] if spawn[1]==0 else old[1]>center(entry)[1]
+                if p.pos==spawn or p.pos==entry and outside:
+                    # Gate centers are50px apart, unlike20px public lanes.
+                    # Cover that visual distance in one movement interval.
+                    interval*=TILE/abs(center(spawn)[1]-center(entry)[1])
+                smooth=self.corridor_position('players',p.idx,old,target,dt,interval,p.pos[1] in g.arena.portals)
                 if p.pos[1] in g.arena.portals:
                     if smooth[0]<OX: smooth=(smooth[0]+COLS*TILE,smooth[1])
                     elif smooth[0]>OX+COLS*TILE: smooth=(smooth[0]-COLS*TILE,smooth[1])

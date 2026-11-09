@@ -20,8 +20,9 @@ class GameplayQA(unittest.TestCase):
 
     def test_fixed_tick_configured_speed_not_rounded_down(self):
         moves={}
-        for name,expected in (('normal',10),('Rush',15),('Slick',18)):
+        for name,key in (('normal','player_step_seconds'),('Rush','rush_step_seconds'),('Slick','slick_step_seconds')):
             g=self.clean(1);p=g.players[0]
+            expected=int((1.+1e-9)/g.tuning[key])
             p.pos=(1,9);p.direction=p.wanted=(1,0);p.safe=100
             if name!='normal':p.effects[name]=100
             count=0
@@ -37,16 +38,16 @@ class GameplayQA(unittest.TestCase):
         with patch.object(g,'spawn_item') as spawn:
             for _ in range(180): g.update(1/60)
             self.assertEqual(spawn.call_count,1)
-        # 3 seconds has twelve 0.24-second item steps, leaving 0.12 seconds.
+        # Fractional time must remain after each configured interval.
         self.assertAlmostEqual(g.item_clock,0)
-        self.assertAlmostEqual(g.item_walk_clock,.12)
-        self.assertAlmostEqual(g.foe_clock,.12)  # eighteen 0.16-second ticks
+        self.assertAlmostEqual(g.item_walk_clock,3 % g.tuning['item_step_seconds'])
+        self.assertAlmostEqual(g.foe_clock,3 % g.tuning['ghost_step_seconds'])
 
     def test_bonus_life_cannot_silence_another_players_damage(self):
         g=self.clean(2);p,q=g.players
         p.score=9995;p.direction=p.wanted=(1,0)
         g.foes[0]=q.pos;g.foe_modes[0]='roaming'
-        sounds=g.update(.1)
+        sounds=g.update(g.tuning['player_step_seconds'])
         self.assertEqual([p.lives,q.lives],[4,2])
         self.assertIn('hurt',sounds)
         self.assertEqual(sum(e['event']=='player_hurt' for e in g.ledger.events),1)

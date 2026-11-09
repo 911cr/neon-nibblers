@@ -27,7 +27,7 @@ class Interactions(unittest.TestCase):
             g=game.Match(2,theme,seed=91,rules={'bonus_threshold':500})
             start=next(c for c in sorted(g.arena.lanes) if g.arena.step(c,(1,0)) in g.arena.lanes)
             target=g.arena.step(start,(1,0));p,q=g.players
-            p.pos=start;p.entry=p.safe=0;p.direction=p.wanted=(1,0);p.clock=.09
+            p.pos=start;p.entry=p.safe=0;p.direction=p.wanted=(1,0);p.clock=g.tuning['player_step_seconds']-1/60
             q.pos=target;q.entry=q.safe=0;q.stun=10
             g.items={target:'Titan'};g.dots={target,max(g.arena.lanes)}
             g.foes=[target];g.foe_modes=['roaming'];g.foe_release=[0];g.foe_ticks=[0];g.foe_zapped=[0]

@@ -12,9 +12,11 @@ DEFAULT_TUNING = {
     'durations': {'Crown': 7., 'Titan': 7., 'Rush': 7., 'Mist': 7.,
                   'Slick': 2., 'Spark': 2., 'Veil': 7., 'Flare': 3.,
                   'Quake': 5., 'Lure': 7.},
-    'spawn_seconds': 3., 'item_step_seconds': .24,
-    'player_step_seconds': .10, 'rush_step_seconds': .065,
-    'slick_step_seconds': .055, 'ghost_step_seconds': .16,
+    'spawn_seconds': 3., 'item_step_seconds': .60,
+    # Two DX actor tracks suggest roughly2.4–5 dots/sec. Use4 as a
+    # provisional reference pace; relative boost/foe ratios remain authored.
+    'player_step_seconds': .25, 'rush_step_seconds': .1625,
+    'slick_step_seconds': .1375, 'ghost_step_seconds': .40,
     'spark_radius': 8, 'flame_cells': 5, 'smoke_seconds': 2.5,
     'smoke_radius': 2, 'quake_multiplier': 2., 'smoke_multiplier': 2.,
     'max_items': 12,

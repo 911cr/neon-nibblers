@@ -2,13 +2,14 @@
 import os
 os.environ['SDL_VIDEODRIVER']='dummy';os.environ['SDL_AUDIODRIVER']='dummy'
 import unittest
+import math
 from game import Match,COLS
 
 class ContactCriticalQA(unittest.TestCase):
     def ready(self,count=2,theme=0):
         g=Match(count,theme,seed=73,tuning={'spawn_seconds':120})
         g.foes=[];g.items={}
-        for p in g.players:p.entry=p.safe=0;p.clock=.09;p.effects={}
+        for p in g.players:p.entry=p.safe=0;p.clock=g.tuning['player_step_seconds']-1/60;p.effects={}
         return g
     def test_stationary_receiver_recoils_with_incoming_direction(self):
         g=self.ready();p,q=g.players
@@ -16,7 +17,7 @@ class ContactCriticalQA(unittest.TestCase):
         g.update(1/60)
         self.assertEqual((p.pos,q.pos),((10,1),(11,1)))
         self.assertEqual(q.recoil,(1,0))
-        for _ in range(14):g.update(1/60)
+        for _ in range(math.ceil((.12+g.tuning['player_step_seconds'])*60)):g.update(1/60)
         self.assertEqual(q.pos,(12,1))
         self.assertEqual(q.wanted,(0,0))
     def test_stationary_receiver_uses_tunnel_topology_not_coordinate_sign(self):

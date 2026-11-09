@@ -22,10 +22,10 @@ class Smoke(unittest.TestCase):
 
     def test_movement_scoring_and_walls(self):
         g=Match(8,seed=1); g.items.clear(); p=g.players[0]; p.pos=(1,1); p.wanted=(1,0)
-        g.update(.16)
+        g.update(g.tuning['player_step_seconds'])
         self.assertEqual(p.pos,(2,1)); self.assertEqual(p.score,10)
         p.pos=(1,1); p.direction=p.wanted=(-1,0)
-        g.update(.16); self.assertEqual(p.pos,(1,1))
+        g.update(g.tuning['player_step_seconds']); self.assertEqual(p.pos,(1,1))
 
     def test_all_eleven_items(self):
         self.assertEqual(len(ITEMS),11)
@@ -124,7 +124,7 @@ class Smoke(unittest.TestCase):
             self.assertEqual(len(app.match.players),8)
             app.match.players[0].pos=(1,1)
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_RIGHT))
-            app.events(); app.match.update(.16)
+            app.events(); app.match.update(app.match.tuning['player_step_seconds'])
             self.assertEqual(app.match.players[0].pos,(2,1))
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_p))
             app.events(); self.assertTrue(app.match.paused)
@@ -157,7 +157,7 @@ class Smoke(unittest.TestCase):
             p,q=g.players
             row=g.arena.portals[0]
             p.pos=(0,row); p.direction=p.wanted=(-1,0)
-            g.update(.11); self.assertEqual(p.pos,(COLS-1,row))
+            g.update(g.tuning['player_step_seconds']); self.assertEqual(p.pos,(COLS-1,row))
             p.safe=q.safe=0; p.pos=q.pos=(1,1)
             p.effects['Crown']=7
             g.combat(); self.assertEqual(q.lives,3)
@@ -222,11 +222,11 @@ class Smoke(unittest.TestCase):
                 gate=g.arena.spawns[p.idx]; entry=g.arena.entries[p.idx]
                 self.assertEqual(p.pos,entry)
                 p.wanted=p.direction=(0,-1 if gate[1]==0 else 1)
-            g.update(.11)
+            g.update(g.tuning['player_step_seconds'])
             for p in g.players:
                 self.assertEqual(p.pos,g.arena.spawns[p.idx])
                 p.wanted=p.direction=(0,1 if p.pos[1]==0 else -1)
-            g.update(.11)
+            g.update(g.tuning['player_step_seconds'])
             for p in g.players:
                 self.assertEqual(p.pos,g.arena.entries[p.idx])
                 p.safe=0; self.assertTrue(g.hurt(p))
@@ -241,14 +241,14 @@ class Smoke(unittest.TestCase):
             self.assertEqual(tuple(g.foes),g.arena.homes)
             dx,dy,dw,dh=g.arena.den
             self.assertTrue(all(dx<=x<dx+dw and dy<=y<dy+dh for x,y in g.foes))
-            for _ in range(90): g.update_foes(.16)
+            for _ in range(90): g.update_foes(g.tuning['ghost_step_seconds'])
             self.assertEqual(g.foe_modes,['roaming']*4)
             self.assertTrue(all(f in g.arena.lanes for f in g.foes))
             for i in range(4):
                 g.foes[i]=g.arena.exit; g.reset_foe(i)
             saw_enter=[False]*4; saw_house=[False]*4
             for _ in range(100):
-                old=list(g.foes); g.update_foes(.16)
+                old=list(g.foes); g.update_foes(g.tuning['ghost_step_seconds'])
                 for i in range(4):
                     self.assertLessEqual(abs(old[i][0]-g.foes[i][0])+abs(old[i][1]-g.foes[i][1]),1)
                     saw_enter[i]|=g.foe_modes[i]=='entering'
@@ -262,16 +262,16 @@ class Smoke(unittest.TestCase):
         p.effects['Lure']=7; p.direction=(1,0)
         g.foes=[p.pos]; g.foe_modes=['roaming']; g.foe_release=[0]; g.foe_ticks=[0]; g.foe_zapped=[0]
         g.combat(); self.assertEqual(g.foe_modes[0],'carried'); self.assertEqual(p.lives,3)
-        g.update_foes(.17); self.assertEqual(g.foes[0],(2,1))
+        g.update_foes(g.tuning['ghost_step_seconds']); self.assertEqual(g.foes[0],(2,1))
         q.pos=(2,1); g.combat(); self.assertEqual(q.lives,2); self.assertEqual(p.score,300)
-        p.effects.clear(); g.update_foes(.17); self.assertEqual(g.foe_modes[0],'eyes')
+        p.effects.clear(); g.update_foes(g.tuning['ghost_step_seconds']); self.assertEqual(g.foe_modes[0],'eyes')
 
     def test_local_effects_and_no_wall_penetration(self):
         g=Match(3,seed=2); p,q,r=g.players
         p.pos=(1,1); q.pos=(3,1); r.pos=(53,29)
         g.collect(p,'Spark'); self.assertEqual(q.stun,2); self.assertEqual(r.stun,0)
         g.collect(p,'Mist'); p.direction=p.wanted=(1,0); p.entry=0
-        g.update(.11); self.assertIn((1,1),g.smoke)
+        g.update(g.tuning['player_step_seconds']); self.assertIn((1,1),g.smoke)
         g.collect(p,'Quake'); self.assertGreater(g.quake,0)
         p.pos=(1,1); p.direction=(-1,0); p.effects['Flare']=3
         self.assertEqual(g.fire_cells(p),[])
@@ -312,15 +312,15 @@ class Smoke(unittest.TestCase):
             g=Match(1,seed=4); g.items.clear(); g.foes=[]
             p=g.players[0]; p.pos=(1,1); p.entry=0; p.direction=p.wanted=(1,0)
             return g,p
-        normal,p=ready(); normal.update(.07); self.assertEqual(p.pos,(1,1))
-        fast,p=ready(); p.effects['Rush']=7; fast.update(.07); self.assertEqual(p.pos,(2,1))
-        slow,p=ready(); slow.quake=5; slow.update(.11); self.assertEqual(p.pos,(1,1))
-        skid,p=ready(); p.effects['Slick']=2; p.wanted=(0,1); skid.update(.06)
+        normal,p=ready(); normal.update(normal.tuning['rush_step_seconds']); self.assertEqual(p.pos,(1,1))
+        fast,p=ready(); p.effects['Rush']=7; fast.update(fast.tuning['rush_step_seconds']); self.assertEqual(p.pos,(2,1))
+        slow,p=ready(); slow.quake=5; slow.update(slow.tuning['player_step_seconds']); self.assertEqual(p.pos,(1,1))
+        skid,p=ready(); p.effects['Slick']=2; p.wanted=(0,1); skid.update(skid.tuning['slick_step_seconds'])
         self.assertEqual(p.pos,(2,1))
         for smoke in (False,True):
             g=Match(1,seed=1); g.foes=[(5,1)]; g.foe_modes=['roaming']; g.foe_ticks=[0]; g.foe_release=[0]; g.foe_zapped=[0]
             if smoke: g.smoke[(5,1)]=2
-            g.update_foes(.17)
+            g.update_foes(g.tuning['ghost_step_seconds'])
             self.assertEqual(g.foes[0]==(5,1),smoke)
 
     def test_adversarial_crowds_crossings_and_gate_reset(self):
@@ -332,7 +332,7 @@ class Smoke(unittest.TestCase):
         g=Match(2); g.foes=[]; g.items.clear(); p,q=g.players
         p.pos=(1,1); q.pos=(2,1); p.entry=q.entry=0; p.safe=q.safe=0
         p.direction=p.wanted=(1,0); q.direction=q.wanted=(-1,0)
-        g.update(.11)
+        g.update(g.tuning['player_step_seconds'])
         self.assertEqual(p.direction,(-1,0)); self.assertEqual(q.direction,(1,0))
         self.assertLess(p.pos[0],q.pos[0])
         p.stun=2; p.clock=.09; p.safe=0; g.hurt(p)

@@ -13,7 +13,7 @@ class GameplayTimingQA(unittest.TestCase):
         g=Match(2,seed=19)
         g.items={(2,1):'Spark'}
         for p in g.players:
-            p.entry=p.safe=0;p.clock=.1-1/60
+            p.entry=p.safe=0;p.clock=g.tuning['player_step_seconds']-1/60
             p.direction=p.wanted=(1,0)
         g.players[collector].pos=(1,1)
         g.players[1-collector].pos=(5,1)
@@ -71,7 +71,7 @@ class GameplayTimingQA(unittest.TestCase):
         g.foes[0]=(9,1);g.foe_modes[0]='roaming'
         with patch.object(g.rng,'random',return_value=0) as choose_target:
             for _ in range(30):
-                previous=g.foes[0];g.update_foes(.16)
+                previous=g.foes[0];g.update_foes(g.tuning['ghost_step_seconds'])
                 self.assertIn(g.foes[0],g.arena.lanes)
                 self.assertNotIn(g.foes[0],g.arena.spawns)
                 self.assertIn(g.foes[0],[g.arena.step(previous,d)
@@ -84,7 +84,7 @@ class GameplayTimingQA(unittest.TestCase):
             p.pos=(5,1);p.entry=0;p.safe=100;p.stun=stun
             p.direction=p.wanted=(0,0)
             g.items={(4,1):'Rush'};g.item_directions={(4,1):(1,0)}
-            g.item_walk_clock=.24-1/60
+            g.item_walk_clock=g.tuning['item_step_seconds']-1/60
             sounds=g.update(1/60)
             self.assertEqual(p.pos,(5,1));self.assertTrue(g.active(p,'Rush'))
             self.assertEqual(p.score,75);self.assertIn('power',sounds)
@@ -94,7 +94,7 @@ class GameplayTimingQA(unittest.TestCase):
         g=Match(1,seed=7);p=g.players[0]
         p.pos=(5,1);p.entry=0;p.safe=100;p.stun=1;p.score=9950
         g.items={(4,1):'Rush'};g.item_directions={(4,1):(1,0)}
-        g.item_walk_clock=.24-1/60;g.update(1/60)
+        g.item_walk_clock=g.tuning['item_step_seconds']-1/60;g.update(1/60)
         self.assertEqual(p.score,10025);self.assertEqual(p.lives,4)
         self.assertTrue(p.bonus_life)
 

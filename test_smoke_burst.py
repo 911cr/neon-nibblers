@@ -14,7 +14,7 @@ class SmokeBurstTests(unittest.TestCase):
         g.foe_release=[0.]*2;g.foe_ticks=[0.]*2;g.foe_zapped=[0.]*2
         g.collect(p,'Mist')
         self.assertEqual(g.smoke[p.pos],g.tuning['smoke_seconds'])
-        g.update_foes(.16)
+        g.update_foes(g.tuning['ghost_step_seconds'])
         self.assertEqual(g.foes[0],(11,1))
         self.assertNotEqual(g.foes[1],(30,1))
 

@@ -33,7 +33,7 @@ class LedgerTests(unittest.TestCase):
         g = self.clean()
         p, q = g.players
         p.direction = p.wanted = (1, 0)
-        g.update(.1)
+        g.update(g.tuning['player_step_seconds'])
         self.assertTrue(any(e['event'] == 'dot' for e in g.ledger.events))
         for name in ITEMS: g.collect(p, name)
         p.effects = {'Crown': 7}
