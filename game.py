@@ -10,7 +10,7 @@ import pygame as pg
 from score_ledger import ScoreLedger, DEFAULT_SCORES
 from stations import Phase, phase_for, StationBindings
 from map_library import get_map, next_map_index
-from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite
+from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite, fire_plume
 from arcade_audio import ArcadeAudio
 
 W, H, TILE, TOP = 1280, 720, 20, 45
@@ -554,6 +554,7 @@ class App:
         self.fixed_accumulator=0.; self.ledger_cursor=0
         self.locator_seconds=2.0  # Original timing unknown; configurable approximation.
         self.seed=None; self.progression='cycle'; self.pair_error=''
+        self.palette_override=None  # Presentation is independent of maze topology.
         self.demo=False; self.visual_positions={}; self.animation_time=0.
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
         self.micro=pg.font.Font(None,16)
@@ -646,6 +647,9 @@ class App:
             elif e.key==pg.K_F2:
                 self.muted=not self.muted
                 if self.muted:self.audio.silence()
+            elif e.key==pg.K_F12:
+                current=self.palette_override if self.palette_override is not None else (self.match.arena.theme if self.match else self.theme)
+                self.palette_override=(current+1)%len(THEMES)
             elif e.key==pg.K_RETURN and (not self.match or self.match.over): self.start()
             elif e.key==pg.K_p and self.match: self.match.paused=not self.match.paused
             elif not self.match:
@@ -659,6 +663,28 @@ class App:
     def reset_visuals(self):
         self.fixed_accumulator=0.; self.ledger_cursor=0
         self.visual_positions={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
+
+    def item_tracks(self,items,portals):
+        """Match equal-looking items by proximity, never by sorted-list index."""
+        previous=self.visual_items
+        pending=set(items); available=set(previous); assigned={}
+        pairs=[]
+        period=COLS*TILE
+        for cell,name in items.items():
+            x,y=center(cell)
+            for key,(px,py) in previous.items():
+                if key[0]!=name:continue
+                dx=abs(x-px)
+                if cell[1] in portals:dx=min(dx,abs(dx-period))
+                pairs.append((dx+abs(y-py),cell,key))
+        for _,cell,key in sorted(pairs):
+            if cell in pending and key in available:
+                assigned[cell]=key;pending.remove(cell);available.remove(key)
+        serial=max((key[1] for key in previous),default=-1)+1
+        for cell in sorted(pending):
+            assigned[cell]=(items[cell],serial);serial+=1
+        self.visual_items={key:previous[key] for key in assigned.values() if key in previous}
+        return assigned
 
     def inputs(self):
         keys=pg.key.get_pressed()
@@ -680,6 +706,7 @@ class App:
 
     def draw(self,dt=1/60):
         self.canvas.fill((0,0,4))
+        if self.match and self.phase!=Phase.PLAYING:dt=0.
         self.animation_time+=dt
         smooth_item=1-.7**(dt*60)
         smooth_player=1-.62**(dt*60)
@@ -710,10 +737,17 @@ class App:
             self.text('TAB arena  |  F1 guide  |  F2 sound  |  ESC quit',W//2-190,667)
         else:
             g=self.match
-            accent=THEMES[g.arena.theme][1]
-            if g.arena.theme not in self.backgrounds:
-                self.backgrounds[g.arena.theme]=maze_background(g.arena.space,COLS,ROWS,TILE,accent)
-            self.canvas.blit(self.backgrounds[g.arena.theme],(OX,TOP))
+            for event in g.ledger.events[self.ledger_cursor:]:
+                if event['event']=='player_hurt' and event['player_id'] is not None:
+                    self.visual_positions.pop(event['player_id']-1,None)
+                elif event['event']=='stage_start':
+                    self.visual_positions.clear();self.visual_foes.clear();self.visual_items.clear()
+            palette=g.arena.theme if self.palette_override is None else self.palette_override
+            accent=THEMES[palette][1]
+            background_key=(g.arena.map_id,g.arena.map_revision,palette)
+            if background_key not in self.backgrounds:
+                self.backgrounds[background_key]=maze_background(g.arena.space,COLS,ROWS,TILE,accent)
+            self.canvas.blit(self.backgrounds[background_key],(OX,TOP))
             # Thin enclosure and colored border stations, leaving the maze dominant.
             dx,dy,dw,dh=g.arena.den
             gate=pg.Rect(OX+dx*TILE+5,TOP+dy*TILE+5,dw*TILE-10,dh*TILE-10)
@@ -780,21 +814,26 @@ class App:
                 for n in range(8):
                     angle=n*math.pi/4
                     ex=cx+math.cos(angle)*100; ey=cy+math.sin(angle)*100
-                    pg.draw.lines(self.canvas,(140,230,255),False,[(cx,cy),((cx+ex)/2+8,(cy+ey)/2-8),(ex,ey)],2)
+                    jitter=8*math.sin(self.animation_time*37+n*2.1)
+                    pg.draw.lines(self.canvas,(140,230,255),False,[(cx,cy),((cx+ex)/2+jitter,(cy+ey)/2-jitter),(ex,ey)],2)
             for p in g.players:
                 if g.active(p,'Flare'):
-                    for n,c in enumerate(g.fire_cells(p)):
-                        cx,cy=center(c)
-                        radius=max(5,16-n*2)
-                        pg.draw.circle(self.canvas,(246,82,32),(cx,cy),radius)
-                        pg.draw.circle(self.canvas,(255,225,85),(cx,cy),max(3,radius-5))
+                    cells=g.fire_cells(p)
+                    origin=center(p.pos);end=origin;previous=p.pos
+                    for cell in cells:
+                        if abs(cell[0]-previous[0])>1:
+                            edge=OX if p.direction[0]<0 else OX+COLS*TILE
+                            fire_plume(self.canvas,origin,(edge,origin[1]),p.direction,self.animation_time)
+                            origin=(OX+COLS*TILE if p.direction[0]<0 else OX,origin[1])
+                        end=center(cell);previous=cell
+                    if cells:fire_plume(self.canvas,origin,end,p.direction,self.animation_time)
             for c in g.dots:
                 cx,cy=center(c); self.canvas.blit(dot_sprite(),(cx-3,cy-3))
             for c,(owner,_) in g.traps.items(): pg.draw.circle(self.canvas,COLORS[owner],center(c),11,2)
             self.canvas.set_clip(pg.Rect(OX-28,TOP,COLS*TILE+56,ROWS*TILE))
-            counts={}
+            tracks=self.item_tracks(g.items,g.arena.portals)
             for c,name in sorted(g.items.items()):
-                idx=counts.get(name,0); counts[name]=idx+1; key=(name,idx)
+                key=tracks[c]
                 target=center(c); old=self.visual_items.get(key,target)
                 if c[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2:
                     target=(target[0]+(COLS*TILE if old[0]>target[0] else -COLS*TILE),target[1])
@@ -822,11 +861,12 @@ class App:
                 look=(1 if target[0]>old[0] else -1 if target[0]<old[0] else 0,
                       1 if target[1]>old[1] else -1 if target[1]<old[1] else 0)
                 edible=any(g.active(p,'Crown') or g.active(p,'Titan') for p in g.players if p.lives>0)
-                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,g.foe_stun>0,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
+                stunned=g.foe_stun>0 or (i<len(g.foe_zapped) and g.foe_zapped[i]>0)
+                foe(self.canvas,tuple(map(round,smooth)),COLORS[(3,1,2,5)[i%4]],self.animation_time,stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
                 if c[1] in g.arena.portals and (smooth[0]<OX+30 or smooth[0]>OX+COLS*TILE-30):
                     twin=smooth[0]+COLS*TILE if smooth[0]<OX+30 else smooth[0]-COLS*TILE
                     foe(self.canvas,(round(twin),round(smooth[1])),COLORS[(3,1,2,5)[i%4]],self.animation_time,
-                        False,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
+                        stunned,look,edible and g.foe_modes[i]=='roaming',g.foe_modes[i] in ('eyes','entering'))
             for p in g.players:
                 if p.lives<=0: continue
                 target=center(p.pos)
@@ -986,10 +1026,12 @@ if __name__=='__main__':
     parser.add_argument('--progression',choices=('cycle','repeat','random'),default='cycle',help='Authored map selection policy, not a verified DX rule.')
     parser.add_argument('--locator-seconds',type=float,default=2.,help='Custom locator highlight duration.')
     parser.add_argument('--event-log',help='Save the final match event ledger as JSON on exit.')
+    parser.add_argument('--palette',type=int,choices=range(4),help='Select wall palette independently of the starting maze layout. F12 cycles it.')
     args=parser.parse_args()
     if not math.isfinite(args.locator_seconds) or not 0<args.locator_seconds<=10: parser.error('Locator duration must be in (0,10].')
     app=App(simulate_controllers=args.simulate_controllers)
     app.seed=args.seed; app.progression=args.progression; app.locator_seconds=args.locator_seconds
+    app.palette_override=args.palette
     app.demo=args.demo
     if args.demo and not args.players: args.players=8
     if args.players: app.count=args.players; app.start()

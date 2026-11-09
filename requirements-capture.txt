@@ -1,0 +1,3 @@
+# Optional tools for recording, not required to play.
+Pillow>=10,<14
+imageio-ffmpeg==0.6.0

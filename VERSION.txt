@@ -1,2 +1,2 @@
-Revision10 — all-map visual review, simultaneous pickup/expiry fixes and original event audio
+Revision11 — animation quality, independent palettes and HD gameplay captures
 2026-11-08

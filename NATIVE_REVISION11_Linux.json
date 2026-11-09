@@ -1,0 +1,262 @@
+[
+  {
+    "theme": 0,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.06,
+    "fps": 58.26,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115
+    ],
+    "seed": 199720460896717674,
+    "simulation_ticks": 133,
+    "ledger_events": 7
+  },
+  {
+    "theme": 0,
+    "players": 2,
+    "frames": 120,
+    "seconds": 2.075,
+    "fps": 57.84,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      145
+    ],
+    "seed": 4389261987047193693,
+    "simulation_ticks": 136,
+    "ledger_events": 15
+  },
+  {
+    "theme": 0,
+    "players": 8,
+    "frames": 120,
+    "seconds": 2.107,
+    "fps": 56.97,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      145,
+      145,
+      115,
+      60,
+      215,
+      195,
+      60
+    ],
+    "seed": 1953191775637203017,
+    "simulation_ticks": 136,
+    "ledger_events": 68
+  },
+  {
+    "theme": 1,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.035,
+    "fps": 58.97,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115
+    ],
+    "seed": 4099463537865472876,
+    "simulation_ticks": 133,
+    "ledger_events": 7
+  },
+  {
+    "theme": 1,
+    "players": 2,
+    "frames": 120,
+    "seconds": 1.99,
+    "fps": 60.3,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      135
+    ],
+    "seed": 2944795763310237020,
+    "simulation_ticks": 129,
+    "ledger_events": 14
+  },
+  {
+    "theme": 1,
+    "players": 8,
+    "frames": 120,
+    "seconds": 2.134,
+    "fps": 56.22,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      155,
+      155,
+      210,
+      150,
+      225,
+      150,
+      120
+    ],
+    "seed": 8761058814949458159,
+    "simulation_ticks": 140,
+    "ledger_events": 92
+  },
+  {
+    "theme": 2,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.006,
+    "fps": 59.82,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115
+    ],
+    "seed": 877903804436001771,
+    "simulation_ticks": 130,
+    "ledger_events": 7
+  },
+  {
+    "theme": 2,
+    "players": 2,
+    "frames": 120,
+    "seconds": 2.023,
+    "fps": 59.33,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      145
+    ],
+    "seed": 7781234318431772958,
+    "simulation_ticks": 134,
+    "ledger_events": 15
+  },
+  {
+    "theme": 2,
+    "players": 8,
+    "frames": 120,
+    "seconds": 2.0,
+    "fps": 60.0,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      135,
+      135,
+      135,
+      115,
+      60,
+      130,
+      205,
+      60
+    ],
+    "seed": 662109569504924695,
+    "simulation_ticks": 129,
+    "ledger_events": 67
+  },
+  {
+    "theme": 3,
+    "players": 1,
+    "frames": 120,
+    "seconds": 2.017,
+    "fps": 59.48,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115
+    ],
+    "seed": 1418823207672992693,
+    "simulation_ticks": 130,
+    "ledger_events": 7
+  },
+  {
+    "theme": 3,
+    "players": 2,
+    "frames": 120,
+    "seconds": 2.031,
+    "fps": 59.09,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      145
+    ],
+    "seed": 5164482340227049536,
+    "simulation_ticks": 133,
+    "ledger_events": 15
+  },
+  {
+    "theme": 3,
+    "players": 8,
+    "frames": 120,
+    "seconds": 2.015,
+    "fps": 59.54,
+    "driver": "x11",
+    "audio_format": [
+      44100,
+      -16,
+      2
+    ],
+    "scores": [
+      115,
+      135,
+      135,
+      115,
+      135,
+      100,
+      130,
+      130
+    ],
+    "seed": 8026370418293776072,
+    "simulation_ticks": 130,
+    "ledger_events": 69
+  }
+]

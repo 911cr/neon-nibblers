@@ -95,12 +95,19 @@ def muncher(target, pos, color, direction, time, radius=15, powered=False, safe=
     if powered or safe:
         pg.draw.circle(s,(*color,55),(mid,mid),r+5*scale,2*scale)
     angle=.035+.77*(.5+.5*math.sin(time*22))
-    mouth=[(mid,mid),(mid+int(r*1.3),mid-int(math.tan(angle)*r*1.3)),
-           (mid+int(r*1.3),mid+int(math.tan(angle)*r*1.3))]
+    # Move facial geometry, not the lighting. Left-facing sprites mirror their
+    # face rather than rotating their eye underneath the mouth.
+    def face_point(x,y):
+        if direction==(-1,0): x=-x
+        elif direction==(0,-1): x,y=y,-x
+        elif direction==(0,1): x,y=-y,x
+        return round(mid+x),round(mid+y)
+    mouth=[face_point(0,0),face_point(r*1.3,-math.tan(angle)*r*1.3),
+           face_point(r*1.3,math.tan(angle)*r*1.3)]
     pg.draw.polygon(s,(0,0,0,0),mouth)
-    pg.draw.ellipse(s,(12,14,24),(mid-r*.04,mid-r*.64,r*.14,r*.26))
-    angle_deg=math.degrees(math.atan2(-direction[1],direction[0])) if direction!=(0,0) else 0
-    s=pg.transform.rotate(s,angle_deg)
+    eye=face_point(r*.03,-r*.51)
+    ew,eh=(r*.26,r*.14) if direction[1] else (r*.14,r*.26)
+    pg.draw.ellipse(s,(12,14,24),(eye[0]-ew/2,eye[1]-eh/2,ew,eh))
     s=pg.transform.smoothscale(s,(s.get_width()//scale,s.get_height()//scale))
     if opacity<255: s.set_alpha(opacity)
     target.blit(s,s.get_rect(center=pos))
@@ -129,6 +136,15 @@ def foe(target,pos,color,time,stunned=False,direction=(0,0),edible=False,eyes_on
         pg.draw.ellipse(s,(248,251,255),((ex-5)*scale,17*scale,10*scale,13*scale))
         dx=direction[0]*2; dy=direction[1]*2
         pg.draw.ellipse(s,(35,58,146),((ex-2+dx)*scale,(22+dy)*scale,5*scale,7*scale))
+    if stunned and not eyes_only:
+        # New, original readable feedback for a state that previously had none.
+        units=s.get_width()/58
+        for index in range(3):
+            angle=time*5+index*math.tau/3
+            sx=29+math.cos(angle)*19; sy=29-19+math.sin(angle)*4
+            points=[(sx,sy-3),(sx+1,sy-1),(sx+4,sy),(sx+1,sy+1),
+                    (sx,sy+3),(sx-1,sy+1),(sx-4,sy),(sx-1,sy-1)]
+            pg.draw.polygon(s,(255,236,133),[(round(px*units),round(py*units)) for px,py in points])
     s=pg.transform.smoothscale(s,(58,58))
     target.blit(s,(round(x)-29,round(y)-29))
 
@@ -161,66 +177,140 @@ def dot_sprite():
     pg.draw.circle(s,(249,248,235),(14,14),8)
     return pg.transform.smoothscale(s,(7,7))
 
-def power_icon(target,pos,name,time,size=32):
-    x,y=pos; y+=round(math.sin(time*3+x)*2)
-    s=pg.Surface((42,42),pg.SRCALPHA); c=(255,240,190)
+class _IconDraw:
+    """Draw the original 42-unit icon vectors at 3x before downsampling."""
+    def __init__(self, surface): self.surface=surface
+    def point(self, p): return tuple(round(v*3) for v in p)
+    def rect(self, color, rect, width=0, border_radius=0):
+        pg.draw.rect(self.surface,color,self.point(rect),width*3,border_radius=border_radius*3)
+    def ellipse(self, color, rect, width=0):
+        pg.draw.ellipse(self.surface,color,self.point(rect),width*3)
+    def circle(self, color, center, radius, width=0):
+        pg.draw.circle(self.surface,color,self.point(center),round(radius*3),width*3)
+    def polygon(self, color, points, width=0):
+        pg.draw.polygon(self.surface,color,[self.point(p) for p in points],width*3)
+    def line(self, color, start, end, width=1):
+        pg.draw.line(self.surface,color,self.point(start),self.point(end),width*3)
+    def lines(self, color, closed, points, width=1):
+        pg.draw.lines(self.surface,color,closed,[self.point(p) for p in points],width*3)
+    def arc(self, color, rect, start, stop, width=1):
+        pg.draw.arc(self.surface,color,self.point(rect),start,stop,width*3)
+
+
+@lru_cache(maxsize=128)
+def _power_sprite(name,size):
+    if type(size) is not int or size < 1: raise ValueError("Icon size must be a positive integer")
+    s=pg.Surface((126,126),pg.SRCALPHA)
+    draw=_IconDraw(s)
     if name in ('Crown','Titan'):
         color=(255,222,76) if name=='Crown' else (114,255,98)
-        pg.draw.circle(s,(*color,40),(21,21),16)
-        orb=pg.transform.smoothscale(sphere(tuple(color),11),(40,40))
-        s.blit(orb,(1,1))
+        draw.circle((*color,40),(21,21),16)
+        orb=pg.transform.smoothscale(sphere(tuple(color),11),(120,120))
+        s.blit(orb,(3,3))
     elif name=='Rush':
         # Independently drawn handled coffee mug from the observed object type.
-        pg.draw.ellipse(s,(145,156,181),(27,14,13,20),5)
-        pg.draw.rect(s,(167,180,204),(9,11,22,24),border_radius=5)
-        pg.draw.rect(s,(215,222,232),(10,12,6,20),border_radius=3)
-        pg.draw.ellipse(s,(236,239,245),(9,7,22,10))
-        pg.draw.ellipse(s,(103,65,32),(12,9,16,6))
-        pg.draw.polygon(s,(255,205,75),[(23,16),(17,24),(22,24),(19,31),(27,21),(22,21)])
+        draw.ellipse((145,156,181),(27,14,13,20),5)
+        draw.rect((167,180,204),(9,11,22,24),border_radius=5)
+        draw.rect((215,222,232),(10,12,6,20),border_radius=3)
+        draw.ellipse((236,239,245),(9,7,22,10))
+        draw.ellipse((103,65,32),(12,9,16,6))
+        draw.polygon((255,205,75),[(23,16),(17,24),(22,24),(19,31),(27,21),(22,21)])
     elif name=='Mist':
-        pg.draw.circle(s,(129,124,106),(21,25),12)
-        pg.draw.circle(s,(176,171,146),(18,21),8)
-        pg.draw.arc(s,(98,96,82),(10,14,23,23),.7,2.6,2)
-        pg.draw.line(s,(112,108,91),(12,29),(27,16),2)
-        pg.draw.line(s,(112,108,91),(19,36),(31,24),2)
-        pg.draw.circle(s,(209,208,180),(16,19),3)
-        pg.draw.lines(s,(210,180,100),False,[(23,14),(26,9),(23,5)],2)
-        pg.draw.circle(s,(255,200,85),(23,5),3)
+        draw.circle((129,124,106),(21,25),12)
+        draw.circle((176,171,146),(18,21),8)
+        draw.arc((98,96,82),(10,14,23,23),.7,2.6,2)
+        draw.line((112,108,91),(12,29),(27,16),2)
+        draw.line((112,108,91),(19,36),(31,24),2)
+        draw.circle((209,208,180),(16,19),3)
+        draw.lines((210,180,100),False,[(23,14),(26,9),(23,5)],2)
+        draw.circle((255,200,85),(23,5),3)
     elif name=='Veil':
-        pg.draw.circle(s,(239,244,255),(21,18),13)
-        pg.draw.polygon(s,(239,244,255),[(8,18),(34,18),(36,35),(28,31),(23,36),(17,32),(9,36)])
-        pg.draw.ellipse(s,(41,51,89),(13,16,6,9)); pg.draw.ellipse(s,(41,51,89),(24,16,6,9))
+        draw.circle((239,244,255),(21,18),13)
+        draw.polygon((239,244,255),[(8,18),(34,18),(36,35),(28,31),(23,36),(17,32),(9,36)])
+        draw.ellipse((41,51,89),(13,16,6,9)); draw.ellipse((41,51,89),(24,16,6,9))
     elif name=='Slick':
-        pg.draw.polygon(s,(255,218,61),[(22,11),(23,24),(36,32),(27,32),(20,27),(10,35),(5,33),(16,23)])
-        pg.draw.polygon(s,(255,245,157),[(22,11),(18,22),(19,28),(23,24)])
-        pg.draw.polygon(s,(230,174,36),[(23,24),(31,29),(36,32),(27,32)])
-        pg.draw.line(s,(130,103,40),(22,11),(24,7),3)
+        draw.polygon((255,218,61),[(22,11),(23,24),(36,32),(27,32),(20,27),(10,35),(5,33),(16,23)])
+        draw.polygon((255,245,157),[(22,11),(18,22),(19,28),(23,24)])
+        draw.polygon((230,174,36),[(23,24),(31,29),(36,32),(27,32)])
+        draw.line((130,103,40),(22,11),(24,7),3)
     elif name=='Spark':
-        pg.draw.polygon(s,(123,230,255),[(23,3),(9,24),(20,23),(16,39),(34,16),(23,18)])
+        draw.polygon((123,230,255),[(23,3),(9,24),(20,23),(16,39),(34,16),(23,18)])
     elif name=='Flare':
-        pg.draw.polygon(s,(255,91,27),[(10,27),(5,18),(9,9),(12,17),(16,4),(20,16),(17,24)])
-        pg.draw.polygon(s,(255,222,73),[(11,25),(9,18),(14,12),(15,20),(17,18),(16,25)])
-        pg.draw.polygon(s,(243,64,54),[(28,18),(33,21),(29,28),(20,33),(6,35),(15,30),(22,25)])
-        pg.draw.line(s,(255,159,110),(27,22),(20,28),3)
-        pg.draw.lines(s,(99,215,73),False,[(28,18),(28,13),(33,12)],3)
+        draw.polygon((255,91,27),[(10,27),(5,18),(9,9),(12,17),(16,4),(20,16),(17,24)])
+        draw.polygon((255,222,73),[(11,25),(9,18),(14,12),(15,20),(17,18),(16,25)])
+        draw.polygon((243,64,54),[(28,18),(33,21),(29,28),(20,33),(6,35),(15,30),(22,25)])
+        draw.line((255,159,110),(27,22),(20,28),3)
+        draw.lines((99,215,73),False,[(28,18),(28,13),(33,12)],3)
     elif name=='Quake':
-        pg.draw.rect(s,(141,35,39),(10,19,24,19),border_radius=2)
-        pg.draw.rect(s,(225,57,54),(9,17,23,19),border_radius=2)
-        pg.draw.rect(s,(252,115,92),(10,18,5,17))
-        pg.draw.rect(s,(155,164,178),(19,6,5,13))
-        pg.draw.rect(s,(196,204,213),(10,4,24,6),border_radius=3)
-        pg.draw.lines(s,(255,234,211),False,[(17,22),(24,22),(19,26),(25,31),(18,31)],2)
+        draw.rect((141,35,39),(10,19,24,19),border_radius=2)
+        draw.rect((225,57,54),(9,17,23,19),border_radius=2)
+        draw.rect((252,115,92),(10,18,5,17))
+        draw.rect((155,164,178),(19,6,5,13))
+        draw.rect((196,204,213),(10,4,24,6),border_radius=3)
+        draw.lines((255,234,211),False,[(17,22),(24,22),(19,26),(25,31),(18,31)],2)
     elif name=='Heart':
         # Original block lettering, no commercial logo asset.
         white=(249,250,255)
-        pg.draw.polygon(s,white,[(6,12),(14,7),(19,7),(19,31),(23,31),(23,36),(8,36),(8,31),(13,31),(13,15),(6,18)])
-        label=pg.font.Font(None,19).render('UP',True,white)
-        s.blit(label,(20,9))
+        draw.polygon(white,[(6,12),(14,7),(19,7),(19,31),(23,31),(23,36),(8,36),(8,31),(13,31),(13,15),(6,18)])
+        label=pg.font.Font(None,57).render('UP',True,white)
+        s.blit(label,(60,27))
     else:
-        pg.draw.arc(s,(40,121,194),(6,7,29,29),math.pi/2,math.pi*1.5,9)
-        pg.draw.rect(s,(40,121,194),(20,7,12,9))
-        pg.draw.rect(s,(40,121,194),(20,27,12,9))
-        pg.draw.rect(s,(224,230,239),(28,7,6,9))
-        pg.draw.rect(s,(224,230,239),(28,27,6,9))
-    if size!=42: s=pg.transform.smoothscale(s,(size,size))
-    target.blit(s,(x-size//2,y-size//2))
+        draw.arc((40,121,194),(6,7,29,29),math.pi/2,math.pi*1.5,9)
+        draw.rect((40,121,194),(20,7,12,9))
+        draw.rect((40,121,194),(20,27,12,9))
+        draw.rect((224,230,239),(28,7,6,9))
+        draw.rect((224,230,239),(28,27,6,9))
+    return pg.transform.smoothscale(s,(size,size))
+
+
+def power_icon(target,pos,name,time,size=32):
+    # Position-independent phase prevents roaming items from jumping vertically
+    # whenever they move one grid cell. Same category keeps a stable phase.
+    phase=sum(ord(ch) for ch in name)*.13
+    x,y=pos
+    y+=round(math.sin(time*3+phase)*size/16)
+    target.blit(_power_sprite(name,size),(round(x)-size//2,round(y)-size//2))
+
+
+def fire_plume(target,origin,end,direction,time):
+    """Original animated flame contained within a legal straight corridor run.
+
+    The caller splits wrapping paths into contiguous runs. A backwards endpoint
+    is rejected so a tunnel wrap cannot accidentally paint across the board.
+    Longitudinal extent never exceeds origin/end; transverse radius stays <=16.
+    """
+    if direction not in ((1,0),(-1,0),(0,1),(0,-1)): return
+    dx,dy=direction
+    vx,vy=end[0]-origin[0],end[1]-origin[1]
+    distance=vx*dx+vy*dy
+    if distance<=0 or abs(vx*dy-vy*dx)>.5: return
+    length=max(1,round(distance)); scale=3; mid=16
+    flame=pg.Surface(((length+1)*scale,33*scale),pg.SRCALPHA)
+    def layer(extent,factor,color):
+        steps=max(3,math.ceil(extent/4))
+        top=[];bottom=[]
+        for i in range(steps+1):
+            fraction=i/steps; x=fraction*extent
+            envelope=min(15,2+12*math.sin(math.pi*(.12+.88*fraction)))
+            ripple=math.sin(time*19-fraction*14)*1.2*math.sin(math.pi*fraction)
+            half=max(.3,min(15,(envelope+ripple)*factor))
+            sway=math.sin(time*23-fraction*19)*min(1.4,15-half)*math.sin(math.pi*fraction)
+            # Taper to a definite endpoint rather than a circular cap beyond it.
+            if i==steps: half=.3
+            top.append((round(x*scale),round((mid+sway-half)*scale)))
+            bottom.append((round(x*scale),round((mid+sway+half)*scale)))
+        pg.draw.polygon(flame,color,top+bottom[::-1])
+    layer(length,1,(255,70,21,190))
+    layer(length*.88,.68,(255,178,39,235))
+    layer(min(length*.58,40),.37,(255,251,202,250))
+    fade=pg.Surface(flame.get_size(),pg.SRCALPHA)
+    for x in range(flame.get_width()):
+        alpha=round(255*(1-.8*(x/max(1,flame.get_width()-1))**2))
+        pg.draw.line(fade,(255,255,255,alpha),(x,0),(x,flame.get_height()))
+    flame.blit(fade,(0,0),special_flags=pg.BLEND_RGBA_MULT)
+    flame=pg.transform.smoothscale(flame,(length+1,33))
+    angle=180 if dx<0 else 90 if dy<0 else -90 if dy>0 else 0
+    if angle: flame=pg.transform.rotate(flame,angle)
+    if dx: position=(round(min(origin[0],end[0])),round(origin[1])-mid)
+    else: position=(round(origin[0])-mid,round(min(origin[1],end[1])))
+    target.blit(flame,position)

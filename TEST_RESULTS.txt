@@ -1,4 +1,4 @@
-REVISION10:92 Windows tests PASS;92 Ubuntu tests PASS.
-All4maps ×1/2/8 native render scenarios completed (12 perOS); see NATIVE_REVISION10_*.json.
-Ten audioQA tests use actual dummy mixer; physical audibility/controller acceptance unverified.
-Allmap route/pixel checks and three-agent two-pass reviews documented.
+REVISION11:110 tests PASS Windows;110 tests PASS Ubuntu.
+Animation8+render10 newtests; prior92checks retained.
+All4maps ×1/2/8 native render scenarios perOS; see NATIVE_REVISION11_*.json.
+Finalvideo encode/decode and extractedZIP checks recorded separately. Physicalcontrollers productiondeferred.

@@ -1,0 +1,32 @@
+[
+  {
+    "players": 1,
+    "video": "gameplay_1_player.mp4",
+    "decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues"
+  },
+  {
+    "players": 2,
+    "video": "gameplay_2_player.mp4",
+    "decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues"
+  },
+  {
+    "players": 8,
+    "video": "gameplay_8_player.mp4",
+    "decode_pass": true,
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "seconds": 24,
+    "audio": "AAC original event cues"
+  }
+]
