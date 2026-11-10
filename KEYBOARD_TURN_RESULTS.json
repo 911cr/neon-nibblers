@@ -1,0 +1,264 @@
+{
+  "method": "Windows key messages posted only to the SDL game window owned by this test. Held state and fixed-step movement were real game code.",
+  "trials": [
+    {
+      "round": 1,
+      "mode": "both",
+      "inserted_delay_ms": 0,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          16,
+          3
+        ],
+        [
+          "S",
+          16,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 2,
+      "mode": "both",
+      "inserted_delay_ms": 0,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          17,
+          3
+        ],
+        [
+          "S",
+          17,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 3,
+      "mode": "both",
+      "inserted_delay_ms": 0,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          17,
+          3
+        ],
+        [
+          "S",
+          17,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 4,
+      "mode": "both",
+      "inserted_delay_ms": 100,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          113,
+          3
+        ],
+        [
+          "S",
+          113,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 5,
+      "mode": "both",
+      "inserted_delay_ms": 100,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          115,
+          3
+        ],
+        [
+          "S",
+          115,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 6,
+      "mode": "both",
+      "inserted_delay_ms": 185,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          199,
+          3
+        ],
+        [
+          "S",
+          199,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 7,
+      "mode": "both",
+      "inserted_delay_ms": 185,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          198,
+          3
+        ],
+        [
+          "S",
+          198,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 8,
+      "mode": "both",
+      "inserted_delay_ms": 235,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          248,
+          3
+        ],
+        [
+          "S",
+          248,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 9,
+      "mode": "both",
+      "inserted_delay_ms": 235,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          249,
+          3
+        ],
+        [
+          "S",
+          249,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 10,
+      "mode": "both",
+      "inserted_delay_ms": 235,
+      "outcomes": [
+        "Down turn taken",
+        "S turn taken"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          248,
+          3
+        ],
+        [
+          "S",
+          248,
+          4
+        ]
+      ]
+    },
+    {
+      "round": 11,
+      "mode": "omit_S",
+      "inserted_delay_ms": 185,
+      "outcomes": [
+        "Down turn taken",
+        "no S key-down received"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          197,
+          3
+        ]
+      ]
+    },
+    {
+      "round": 12,
+      "mode": "late",
+      "inserted_delay_ms": 0,
+      "outcomes": [
+        "Down received past junction",
+        "S received past junction"
+      ],
+      "passed": true,
+      "presses": [
+        [
+          "Down",
+          17,
+          3
+        ],
+        [
+          "S",
+          17,
+          4
+        ]
+      ]
+    }
+  ]
+}

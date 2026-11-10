@@ -115,3 +115,12 @@ def draw_house(target,rect,accent,door_x):
     target.blit(_house_sprite(rect.size,tuple(accent)),(rect.x-14,rect.y-14),special_flags=pg.BLEND_PREMULTIPLIED)
     pg.draw.rect(target,(0,0,4),(door_x-20,rect.top-14,40,33))
     pg.draw.line(target,(224,211,255),(door_x-19,rect.top),(door_x+19,rect.top),2)
+
+
+def prepare_gate_art(accent, house_size):
+    """Build the tinted sprites before the first Giant pickup needs them."""
+    _house_sprite(house_size, accent)
+    _tunnel_sprite(accent)
+    for upper in (True, False):
+        for opening in (True, False):
+            _gate_sprite(accent, upper, opening)

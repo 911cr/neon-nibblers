@@ -1,5 +1,7 @@
 # Neon Nibblers
 
+**Current build: Keyboard Playtest 5 with turn diagnostics.** [Download the Windows/Linux playtest](dist/NeonNibblers-keyboard-playtest-5.zip). Extract it and run `playtest_windows.bat` or `sh playtest_linux.sh`. The playtest launchers select the two-person keyboard setup. Movement, ghost speed, one-way gates and the experimental manual gate exit follow local playtest feedback. [Current DX comparison](docs/DX_RELEASE_STATUS.md).
+
 Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to8 human stations, USB gamepad/joystick support, keyboard fallback and AI opponents. No commercial sprites, ROMs, source code, logos or recordings are included.
 
 Revision18 updates the provisional Giant duration from fresh footage, fixes simultaneous fire and carried-ghost cleanup, and aligns ghost eyes, house colors and fire effects with rendered motion. Four observed maze reconstructions and per-station continuation remain available. This is not an exact replica: graphical details, power timing/interactions, ghost AI, map morphing/progression, remaining scoring and paid continuation still have documented differences. See docs/DX_CURRENT_GAP_AUDIT.md.
@@ -33,7 +35,7 @@ Enter starts the quick-play roster;1–8 select its human count in the lobby. F3
 
 Tab selects a starting maze in the lobby. F12 changes the base wall color. Active giants temporarily color the walls; multiple giants cycle colors every1.25 seconds (an estimated interval). Layout changes alone retain the base hue. P pauses; F1 guide freezes play; F2 mutes immediately. Escape closes guide/editor, returns to lobby or exits. Resize preserves aspect ratio.
 
-AI fills vacant stations by default:1human+7AI,2+6,8+0. F11 can disable fill. Human input/rankings/controller requirements exclude bots. `--demo` steers every actor for demonstrations. AI routes and difficulty are independently authored. Normal travel now uses an estimated4dot-spacings/second, with continuous visual movement. Use --tuning tuning.fast.json to compare the former10dot/second profile. Holding two keyboard directions now prioritizes the newer press. A short Preparing mazes screen moves geometry setup before play.
+AI fills vacant stations by default:1human+7AI,2+6,8+0. F11 can disable fill. Human input/rankings/controller requirements exclude bots. `--demo` steers every actor for demonstrations. AI routes and difficulty are independently authored. Normal travel uses the keyboard playtest setting of about 6.45 dot spacings per second. Use --tuning tuning.fast.json to compare the former10dot/second profile. Holding two keyboard directions now prioritizes the newer press. A short Preparing mazes screen moves geometry setup before play.
 
 USB uses axes0/1 or D-pad hats, deadzone0.35. Disconnects do not renumber remaining stations. Unique model GUIDs may reclaim a reservation; identical models require explicit pairing: lobby Shift+F3..F10, then that controller's button1. Physical input/latency/mixed-device acceptance remains for production.
 
@@ -99,11 +101,11 @@ python replay.py verify continued.json
 python check_controllers.py --expected 8
 ```
 
-363 checks cover all1–8 counts/maps,11powers, ledger/replay, AI, continuous house return, rendered routes, HUD, operator/storage failures, continuation/initials and spectator feeds. Windows and Ubuntu/WSLg native checks include1/2/8 per maze and full continue acceptance/timeout/name entry. Tests and screenshots are automated; physical controllers, eight-human acceptance, speaker audibility and standalone Linux hardware remain production checks.
+The revision 18 suite had 363 checks covering all1–8 counts/maps,11powers, ledger/replay, AI, continuous house return, rendered routes, HUD, operator/storage failures, continuation/initials and spectator feeds. Windows and Ubuntu/WSLg native checks include1/2/8 per maze and full continue acceptance/timeout/name entry. Tests and screenshots are automated; physical controllers, eight-human acceptance, speaker audibility and standalone Linux hardware remain production checks.
 
-Three current MP4s are104seconds each,1280x720/60fps with original AAC event audio:64seconds touring all four mazes, an8-second labelled controlled C-to-D maze change, then two16-second labelled controlled tests of continue acceptance and expiry/initials. All actors are automated. Logical1/2/8 human stations have7/6/0AI. Controlled final-life setup is explicitly labelled, not presented as unassisted human gameplay. GIF previews are24-second silent map tours and may be provided alongside the ZIP.
+Three revision 18 MP4s are104seconds each,1280x720/60fps with original AAC event audio:64seconds touring all four mazes, an8-second labelled controlled C-to-D maze change, then two16-second labelled controlled tests of continue acceptance and expiry/initials. All actors are automated. Logical1/2/8 human stations have7/6/0AI. Controlled final-life setup is explicitly labelled, not presented as unassisted human gameplay. GIF previews are24-second silent map tours and may be provided alongside the ZIP.
 
-Optional capture dependencies: `python -m pip install -r requirements-capture.txt`; then `python record_video.py --players 1 --seconds 16 --untimed --continue-showcase --transition-showcase`. The ZIP includes current source/tests/docs and three HD videos; historical captures stay in workspace/history. Commercial reference comparisons are separate research artifacts.
+Optional capture dependencies: `python -m pip install -r requirements-capture.txt`; then `python record_video.py --players 1 --seconds 16 --untimed --continue-showcase --transition-showcase`. The revision 18 ZIP includes its source/tests/docs and three HD videos; historical captures stay in workspace/history. Commercial reference comparisons are separate research artifacts.
 
 See docs/DX_RELEASE_STATUS.md and revision18 audits for evidence boundaries. Repository: https://github.com/911cr/neon-nibblers
 

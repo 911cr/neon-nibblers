@@ -1,0 +1,8 @@
+Neon Nibblers | Two-person keyboard playtest 5
+Extract the entire ZIP first. Windows needs Python 3.10+ with the py launcher. Double-click playtest_windows.bat. On Linux install Python 3.10+, pip and venv, then run sh playtest_linux.sh. First setup needs internet for pygame-ce.
+
+Click the game and press Enter. Each player can wait in their bay. Yellow leaves using Up and steers with the arrow keys. Pink leaves using W and steers with W/A/S/D. Leaving the gate locks it until respawn. The match clock runs while players wait. P pauses. The LIVES number under each score includes the current life.
+
+The red plunger box triggers Earthquake. Players and roaming ghosts move at half speed for five seconds, with a countdown above the maze. The round smoke bomb slows nearby roaming ghosts. The splayed yellow banana peel causes a brief skid. Short keyboard taps remain buffered until the turn is taken or you press a newer direction. Normal human and roaming ghost movement takes 0.155 seconds per dot spacing. This test uses keyboard controls with simulated controller availability.
+
+Optional simultaneous-turn diagnostic: after setup, run turn_drill.py using the same virtual environment, with --folder followed by a new, empty folder for its local trace.

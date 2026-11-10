@@ -1,0 +1,8 @@
+{
+  "manual_gate_exit": true,
+  "player_step_seconds": 0.155,
+  "rush_step_seconds": 0.10075,
+  "slick_step_seconds": 0.08525,
+  "ghost_step_seconds": 0.155,
+  "item_step_seconds": 0.528
+}

@@ -32,15 +32,16 @@ class MotionIntegration(unittest.TestCase):
     def test_rendered_turn_stays_on_segments_and_does_not_change_match(self):
         a=self.app
         self.seed((10,13))
+        sample_time = a.match.player_interval(self.p) * .4
         self.p.pos=(11,13)
-        a.draw(.1)
+        a.draw(sample_time)
         self.p.pos=(11,14)
         before=copy.deepcopy(a.match.__dict__)
-        a.draw(.1)
+        a.draw(sample_time)
         x,y=a.visual_positions[0]
         self.assertEqual(y,center((10,13))[1])
         self.assertLess(x,center((11,13))[0])
-        a.draw(.1)
+        a.draw(sample_time)
         self.assertEqual(a.visual_positions[0][0],center((11,13))[0])
         self.assertGreater(a.visual_positions[0][1],y)
         # Objects with identity equality (arena, RNG, ledger) are checked by
@@ -65,11 +66,12 @@ class MotionIntegration(unittest.TestCase):
     def test_tunnel_wrap_is_short_and_keeps_row(self):
         a=self.app;y=next(iter(a.match.arena.portals))
         self.seed((COLS-1,y));self.p.pos=(0,y)
-        a.draw(.125)
+        half_step = a.match.player_interval(self.p) / 2
+        a.draw(half_step)
         x,py=a.visual_positions[0]
         self.assertTrue(x>=OX+COLS*TILE-1 or x<=OX+1)
         self.assertEqual(py,center((0,y))[1])
-        a.draw(.125)
+        a.draw(half_step)
         self.assertEqual(a.visual_positions[0],center((0,y)))
 
     def test_death_relocation_and_restart_clear_tracks(self):

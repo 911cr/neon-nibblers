@@ -4,3 +4,5 @@ __pycache__/
 work/
 *.zip
 *.gif
+!dist/NeonNibblers-keyboard-playtest-5.zip
+duel-data/latest-match.json

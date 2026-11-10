@@ -126,6 +126,8 @@ class Smoke(unittest.TestCase):
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_RIGHT))
             app.events(); app.match.update(app.match.tuning['player_step_seconds'])
             self.assertEqual(app.match.players[0].pos,(2,1))
+            # Each iteration represents a fresh physical tap.
+            pg.event.post(pg.event.Event(pg.KEYUP,key=pg.K_RIGHT))
             pg.event.post(pg.event.Event(pg.KEYDOWN,key=pg.K_p))
             app.events(); self.assertTrue(app.match.paused)
             t=app.match.time; app.match.update(1); self.assertEqual(app.match.time,t)
@@ -207,7 +209,7 @@ class Smoke(unittest.TestCase):
                             self.assertEqual(tuple(art.get_at((px,py)))[:3],(0,0,4),'Visible wall blocks movement edge')
         pg.quit()
 
-    def test_player_gate_launch_return_and_respawn(self):
+    def test_player_gate_is_exit_only_until_respawn(self):
         for theme in range(4):
             g=Match(8,theme,seed=19); g.foes=[]; g.items.clear()
             for p in g.players:
@@ -224,8 +226,8 @@ class Smoke(unittest.TestCase):
                 p.wanted=p.direction=(0,-1 if gate[1]==0 else 1)
             g.update(g.tuning['player_step_seconds'])
             for p in g.players:
-                self.assertEqual(p.pos,g.arena.spawns[p.idx])
-                p.wanted=p.direction=(0,1 if p.pos[1]==0 else -1)
+                self.assertEqual(p.pos,g.arena.entries[p.idx])
+                self.assertFalse(g.arena.can_enter(g.arena.spawns[p.idx],p))
             g.update(g.tuning['player_step_seconds'])
             for p in g.players:
                 self.assertEqual(p.pos,g.arena.entries[p.idx])

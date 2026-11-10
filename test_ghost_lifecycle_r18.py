@@ -92,6 +92,11 @@ class GhostLifecycleR18(unittest.TestCase):
                 self.assertIn(g.foes[0],g.arena.lanes)
                 self.assertTrue(old==g.foes[0]or g.foes[0]in[g.arena.step(old,d)for d in DIRS])
             self.assertGreater(len(times),2)
-            self.assertTrue(all(b-a>=g.tuning['ghost_step_seconds']-1e-8 for a,b in zip(times,times[1:])))
+            # Fixed ticks can report a 143 ms step after eight or nine frames.
+            # Bound cumulative travel too, so a burst cannot borrow a frame per step.
+            interval=g.tuning['ghost_step_seconds']
+            for i,start in enumerate(times):
+                for j,end in enumerate(times[i+1:],start=i+1):
+                    self.assertGreaterEqual(end-start+1/60+1e-8,(j-i)*interval)
 
 if __name__=='__main__':unittest.main()

@@ -190,3 +190,7 @@ All363 checks pass on Windows and Ubuntu/WSLg. New checks cover complete ghost l
 Native checks cover all four maps at1/2/8 human-designated stations on Windows and Ubuntu/WSLg, plus six maze-transition runs. Twelve full automated matches reconcile score accounts; deterministic replay, stress and extracted-package checks are recorded separately. Updated104-second720p60AAC videos show all four maps, a labelled controlled transition and labelled continue acceptance/expiry. All actors are automated;1/2/8 human-designated stations have7/6/0AI opponents. These are not human playtest recordings or proof of equal fun.
 
 Three agents completed initial and deeper reviews with independent cross-checks. The sole task-owned research Chrome window was closed and its removal verified; preexisting user windows were preserved. Physical controllers remain deferred to production. Exact remaining power timings/ranges/stacking, ghost targeting/release, global vulnerability, collision impulses, kill credit and subjective fun remain unverified. Original code, artwork, sounds and branding remain independently authored. Reference screenshots stay outside the playable ZIP.
+
+## Keyboard Playtest 5 and turn diagnostics
+
+Added the live keyboard playtest changes and simultaneous-turn diagnostic. See [current release status](docs/DX_RELEASE_STATUS.md) for the visible changes, control checks, and limits of the DX comparison.

@@ -19,7 +19,7 @@ from presentation import LifecyclePresentation
 from gameplay_tuning import validate_tuning, load_tuning
 from arcade_ai import choose_direction
 from cabinet_flow import ContinueOffers
-from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH
+from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH,prepare_gate_art
 from player_contacts import resolve_bumps,approaching_contact
 from maze_transition import render_background,actor_scale
 from corridor_motion import CorridorTrack
@@ -99,7 +99,9 @@ class Arena:
         self.space=self.floor
 
     def can_enter(self, cell, player):
-        return cell in self.floor and self.gate_owner.get(cell,player.idx)==player.idx
+        if cell in self.lanes:
+            return True
+        return cell == player.pos and self.gate_owner.get(cell) == player.idx
 
     def step(self,pos,direction):
         target=add(pos,direction)
@@ -615,6 +617,14 @@ class Match:
                 if p.effects[k]<=0: del p.effects[k]
         for p in self.players:
             if p.lives<=0 or p.stun>0: continue
+            if (self.tuning['manual_gate_exit'] and not p.bot
+                    and p.pos==self.arena.spawns[p.idx]):
+                inward=(0,1) if p.pos[1]==0 else (0,-1)
+                if p.wanted==inward:
+                    p.pos=self.arena.entries[p.idx]
+                    p.entry=0
+                    p.direction=inward
+                continue
             if p.entry>0 and p.pos==self.arena.spawns[p.idx]:
                 p.entry=self.countdown(p.entry,dt)
                 if p.entry==0:
@@ -713,7 +723,7 @@ def station_hud(spawn,score=0):
     scale=max(1,min(3,108//(6*len(label))))
     return {'x':sx+50,'y':sy,'label':label,'scale':scale,
             'score':pg.Rect(sx+50,sy,(6*len(label)-1)*scale,7*scale),
-            'lives':pg.Rect(sx+50,sy+25,48,7)}
+            'lives':pg.Rect(sx+50,sy+22,77,20)}
 
 class App:
     def __init__(self, simulate_controllers=False,cabinet=None):
@@ -749,6 +759,7 @@ class App:
         self.demo=False; self.visual_positions={}; self.animation_time=0.
         self.motion_tracks={'players':{},'ghosts':{},'items':{}}
         self.keyboard_pressed={};self.keyboard_serial=0
+        self.pending_turns={}
         self.backgrounds={}; self.visual_foes={}; self.score_memory={}; self.popups=[]; self.visual_items={}
         self.micro=pg.font.Font(None,16)
         self.audio=ArcadeAudio();self.sounds=self.audio.sounds
@@ -818,6 +829,7 @@ class App:
             self.match=Match(0,self.theme,seed=self.seed,progression=self.progression,rules=self.match_rules(),tuning=self.tuning,
                              continue_seconds=self.continue_seconds,continue_delay=self.continue_delay)
             self.session_id=str(uuid.uuid4())
+            self.pending_turns.clear()
             self.reset_visuals()
             self.prepare_mazes()
         if idx>=len(self.match.players) or not self.match.players[idx].joined:
@@ -828,9 +840,12 @@ class App:
             p.locate_remaining=self.locator_seconds
             self.match.ledger.append(self.match,'locate',p,duration=self.locator_seconds)
 
-    def events(self):
+    def events(self, events=None):
         self.save_result(False)
-        for e in pg.event.get():
+        for e in pg.event.get() if events is None else events:
+            if e.type==pg.WINDOWFOCUSLOST:
+                self.keyboard_pressed.clear()
+                self.pending_turns.clear()
             if e.type in (pg.KEYDOWN,pg.JOYBUTTONDOWN,pg.MOUSEBUTTONDOWN):
                 self.idle_time=0.;self.attract_page=None
             if e.type==pg.QUIT: self.running=False
@@ -842,9 +857,11 @@ class App:
                 continue
             if e.type in (pg.JOYDEVICEADDED,pg.JOYDEVICEREMOVED): self.refresh_pads()
             if e.type==pg.KEYUP:self.keyboard_pressed.pop(e.key,None)
+            fresh_direction=False
             if e.type==pg.KEYDOWN and any(e.key in keys for keys in KEYS):
                 if e.key not in self.keyboard_pressed:
                     self.keyboard_serial+=1;self.keyboard_pressed[e.key]=self.keyboard_serial
+                    fresh_direction=not getattr(e,'repeat',False)
             if e.type==pg.JOYBUTTONDOWN and e.button==0:
                 iid=getattr(e,'instance_id',None)
                 if self.pair_station is not None and self.match is None and iid in self.pads:
@@ -872,11 +889,13 @@ class App:
                     self.pair_station=idx; self.pair_error=''
                 else: self.station_action(idx)
                 continue
-            if self.match and not self.match.over:
+            if fresh_direction and not self.demo and self.phase in (Phase.PLAYING,Phase.CONTINUE):
                 for p in self.match.players:
-                    if p.bot:continue
+                    if p.bot or not p.joined or p.lives<=0:continue
                     for k,d in zip(KEYS[p.idx],DIRS):
-                        if e.key==k: p.wanted=d
+                        if e.key==k:
+                            p.wanted=d
+                            self.pending_turns[p.idx]=d
             if e.key==pg.K_ESCAPE:
                 if self.help: self.help=False
                 elif self.match: self.match=None
@@ -903,6 +922,7 @@ class App:
                          continue_seconds=self.continue_seconds,continue_delay=self.continue_delay); self.help=False
         if self.cabinet.settings['fill_bots']:self.match.fill_vacancies()
         self.session_id=str(uuid.uuid4());self.scores_open=False;self.status_notice='';self.name_entry=None
+        self.pending_turns.clear()
         self.reset_visuals()
         self.prepare_mazes()
         return True
@@ -912,7 +932,10 @@ class App:
         palette,accent=self.wall_style()
         missing=[Arena(theme) for theme in range(4)
                  if (get_map(theme).id,get_map(theme).revision,palette) not in self.backgrounds]
-        if not missing:return
+        arena=self.match.arena
+        giants=[p.idx for p in self.match.players if (p.joined or p.bot)
+                and (arena.map_id,arena.map_revision,('giant',p.idx)) not in self.backgrounds]
+        if not missing and not giants:return
         self.canvas.fill((0,0,4))
         self.text('Preparing mazes...',W//2-105,H//2-20,(220,230,255),self.font)
         self.screen.blit(pg.transform.smoothscale(self.canvas,self.screen.get_size()),(0,0))
@@ -921,6 +944,12 @@ class App:
             key=(arena.map_id,arena.map_revision,palette)
             if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
             self.backgrounds[key]=maze_background(arena.space,COLS,ROWS,TILE,accent,arena.lane_radius)
+        arena=self.match.arena
+        for idx in giants:
+            key=(arena.map_id,arena.map_revision,('giant',idx))
+            if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
+            self.backgrounds[key]=maze_background(arena.space,COLS,ROWS,TILE,COLORS[idx],arena.lane_radius)
+            prepare_gate_art(COLORS[idx],(arena.den[2]*TILE-10,arena.den[3]*TILE-10))
 
     def wall_palette(self):
         if self.palette_override is not None:return self.palette_override
@@ -1147,6 +1176,7 @@ class App:
                     hx,hy=joy.get_hat(0)
                     if hx or hy: x,y=hx,-hy
                 if max(abs(x),abs(y))>.35:
+                    self.pending_turns.pop(p.idx,None)
                     wanted=(1 if x>0 else -1,0) if abs(x)>abs(y) else (0,1 if y>0 else -1)
             if wanted: p.wanted=wanted
 
@@ -1240,20 +1270,19 @@ class App:
                 active=idx<len(g.players) and g.players[idx].joined
                 color=COLORS[idx] if active else tuple(max(85,c//2) for c in COLORS[idx])
                 occupant=g.players[idx] if idx<len(g.players) and (active or g.players[idx].bot) else None
-                inward=(0,-1) if upper else (0,1)
                 visual=self.visual_positions.get(idx,center(spawn))
                 crossing=occupant and abs(visual[0]-sx)<24 and (
                     visual[1]<=mouth_y+22 if upper else visual[1]>=mouth_y-22)
-                opening=occupant and occupant.lives>0 and (occupant.entry>0 or occupant.pos==spawn
-                    or (occupant.pos==g.arena.entries[idx] and occupant.wanted==inward) or crossing)
+                opening=occupant and occupant.lives>0 and (occupant.pos==spawn or crossing)
                 if not morph:draw_station_gate(self.canvas,sx,mouth_y,upper,accent,opening)
                 hud=station_hud(spawn,g.players[idx].score if active else 0)
                 sx_text,sy=hud['x'],hud['y']
                 if active:
                     p=g.players[idx]
                     arcade_digits(self.canvas,hud['label'],sx_text,sy,color,hud['scale'])
-                    for life in range(p.lives): pg.draw.circle(self.canvas,color,(sx_text+3+life*9,sy+28),2)
-                    if p.lives<=0:
+                    if p.lives>0:
+                        self.text(f'LIVES {p.lives}', *hud['lives'].topleft, color, self.small)
+                    else:
                         remaining=g.continues.remaining(idx)
                         if remaining and not g.continues.pending(idx):
                             prompt=(f'CONTINUE {math.ceil(remaining-1e-10):02}' if int(self.animation_time*2)%2==0 else
@@ -1268,7 +1297,10 @@ class App:
                 arcade_digits(self.canvas,timer,status_center-len(timer)*9,1,(250,250,235),3)
             else:self.text('LIFE SURVIVAL',status_center-self.micro.size('LIFE SURVIVAL')[0]//2,8,(250,250,235),self.micro)
             stage_label=f'S{g.stage} | {THEMES[g.arena.theme][0]}'
-            self.text(stage_label,status_center-self.micro.size(stage_label)[0]//2,27,accent,self.micro)
+            if g.quake>0:
+                stage_label=f'EARTHQUAKE {math.ceil(g.quake)}s'
+            self.text(stage_label,status_center-self.micro.size(stage_label)[0]//2,27,
+                      (255,225,120) if g.quake>0 else accent,self.micro)
             # Tunnel necks project beyond the board, as in the cabinet footage.
             for row in g.arena.portals:
                 cy=center((0,row))[1]
@@ -1298,7 +1330,7 @@ class App:
                     # compensation; combat still uses fire_cells exclusively.
                     points=[(x+OX,y+TOP) for x,y in track.remaining_path]
                     points.extend(center(cell) for cell in cells)
-                    # An owner may return through its private bay while powered.
+                    # A powered player can still be visibly leaving the bay.
                     # The public-lane helper deliberately excludes that link;
                     # authorize only this owner's known vertical gate segment.
                     spawn=g.arena.spawns[p.idx];entry=g.arena.entries[p.idx]
@@ -1475,6 +1507,7 @@ class App:
     def advance(self,dt):
         """Fixed 60Hz logic independent of native display frame cadence."""
         if self.phase not in (Phase.PLAYING,Phase.CONTINUE):
+            self.pending_turns.clear()
             self.fixed_accumulator=0.; return []
         self.fixed_accumulator+=max(0,dt)
         sounds=[]
@@ -1482,7 +1515,21 @@ class App:
             steer_demo(self.match,only_bots=not self.demo)
             for p in self.match.players:
                 p.locate_remaining=self.match.countdown(p.locate_remaining,1/60)
+            # A down/up pair can arrive between polls. Hold the newest turn
+            # through fixed ticks until this player actually takes that edge.
+            attempts=[]
+            for idx,direction in self.pending_turns.items():
+                p=self.match.players[idx]
+                attempts.append((p,p.pos,p.lives,direction,p.wanted))
+                p.wanted=direction
             sounds.extend(self.match.update(1/60))
+            for p,origin,lives,direction,fallback in attempts:
+                if p.lives!=lives:
+                    self.pending_turns.pop(p.idx,None)
+                else:
+                    if p.pos==self.match.arena.step(origin,direction):
+                        self.pending_turns.pop(p.idx,None)
+                    p.wanted=fallback
             self.fixed_accumulator-=1/60
             if self.match.over:
                 self.fixed_accumulator=0.

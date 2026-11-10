@@ -123,23 +123,26 @@ class PowerContactQA(unittest.TestCase):
 
 
 class RenderContactQA(unittest.TestCase):
-    def test_powered_bay_entry_and_return_attach_only_inside_owner_pocket(self):
+    def test_powered_departure_attaches_inside_owner_pocket_after_start_or_respawn(self):
         app=game.App(simulate_controllers=True)
         try:
             app.count=8
             for theme in range(4):
-                for returning in (False,True):
+                for after_respawn in (False,True):
                     app.theme=theme;app.start();g=app.match;g.foes=[];g.items={}
                     for p in g.players:
                         spawn=g.arena.spawns[p.idx];inward=(0,1) if spawn[1]==0 else (0,-1)
-                        p.pos=g.arena.entries[p.idx] if returning else spawn
-                        p.direction=p.wanted=(-inward[0],-inward[1]) if returning else inward
+                        if after_respawn:
+                            p.safe=0
+                            p.pos=g.arena.entries[p.idx]
+                            self.assertTrue(g.hurt(p))
+                        self.assertEqual(p.pos,spawn)
+                        p.direction=p.wanted=inward
                         p.entry=p.safe=0;p.clock=g.player_interval(p)-1/60;p.effects={'Flare':2}
                     app.reset_visuals();app.draw(0)
                     app.advance(1/60);app.draw(1/60)
                     for p in g.players:
-                        spawn=g.arena.spawns[p.idx]
-                        p.wanted=((0,1) if spawn[1]==0 else (0,-1)) if returning else (1,0)
+                        p.wanted=(1,0)
                     app.advance(1/60)
                     calls=[];original=game.fire_plume
                     def capture(surface,start,end,direction,time):
@@ -152,11 +155,11 @@ class RenderContactQA(unittest.TestCase):
                     for p in g.players:
                         visual=app.visual_positions[p.idx]
                         attached=[c for c in calls if game.distance(c[0],visual)<=1.5]
-                        self.assertTrue(attached,(theme,returning,p.idx,visual))
+                        self.assertTrue(attached,(theme,after_respawn,p.idx,visual))
                         spawn=g.arena.spawns[p.idx];upper=spawn[1]==0
                         mouth=game.TOP+4 if upper else game.TOP+game.ROWS*game.TILE-4
                         pocket=gate_geometry(game.center(spawn)[0],mouth,upper)['outer']
-                        self.assertTrue(any(pocket.contains(c[2]) for c in attached),(theme,returning,p.idx))
+                        self.assertTrue(any(pocket.contains(c[2]) for c in attached),(theme,after_respawn,p.idx))
                         for start,end,clip in attached:
                             self.assertTrue(board.contains(clip) or pocket.contains(clip))
                             self.assertAlmostEqual(start[0],end[0])

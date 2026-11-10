@@ -49,12 +49,13 @@ class GhostFacing(unittest.TestCase):
 
     def test_queued_corner_faces_current_segment_not_future_target(self):
         self.seed((10,13),3)
+        quarter_step=self.app.match.tuning['ghost_step_seconds']/4
         self.app.match.foes[0]=(11,13)
-        self.assertEqual(self.draw_looks(.1),[(1,0)])
+        self.assertEqual(self.draw_looks(quarter_step),[(1,0)])
         self.app.match.foes[0]=(11,14)
-        self.assertEqual(self.draw_looks(.1),[(1,0)])
+        self.assertEqual(self.draw_looks(quarter_step),[(1,0)])
         self.assertEqual(self.app.visual_foes[0][1],game.center((10,13))[1])
-        self.assertEqual(self.draw_looks(.25),[(0,1)])
+        self.assertEqual(self.draw_looks(quarter_step*2.5),[(0,1)])
 
     def test_stopped_and_paused_faces_retain_last_travel(self):
         self.seed((10,1))

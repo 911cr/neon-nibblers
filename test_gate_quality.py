@@ -78,7 +78,7 @@ class GateQuality(unittest.TestCase):
                             mouth=game.TOP+4 if upper else game.TOP+game.ROWS*game.TILE-4
                             band=gate_geometry(x,mouth,upper)['hatch']
                             hits=sum(tuple(app.canvas.get_at((px,band.top)))[:3]==GATE_LIP for px in range(band.left,band.right))
-                            closed=state in ('away','dead') or state=='empty' and idx>0
+                            closed=state in ('away','return','dead') or state=='empty' and idx>0
                             self.assertEqual(hits,48 if closed else 0,(theme,palette,state,idx,hits))
         finally:game.pg.quit()
 

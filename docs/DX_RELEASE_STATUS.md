@@ -1,3 +1,14 @@
+# Keyboard Playtest 5 and turn diagnostics
+
+The current game is an independently drawn adaptation of CHOMPionship Deluxe. The comparisons establish particular layouts and behaviors. They do not establish an exact graphics or rules match.
+
+| Area | Observed in DX and represented in the game | Differences or uncertainties |
+|---|---|---|
+| Maze and graphics | Four observed corridor layouts, station arrangement, yellow gate stripes, double outlines around the house, and maze color changes associated with giant players. The supplied blue-maze photo corresponds to Golden Rails (family D). | Hidden endpoints and dimensions are estimates. Character lighting, the banana peel and other icons, effects, fonts and animation are independently drawn. Desktop scores face one direction. Manual gate departure and exit-only access follow the playtest preference. |
+| Gameplay | Up to eight stations, eleven power-up categories, and the observed 10/100/1000 scores for a dot, gold pellet and giant pellet. Footage supports an approximately ten-second Giant effect in one sequence. | Current normal player and ghost travel both take 0.155 seconds per dot by request. Exact AI, release and contact behavior, other scores, item distribution, effect strengths and durations, stage order, and paid continue rules are not established. |
+
+The current keyboard build also has a visible lives count, Earthquake countdown, buffered taps under frame delays, and a separate simultaneous-turn diagnostic. Its [Windows input test report](../KEYBOARD_TURN_RESULTS.json) covers ten paired rounds plus missing-key and late-key controls. Physical controller acceptance is deferred to production. For the detailed historical evidence see the [DX comparison audit](DX_CURRENT_GAP_AUDIT.md) and [Giant timing footage notes](audits/revision18_reference.md).
+
 # Revision 18 status
 
 Concrete power/contact and presentation defects fixed; exact DX parity remains unverified.

@@ -38,14 +38,14 @@ class GateDetailQA(unittest.TestCase):
                 p.entry=0;p.wanted=(1,0)
             self.draw_gates()
             for idx in range(8):self.assertGreater(self.hatch_pixels(idx),0,(theme,idx))
-    def test_owner_return_opens_hatch_for_human_and_ai(self):
+    def test_return_attempt_leaves_hatch_closed_for_human_and_ai(self):
         for theme in range(4):
             self.start_profile(theme);g=self.app.match
             for p in g.players:
                 p.pos=g.arena.entries[p.idx];p.entry=0
                 p.wanted=(0,-1) if g.arena.spawns[p.idx][1]==0 else (0,1)
             self.draw_gates()
-            for idx in range(8):self.assertEqual(self.hatch_pixels(idx),0,(theme,idx))
+            for idx in range(8):self.assertGreater(self.hatch_pixels(idx),100,(theme,idx))
     def test_empty_eliminated_and_continue_waiting_gates_remain_closed(self):
         for theme in range(4):
             for count in (1,8):

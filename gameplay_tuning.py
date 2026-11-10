@@ -9,16 +9,16 @@ import math
 from pathlib import Path
 
 DEFAULT_TUNING = {
+    'manual_gate_exit': False,
     # One continuously tracked DX growth/shrink sequence suggests ~9–11s.
     # Ten seconds is provisional, not an exact recovered cabinet constant.
     'durations': {'Crown': 7., 'Titan': 10., 'Rush': 7., 'Mist': 7.,
                   'Slick': 2., 'Spark': 2., 'Veil': 7., 'Flare': 3.,
                   'Quake': 5., 'Lure': 7.},
     'spawn_seconds': 3., 'item_step_seconds': .60,
-    # Two DX actor tracks suggest roughly2.4–5 dots/sec. Use4 as a
-    # provisional reference pace; relative boost/foe ratios remain authored.
-    'player_step_seconds': .25, 'rush_step_seconds': .1625,
-    'slick_step_seconds': .1375, 'ghost_step_seconds': .40,
+    # Slightly slower than the last keyboard trial. Ghosts match normal travel.
+    'player_step_seconds': .155, 'rush_step_seconds': .10075,
+    'slick_step_seconds': .08525, 'ghost_step_seconds': .155,
     'spark_radius': 8, 'flame_cells': 5, 'smoke_seconds': 2.5,
     'smoke_radius': 2, 'quake_multiplier': 2., 'smoke_multiplier': 2.,
     'max_items': 12,
@@ -36,6 +36,8 @@ def validate_tuning(overrides=None):
                 raise ValueError('Unknown power duration')
             result[key].update(value)
         else: result[key] = value
+    if type(result['manual_gate_exit']) is not bool:
+        raise ValueError('manual_gate_exit must be true or false')
     for name, value in result['durations'].items():
         _number(name + ' duration', value, 1 / 60, 120)
     for key in ('spawn_seconds', 'item_step_seconds', 'player_step_seconds',

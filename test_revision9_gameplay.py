@@ -47,7 +47,9 @@ class GameplayQA(unittest.TestCase):
         g=self.clean(2);p,q=g.players
         p.score=9995;p.direction=p.wanted=(1,0)
         g.foes[0]=q.pos;g.foe_modes[0]='roaming'
-        sounds=g.update(g.tuning['player_step_seconds'])
+        # Arrange both events on the next tick, before the ghost moves off q.
+        p.clock=g.player_interval(p)-1/60
+        sounds=g.update(1/60)
         self.assertEqual([p.lives,q.lives],[4,2])
         self.assertIn('hurt',sounds)
         self.assertEqual(sum(e['event']=='player_hurt' for e in g.ledger.events),1)

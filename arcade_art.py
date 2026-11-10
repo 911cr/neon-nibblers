@@ -226,15 +226,18 @@ def _sphere_template(color):
     """One high-resolution lighting calculation per original character color."""
     r=108;mid=r
     s=pg.Surface((r*2+1,r*2+1),pg.SRCALPHA)
+    yellow_player = color == (255,222,45)
+    pigment = (255,239,5) if yellow_player else color
+    ambient, diffuse, highlight = (.52,.59,.21) if yellow_player else (.25,.8,.75)
     for yy in range(-r,r+1):
         for xx in range(-r,r+1):
             nx,ny=xx/r,yy/r
             square=nx*nx+ny*ny
             if square>1: continue
             nz=math.sqrt(1-square)
-            lit=.25+.8*max(0,-.36*nx-.48*ny+.8*nz)
-            gloss=max(0,-.28*nx-.4*ny+.87*nz)**35*.75
-            rgb=tuple(min(255,int(v*lit+255*gloss)) for v in color)
+            lit=ambient+diffuse*max(0,-.36*nx-.48*ny+.8*nz)
+            gloss=max(0,-.28*nx-.4*ny+.87*nz)**35*highlight
+            rgb=tuple(min(255,int(v*lit+255*gloss)) for v in pigment)
             s.set_at((mid+xx,mid+yy),(*rgb,255))
     return s
 
@@ -355,6 +358,48 @@ class _IconDraw:
         pg.draw.arc(self.surface,color,self.point(rect),start,stop,width*3)
 
 
+def _draw_banana_peel(draw):
+    """A folded, empty skin seen at a low angle, lit from the upper left."""
+    def patch(color, start, *curves):
+        points = [start]
+        for first, second, end in curves:
+            x, y = points[-1]
+            for n in range(1, 9):
+                t = n / 8
+                u = 1 - t
+                points.append((u**3*x + 3*u*u*t*first[0] + 3*u*t*t*second[0] + t**3*end[0],
+                               u**3*y + 3*u*u*t*first[1] + 3*u*t*t*second[1] + t**3*end[1]))
+        draw.polygon(color, points)
+
+    # The far ribbon rolls up at its tip. Its underside is visible below the curl.
+    patch((183,112,19), (20,19), ((28,19),(27,25),(34,23)),
+          ((38,22),(39,18),(41,18)), ((40,25),(36,29),(29,29)), ((25,29),(21,26),(20,24)))
+    patch((255,212,57), (20,19), ((27,19),(29,25),(34,23)),
+          ((37,22),(39,19),(41,18)), ((38,25),(34,27),(29,26)), ((25,26),(22,23),(20,22)))
+    # A wide, bent middle fold replaces the straight vertical stick.
+    patch((210,142,24), (11,6), ((15,4),(22,8),(23,13)),
+          ((24,19),(24,22),(30,25)), ((26,29),(19,28),(15,25)), ((20,18),(13,13),(11,6)))
+    patch((255,210,48), (11,6), ((16,7),(19,11),(20,15)),
+          ((23,22),(23,25),(27,26)), ((23,28),(17,27),(15,25)), ((20,18),(11,12),(11,6)))
+    patch((249,227,129), (12,6), ((17,6),(21,10),(22,15)),
+          ((23,19),(23,22),(25,24)), ((20,19),(21,12),(12,6)))
+    # Pale inner rind catches the light on the broad, low front flap.
+    patch((218,151,22), (17,21), ((14,24),(10,26),(6,24)),
+          ((3,23),(3,20),(1,20)), ((1,27),(7,31),(12,31)), ((18,31),(22,26),(22,23)))
+    patch((255,224,86), (17,21), ((13,25),(10,26),(6,24)),
+          ((4,23),(3,21),(1,20)), ((4,28),(10,30),(15,28)), ((18,27),(21,24),(22,23)))
+    patch((255,244,174), (17,22), ((11,28),(6,26),(3,23)), ((8,29),(14,29),(19,24)))
+    # The near flap hangs over the fold and spreads onto the floor.
+    patch((170,103,16), (19,23), ((23,21),(26,24),(27,28)),
+          ((28,32),(31,34),(36,31)), ((35,36),(29,39),(25,36)), ((20,33),(23,28),(19,23)))
+    patch((255,196,31), (19,23), ((24,22),(25,25),(26,29)),
+          ((27,33),(31,35),(36,31)), ((32,37),(27,37),(24,33)), ((22,31),(22,26),(19,23)))
+    patch((255,232,111), (21,24), ((25,26),(24,32),(29,34)), ((26,34),(24,32),(23,29)))
+    draw.ellipse((105,67,25),(10,5,4,2))
+    draw.line((146,86,20),(34,33),(36,31),1)
+    draw.circle((173,112,23),(17,15),1)
+
+
 @lru_cache(maxsize=128)
 def _power_sprite(name,size):
     if type(size) is not int or size < 1: raise ValueError("Icon size must be a positive integer")
@@ -387,10 +432,7 @@ def _power_sprite(name,size):
         draw.polygon((239,244,255),[(8,18),(34,18),(36,35),(28,31),(23,36),(17,32),(9,36)])
         draw.ellipse((41,51,89),(13,16,6,9)); draw.ellipse((41,51,89),(24,16,6,9))
     elif name=='Slick':
-        draw.polygon((255,218,61),[(22,11),(23,24),(36,32),(27,32),(20,27),(10,35),(5,33),(16,23)])
-        draw.polygon((255,245,157),[(22,11),(18,22),(19,28),(23,24)])
-        draw.polygon((230,174,36),[(23,24),(31,29),(36,32),(27,32)])
-        draw.line((130,103,40),(22,11),(24,7),3)
+        _draw_banana_peel(draw)
     elif name=='Spark':
         draw.polygon((123,230,255),[(23,3),(9,24),(20,23),(16,39),(34,16),(23,18)])
     elif name=='Flare':
