@@ -12,15 +12,15 @@ import pygame as pg
 from score_ledger import ScoreLedger, DEFAULT_SCORES
 from stations import Phase, phase_for, StationBindings
 from map_library import get_map, next_map_index
-from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite, fire_plume,smoke_cloud
+from arcade_art import maze_background, muncher, foe, power_icon, arcade_digits, dot_sprite, fire_plume,smoke_cloud, prepare_play_sprites,maze_wall_mask
 from arcade_audio import ArcadeAudio
-from cabinet import CabinetStore, spectator_view, atomic_json
+from cabinet import CabinetStore, cabinet_session, spectator_view, atomic_json
 from presentation import LifecyclePresentation
 from gameplay_tuning import validate_tuning, load_tuning
 from arcade_ai import choose_direction
 from cabinet_flow import ContinueOffers
 from gate_art import draw_station_gate,draw_house,draw_tunnel_neck,gate_geometry,GATE_HATCH,prepare_gate_art
-from player_contacts import resolve_bumps,approaching_contact
+from player_contacts import resolve_bumps,approaching_contact,NORMAL_RADIUS,GIANT_RADIUS
 from maze_transition import render_background,actor_scale
 from corridor_motion import CorridorTrack
 from effect_paths import corridor_segments
@@ -82,6 +82,13 @@ class Player:
     recoil: tuple = (0,0)
 
 class Arena:
+    width=COLS
+
+    def wall_mask(self):
+        if not hasattr(self,'_solid_walls'):
+            self._solid_walls=maze_wall_mask(self.space,COLS,ROWS,TILE,self.lane_radius)
+        return self._solid_walls
+
     def __init__(self, theme):
         spec=get_map(theme)
         self.theme=theme%4
@@ -184,7 +191,7 @@ class Match:
         self.players[idx] = p
         if replaced_bot:
             self.traps = {cell: trap for cell, trap in self.traps.items() if trap[0] != idx}
-            self.bump_cooldowns = {pair: timer for pair, timer in self.bump_cooldowns.items() if idx not in pair}
+            self.clear_player_contacts(idx)
             for ghost, owner in list(self.foe_carriers.items()):
                 if owner == idx: self.reset_foe(ghost)
         self.count = sum(getattr(p, 'joined', True) for p in self.players)
@@ -219,7 +226,7 @@ class Match:
         p.direction=(0,1) if p.pos[1]==0 else (0,-1)
         self.players[idx]=p
         self.traps={cell:trap for cell,trap in self.traps.items() if trap[0]!=idx}
-        self.bump_cooldowns={pair:t for pair,t in self.bump_cooldowns.items() if idx not in pair}
+        self.clear_player_contacts(idx)
         for ghost,owner in list(self.foe_carriers.items()):
             if owner==idx:self.reset_foe(ghost)
         self.ledger.append(self,'station_continue',p,lives=p.lives,position=list(p.pos),
@@ -235,7 +242,8 @@ class Match:
             if isinstance(value, (list, tuple)): return [freeze(v) for v in value]
             return value
         state = {k: freeze(v) for k, v in vars(self).items()
-                 if k not in ('arena', 'players', 'rng', 'ledger','continues')}
+                 if k not in ('arena', 'players', 'rng', 'ledger','continues','body_tracks')}
+        state['body_paths']={i:t.remaining_path for i,t in self.body_tracks.items()}
         state['continues']=self.continues.snapshot()
         state['arena_theme'] = self.arena.theme
         state['map_id'] = self.arena.map_id
@@ -252,6 +260,8 @@ class Match:
         self.dots = set(self.arena.lanes) - set(self.arena.entries)
         self.items, self.traps = {}, {}
         self.smoke={}; self.quake=0.; self.bump_cooldowns={}
+        self.contact_origins={};self.contact_offsets={}
+        self.body_tracks={};self.body_cells={};self.body_sizes={}
         self.zaps=[]
         self.item_directions={}
         self.item_clock=self.item_walk_clock=0.
@@ -284,6 +294,8 @@ class Match:
         disappearing cells to the nearest free public lane; no respawn/immunity.
         """
         old=self.arena
+        self.contact_origins.clear();self.contact_offsets.clear()
+        self.body_tracks.clear();self.body_cells.clear()
         self.arena=Arena(theme%4)
         self.transition_from=old.theme
         self.transition_age=0.
@@ -443,9 +455,16 @@ class Match:
         if self.quake>0:interval*=self.tuning['quake_multiplier']
         return interval
 
+    def clear_player_contacts(self,idx):
+        self.body_tracks.pop(idx,None);self.body_cells.pop(idx,None);self.body_sizes.pop(idx,None)
+        self.contact_offsets.pop(idx,None)
+        self.contact_origins={pair:origins for pair,origins in self.contact_origins.items() if idx not in pair}
+        self.bump_cooldowns={pair:t for pair,t in self.bump_cooldowns.items() if idx not in pair}
+
     def hurt(self,p):
         if p.lives<=0 or p.safe>0 or self.active(p,'Titan'): return False
         old_position = list(p.pos)
+        self.clear_player_contacts(p.idx)
         p.lives -= 1
         p.pos, p.safe = self.arena.spawns[p.idx], 3.
         p.direction, p.wanted = (0,0),(0,0)
@@ -549,7 +568,44 @@ class Match:
                 if p.lives>0: p.lives=min(5,p.lives+1)
                 self.ledger.append(self, 'score_bonus_life', p, lives=p.lives, gained=p.lives-old_lives)
 
-    def combat(self,previous=None,old_foes=None):
+    def advance_bodies(self,previous,dt):
+        for p in self.players:
+            if p.lives<=0:continue
+            old=previous[p.idx]
+            if self.body_cells.get(p.idx)!=old or self.body_tracks.get(p.idx) is None:
+                x,y=center(old)
+                self.body_tracks[p.idx]=CorridorTrack((x-OX,y-TOP))
+            track=self.body_tracks[p.idx]
+            x,y=center(p.pos)
+            touch=self.contact_offsets.get(p.idx)
+            if touch and touch[0]==p.pos:x+=touch[1][0];y+=touch[1][1]
+            interval=self.player_interval(p)
+            spawn=self.arena.spawns[p.idx];entry=self.arena.entries[p.idx]
+            ey=center(entry)[1]
+            if p.pos==spawn or p.pos==entry and (track.position[1]+TOP-ey)*(center(spawn)[1]-ey)>0:
+                interval*=TILE/abs(center(spawn)[1]-ey)
+            track.sample((x-OX,y-TOP),dt,TILE/interval,
+                         (COLS*TILE,None) if p.pos[1] in self.arena.portals else None)
+            self.body_cells[p.idx]=p.pos
+            target=GIANT_RADIUS if self.active(p,'Titan') else NORMAL_RADIUS
+            start,prior,age,radius=self.body_sizes.get(p.idx,(NORMAL_RADIUS,NORMAL_RADIUS,.25,NORMAL_RADIUS))
+            if prior!=target:start,age=radius,0.
+            age=min(.25,age+dt)
+            ratio=age/.25
+            radius=start+(target-start)*ratio*ratio*(3-2*ratio)
+            self.body_sizes[p.idx]=(start,target,age,radius)
+
+    def body_circle(self,p):
+        if self.body_cells.get(p.idx)==p.pos:
+            point=self.body_tracks[p.idx].position
+            radius=round(self.body_sizes[p.idx][-1])
+        else:
+            x,y=center(p.pos);point=(x-OX,y-TOP)
+            radius=GIANT_RADIUS if self.active(p,'Titan') else NORMAL_RADIUS
+        pulse=actor_scale(self.transition_age/MAZE_TRANSITION_SECONDS) if self.transition_from is not None else 1.
+        return point,round(radius*pulse)
+
+    def combat(self,previous=None,old_foes=None,dt=None):
         event_start=len(self.ledger.events)
         for p in self.players:
             if p.lives<=0: continue
@@ -575,17 +631,21 @@ class Match:
         for i,p in enumerate(self.players):
             for q in self.players[i+1:]:
                 if min(p.lives,q.lives)<=0: continue
-                if not approaching_contact(self,p,q,previous): continue
                 a = self.active(p,'Titan')
                 b = self.active(q,'Titan')
-                if a and not b and self.hurt(q): self.award(p, 'rival_eaten', target_player_id=q.idx+1)
-                if b and not a and self.hurt(p): self.award(q, 'rival_eaten', target_player_id=p.idx+1)
-                if a==b: contacts.append((p,q))
+                if a==b and approaching_contact(self,p,q,previous): contacts.append((p,q))
         harmed={e['player_id']-1 for e in self.ledger.events[event_start:]
                 if e['event']=='player_hurt'}
         contacts=[pair for pair in contacts if not any(p.idx in harmed for p in pair)]
-        if contacts:resolve_bumps(self,contacts,previous)
-        else:self.separate_overlaps()
+        if contacts:resolve_bumps(self,contacts,previous,separate=False)
+        if dt is not None:self.advance_bodies(previous,dt)
+        for hunter in self.players:
+            if hunter.lives<=0 or not self.active(hunter,'Titan'):continue
+            for prey in self.players:
+                if prey.lives<=0 or prey.safe>0 or self.active(prey,'Titan'):continue
+                if approaching_contact(self,hunter,prey) and self.hurt(prey):
+                    self.award(hunter,'rival_eaten',target_player_id=prey.idx+1)
+        self.separate_overlaps()
 
     def update(self,dt):
         if self.over or self.paused: return []
@@ -603,6 +663,14 @@ class Match:
         self.time=self.countdown(self.time,dt)
         previous=[p.pos for p in self.players]
         old_foes=list(self.foes)
+        # A held direction can bring both players straight back after one
+        # recoil. Let them meet and press together until someone disengages.
+        for pair, origins in list(self.contact_origins.items()):
+            for idx, origin in zip(pair, origins):
+                pos = self.players[idx].pos
+                if pos!=origin and all(self.arena.step(origin,d)!=pos for d in DIRS):
+                    del self.contact_origins[pair]
+                    break
         self.quake=self.countdown(self.quake,dt)
         self.smoke={c:self.countdown(t,dt) for c,t in self.smoke.items() if t>dt+1e-10}
         self.zaps=[(c,self.countdown(t,dt)) for c,t in self.zaps if t>dt+1e-10]
@@ -643,14 +711,17 @@ class Match:
                 if p.recoil!=(0,0):
                     # One legal outward step survives held input/autoplay.
                     # It uses normal movement cadence rather than teleporting.
-                    p.direction=p.recoil; p.recoil=(0,0)
+                    travel=p.recoil; p.recoil=(0,0)
                 elif self.active(p,'Slick'):
                     if not self.arena.can_enter(self.arena.step(p.pos,p.direction),p) or p.direction==(0,0):
                         options=[d for d in DIRS if self.arena.can_enter(self.arena.step(p.pos,d),p)]
                         if options: p.direction=self.rng.choice(options)
-                elif self.arena.can_enter(self.arena.step(p.pos,p.wanted),p): p.direction=p.wanted
+                    travel=p.direction
+                else:
+                    if self.arena.can_enter(self.arena.step(p.pos,p.wanted),p): p.direction=p.wanted
+                    travel=p.direction
                 if self.active(p,'Mist') and p.pos in self.arena.lanes: self.smoke[p.pos]=self.tuning['smoke_seconds']
-                if self.arena.can_enter(self.arena.step(p.pos,p.direction),p): p.pos=self.arena.step(p.pos,p.direction)
+                if self.arena.can_enter(self.arena.step(p.pos,travel),p): p.pos=self.arena.step(p.pos,travel)
                 if p.pos in self.dots:
                     self.dots.remove(p.pos); self.award(p, 'dot'); sounds.append('dot')
                 if p.pos in self.traps and self.traps[p.pos][0]!=p.idx:
@@ -659,8 +730,10 @@ class Match:
         # pickup cannot cancel only the movement of later-numbered stations.
         self.collect_contacts(sounds)
         self.update_foes(dt,age=False)
+        self.contact_offsets={idx:touch for idx,touch in self.contact_offsets.items()
+                              if self.players[idx].pos==touch[0]}
         combat_events=len(self.ledger.events)
-        self.combat(previous,old_foes)
+        self.combat(previous,old_foes,dt)
         self.apply_fire()
         self.award_score_lives()
         if any(e['event']=='player_hurt' for e in self.ledger.events[combat_events:]): sounds.append('hurt')
@@ -766,10 +839,15 @@ class App:
 
     def refresh_pads(self):
         previous=set(self.pads)
+        connected={}
         for i in range(pg.joystick.get_count()):
-            joy=pg.joystick.Joystick(i)
-            self.pads[joy.get_instance_id()]=joy
-        self.pads={k:v for k,v in self.pads.items() if v.get_init() and v.get_attached()}
+            try:
+                joy=pg.joystick.Joystick(i)
+                connected[joy.get_instance_id()]=joy
+            except pg.error:
+                # A device can disconnect between enumeration and opening.
+                continue
+        self.pads=connected
         self.bindings.sync(self.pads)
         if previous-set(self.pads): self.controller_notice_until=pg.time.get_ticks()+5000
         elif set(self.pads)-previous: self.controller_notice_until=0
@@ -849,14 +927,14 @@ class App:
             if e.type in (pg.KEYDOWN,pg.JOYBUTTONDOWN,pg.MOUSEBUTTONDOWN):
                 self.idle_time=0.;self.attract_page=None
             if e.type==pg.QUIT: self.running=False
+            if e.type in (pg.JOYDEVICEADDED,pg.JOYDEVICEREMOVED): self.refresh_pads()
+            if e.type==pg.KEYUP:self.keyboard_pressed.pop(e.key,None)
             if self.name_entry is not None:
                 if e.type==pg.KEYDOWN:self.name_entry_event(e)
                 continue
             if self.operator_open:
                 if e.type==pg.KEYDOWN:self.operator_event(e.key)
                 continue
-            if e.type in (pg.JOYDEVICEADDED,pg.JOYDEVICEREMOVED): self.refresh_pads()
-            if e.type==pg.KEYUP:self.keyboard_pressed.pop(e.key,None)
             fresh_direction=False
             if e.type==pg.KEYDOWN and any(e.key in keys for keys in KEYS):
                 if e.key not in self.keyboard_pressed:
@@ -940,6 +1018,8 @@ class App:
         self.text('Preparing mazes...',W//2-105,H//2-20,(220,230,255),self.font)
         self.screen.blit(pg.transform.smoothscale(self.canvas,self.screen.get_size()),(0,0))
         pg.display.flip();pg.event.pump()
+        prepare_play_sprites(COLORS, ITEMS)
+        prepare_gate_art(accent,(arena.den[2]*TILE-10,arena.den[3]*TILE-10))
         for arena in missing:
             key=(arena.map_id,arena.map_revision,palette)
             if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
@@ -950,6 +1030,7 @@ class App:
             if len(self.backgrounds)>=24:self.backgrounds.pop(next(iter(self.backgrounds)))
             self.backgrounds[key]=maze_background(arena.space,COLS,ROWS,TILE,COLORS[idx],arena.lane_radius)
             prepare_gate_art(COLORS[idx],(arena.den[2]*TILE-10,arena.den[3]*TILE-10))
+        self.clock.tick()  # Loading time precedes play and consumes no match time.
 
     def wall_palette(self):
         if self.palette_override is not None:return self.palette_override
@@ -1111,7 +1192,17 @@ class App:
     def update_player_visuals(self,g,dt):
         for p in g.players:
             if p.lives<=0:continue
+            if p.idx in g.body_tracks and g.body_cells.get(p.idx)==p.pos:
+                track=g.body_tracks[p.idx]
+                self.motion_tracks['players'][p.idx]=track
+                self.visual_positions[p.idx]=(track.position[0]+OX,track.position[1]+TOP)
+                continue
+            if p.idx in g.body_tracks and self.motion_tracks['players'].get(p.idx) is g.body_tracks[p.idx]:
+                self.motion_tracks['players'].pop(p.idx)
             target=center(p.pos)
+            contact=g.contact_offsets.get(p.idx)
+            if contact and contact[0]==p.pos:
+                target=(target[0]+contact[1][0],target[1]+contact[1][1])
             old=self.visual_positions.get(p.idx,target)
             wrap=p.pos[1] in g.arena.portals and abs(target[0]-old[0])>COLS*TILE/2
             if not wrap and distance(old,target)>TILE*3:old=target
@@ -1398,7 +1489,8 @@ class App:
             for p in g.players:
                 if p.lives<=0: continue
                 smooth=self.visual_positions[p.idx]
-                cx,cy=map(round,smooth); r=round(self.presentation.radius(p.idx)*pulse)
+                cx,cy=map(round,smooth)
+                r=g.body_circle(p)[1] if g.body_cells.get(p.idx)==p.pos else round(self.presentation.radius(p.idx)*pulse)
                 if p.locate_remaining>0:
                     ring=r+12+round(4*math.sin(self.animation_time*12))
                     if cy<TOP+45 or cy>TOP+ROWS*TILE-45:
@@ -1488,7 +1580,12 @@ class App:
             self.text(f"Lives {rules['starting_lives']} | {mode} | Dot clearance advances the selected map policy.",105,653)
         if self.operator_open:self.draw_operator()
         if self.name_entry is not None:self.draw_name_entry()
-        sw,sh=self.screen.get_size(); factor=min(sw/W,sh/H)
+        sw,sh=self.screen.get_size()
+        if (sw,sh)==(W,H):
+            self.screen.blit(self.canvas,(0,0))
+            pg.display.flip()
+            return
+        factor=min(sw/W,sh/H)
         size=(max(1,round(W*factor)),max(1,round(H*factor)))
         scaled=pg.transform.smoothscale(self.canvas,size)
         self.screen.fill((0,0,0))
@@ -1597,6 +1694,22 @@ def steer_demo(g,only_bots=False):
         directions=DIRS[p.idx%4:]+DIRS[:p.idx%4]
         p.wanted=choose_direction(g,p,directions)
 
+def run_game(args, cabinet):
+    app=App(simulate_controllers=args.simulate_controllers,cabinet=cabinet)
+    app.untimed=args.untimed
+    app.continue_seconds=args.continue_seconds;app.continue_delay=args.continue_delay
+    if args.tuning:
+        app.tuning=load_tuning(args.tuning)
+    app.spectator_path=args.spectator_state
+    app.theme=args.arena
+    app.seed=args.seed; app.progression=args.progression; app.locator_seconds=args.locator_seconds
+    app.palette_override=args.palette
+    app.demo=args.demo
+    if args.demo and not args.players: args.players=8
+    if args.players: app.count=args.players; app.start()
+    app.run(args.frames)
+    if args.event_log and app.match: app.match.ledger.write(args.event_log)
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--frames',type=int,default=0,help='Exit after N frames (smoke checks).')
@@ -1619,20 +1732,10 @@ if __name__=='__main__':
     if not math.isfinite(args.locator_seconds) or not 0<args.locator_seconds<=10: parser.error('Locator duration must be in (0,10].')
     try:ContinueOffers(args.continue_seconds,args.continue_delay)
     except ValueError as error:parser.error(str(error))
-    app=App(simulate_controllers=args.simulate_controllers,cabinet=CabinetStore(args.data_dir))
-    app.untimed=args.untimed
-    app.continue_seconds=args.continue_seconds;app.continue_delay=args.continue_delay
-    if args.tuning:
-        try:app.tuning=load_tuning(args.tuning)
-        except (OSError,ValueError,TypeError) as error:parser.error(str(error))
-    app.spectator_path=args.spectator_state
-    app.theme=args.arena
-    app.seed=args.seed; app.progression=args.progression; app.locator_seconds=args.locator_seconds
-    app.palette_override=args.palette
-    app.demo=args.demo
-    if args.demo and not args.players: args.players=8
-    if args.players: app.count=args.players; app.start()
-    app.run(args.frames)
-    if args.event_log and app.match: app.match.ledger.write(args.event_log)
+    try:
+        with cabinet_session(args.data_dir) as cabinet:
+            run_game(args,cabinet)
+    except (OSError,ValueError,TypeError) as error:
+        parser.exit(1,f'{error}\n')
 
 

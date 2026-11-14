@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import time
 import math
+import errno
+from contextlib import contextmanager
 
 DEFAULTS={'starting_lives':3,'bonus_threshold':10000,'match_seconds':180,
           'free_play':True,'attract_sound':True,'fill_bots':True}
@@ -18,6 +20,29 @@ def data_directory():
     if os.environ.get('NEON_NIBBLERS_DATA'):return Path(os.environ['NEON_NIBBLERS_DATA'])
     if os.name=='nt':return Path(os.environ.get('LOCALAPPDATA',Path.home()))/'NeonNibblers'
     return Path(os.environ.get('XDG_DATA_HOME',Path.home()/'.local/share'))/'neon-nibblers'
+
+@contextmanager
+def cabinet_session(directory=None):
+    """Hold the profile's OS lock from initial load through the final save."""
+    directory = Path(directory) if directory is not None else data_directory()
+    directory.mkdir(parents=True, exist_ok=True)
+    # Keep the same lock file across sessions. Closing the handle (also on a
+    # process crash) releases ownership without racing a new process's open.
+    with (directory / 'cabinet.lock').open('a+b') as handle:
+        try:
+            if os.name == 'nt':
+                import msvcrt
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as error:
+            if error.errno in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                raise BlockingIOError('Another game is using this cabinet save folder. '
+                                      'Return to that game or choose a different --data-dir.') from error
+            raise
+        yield CabinetStore(directory)
 
 class CabinetStore:
     def __init__(self,directory=None):

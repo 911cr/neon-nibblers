@@ -10,6 +10,17 @@ from replay import digest
 class MazePreparation(unittest.TestCase):
     def tearDown(self):game.pg.quit()
 
+    def test_first_eight_player_frame_has_prepared_character_and_pickup_lighting(self):
+        import arcade_art
+        arcade_art._sphere_template.cache_clear()
+        arcade_art.sphere.cache_clear()
+        arcade_art._power_sprite.cache_clear()
+        app=game.App();app.count=8;app.start()
+        with patch.object(arcade_art,'_sphere_template',side_effect=AssertionError('cold lighting')):
+            app.draw(1/60)
+            for name in game.ITEMS:
+                arcade_art.power_icon(app.canvas,(100,100),name,0)
+
     def test_quick_start_prepares_every_map_without_advancing_time(self):
         app=game.App(simulate_controllers=True);app.seed=7;app.count=8;app.start()
         g=app.match

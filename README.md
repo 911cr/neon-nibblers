@@ -1,6 +1,6 @@
 # Neon Nibblers
 
-**Current build: Keyboard Playtest 5 with turn diagnostics.** [Download the Windows/Linux playtest](dist/NeonNibblers-keyboard-playtest-5.zip). Extract it and run `playtest_windows.bat` or `sh playtest_linux.sh`. The playtest launchers select the two-person keyboard setup. Movement, ghost speed, one-way gates and the experimental manual gate exit follow local playtest feedback. [Current DX comparison](docs/DX_RELEASE_STATUS.md).
+**Current build: Keyboard Playtest 5, reliability update.** [Download the Windows/Linux playtest](dist/NeonNibblers-keyboard-playtest-5.zip). Extract it and run `playtest_windows.bat` or `sh playtest_linux.sh` for the two-person keyboard setup. Movement, ghost speed, one-way gates and the experimental manual gate exit follow local playtest feedback. [Production readiness](docs/PRODUCTION_READINESS.md) · [Current DX comparison](docs/DX_RELEASE_STATUS.md).
 
 Original-code Windows/Linux local arcade maze battle inspired by PAC-MAN Battle Royale CHOMPionship Deluxe. Up to8 human stations, USB gamepad/joystick support, keyboard fallback and AI opponents. No commercial sprites, ROMs, source code, logos or recordings are included.
 
@@ -10,8 +10,8 @@ Revision18 updates the provisional Giant duration from fresh footage, fixes simu
 
 Requires Python3.10+ and a graphical desktop. Python/pygame are not bundled.
 
-- Windows: extract the entire ZIP, install Python with the `py` launcher, then double-click `dev_windows.bat`.
-- Linux: install Python3, pip and venv, extract, then run `sh dev_linux.sh`. Ubuntu/Debian may need `python3-venv`.
+- Windows: extract the entire ZIP, install Python with the `py` launcher, then double-click `run_windows.bat` to use real controller detection.
+- Linux: install Python3, pip and venv, extract, then run `sh run_linux.sh` to use real controller detection. Ubuntu/Debian may need `python3-venv`.
 - Development launchers visibly assume controller availability as SIMULATED. They never create physical input. Normal `run_windows.bat` / `sh run_linux.sh` use real controller detection and missing/disconnect warnings.
 
 Manual setup: `python -m venv .venv`, activate it, `python -m pip install -r requirements.txt`, then `python game.py`. Launchers create the environment/install dependencies online; offline play works after setup.

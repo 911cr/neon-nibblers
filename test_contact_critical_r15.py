@@ -17,7 +17,7 @@ class ContactCriticalQA(unittest.TestCase):
         g.update(1/60)
         self.assertEqual((p.pos,q.pos),((10,1),(11,1)))
         self.assertEqual(q.recoil,(1,0))
-        for _ in range(math.ceil((.12+g.tuning['player_step_seconds'])*60)):g.update(1/60)
+        for _ in range(math.ceil(.09*60)):g.update(1/60)
         self.assertEqual(q.pos,(12,1))
         self.assertEqual(q.wanted,(0,0))
     def test_stationary_receiver_uses_tunnel_topology_not_coordinate_sign(self):
@@ -86,10 +86,13 @@ class RadiusContactQA(unittest.TestCase):
             self.assertFalse(approaching_contact(g,p,q,[p.pos,q.pos]))
     def test_parallel_corridors_do_not_collide_through_wall(self):
         from types import SimpleNamespace
+        import pygame as pg
         from player_contacts import approaching_contact
         g=Match(2,seed=1);p,q=g.players
         lanes={(0,0),(0,1),(0,2),(1,2),(2,2),(2,1),(2,0)}
-        g.arena=SimpleNamespace(lanes=lanes,step=lambda c,d:(c[0]+d[0],c[1]+d[1]))
+        walls=pg.mask.Mask((60,60));walls.set_at((30,10))
+        g.arena=SimpleNamespace(lanes=lanes,width=3,portals=(),wall_mask=lambda:walls,
+                                step=lambda c,d:(c[0]+d[0],c[1]+d[1]))
         p.pos=(0,0);q.pos=(2,0);p.effects={'Titan':7}
         self.assertFalse(approaching_contact(g,p,q,[(0,1),(2,1)]))
     def test_cadence_stationary_target_with_buffered_direction_recoils_outward(self):
@@ -106,8 +109,8 @@ class RadiusContactQA(unittest.TestCase):
         g.update(1/60)
         self.assertEqual((p.pos,q.pos),((10,1),(12,1)))
         self.assertEqual(p.lives,3);self.assertEqual(q.lives,3)
-        p.effects={'Titan':7};p.stun=q.stun=0
-        g.combat([p.pos,q.pos])
+        p.effects={'Titan':7};p.stun=q.stun=.5
+        for _ in range(15):g.update(1/60)
         self.assertEqual(q.lives,2)
         self.assertEqual(q.pos,g.arena.spawns[q.idx])
 

@@ -463,6 +463,13 @@ def _power_sprite(name,size):
     return pg.transform.smoothscale(s,(size,size))
 
 
+def prepare_play_sprites(colors, powers):
+    """Calculate expensive color lighting before the first moving frame."""
+    for color in colors:
+        sphere(tuple(color),17)
+    for name in powers:
+        _power_sprite(name,32)
+
 def power_icon(target,pos,name,time,size=32):
     # Position-independent phase prevents roaming items from jumping vertically
     # whenever they move one grid cell. Same category keeps a stable phase.

@@ -19,7 +19,6 @@ class Pad:
     def get_numhats(self): return 0
     def get_axis(self, n): return self.axis[n]
     def get_init(self): return True
-    def get_attached(self): return True
 
 
 class Stations(unittest.TestCase):

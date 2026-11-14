@@ -6,3 +6,5 @@ Click the game and press Enter. Each player can wait in their bay. Yellow leaves
 The red plunger box triggers Earthquake. Players and roaming ghosts move at half speed for five seconds, with a countdown above the maze. The round smoke bomb slows nearby roaming ghosts. The splayed yellow banana peel causes a brief skid. Short keyboard taps remain buffered until the turn is taken or you press a newer direction. Normal human and roaming ghost movement takes 0.155 seconds per dot spacing. This test uses keyboard controls with simulated controller availability.
 
 Optional simultaneous-turn diagnostic: after setup, run turn_drill.py using the same virtual environment, with --folder followed by a new, empty folder for its local trace.
+
+For real controller detection, use run_windows.bat or sh run_linux.sh. To verify every station at the cabinet, run check_controllers.py with the same Python environment. It checks four directions and a button for each connected device. The hardware check defaults to eight stations. Only one running game can write to a given cabinet save folder.

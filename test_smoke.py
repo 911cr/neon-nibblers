@@ -335,7 +335,8 @@ class Smoke(unittest.TestCase):
         p.pos=(1,1); q.pos=(2,1); p.entry=q.entry=0; p.safe=q.safe=0
         p.direction=p.wanted=(1,0); q.direction=q.wanted=(-1,0)
         g.update(g.tuning['player_step_seconds'])
-        self.assertEqual(p.direction,(-1,0)); self.assertEqual(q.direction,(1,0))
+        self.assertEqual((p.recoil,q.recoil),((-1,0),(1,0)))
+        self.assertEqual((p.direction,q.direction),((1,0),(-1,0)))
         self.assertLess(p.pos[0],q.pos[0])
         p.stun=2; p.clock=.09; p.safe=0; g.hurt(p)
         self.assertEqual((p.stun,p.clock),(0,0))
@@ -406,18 +407,15 @@ class Smoke(unittest.TestCase):
             def __init__(self,i): self.i=i
             def get_instance_id(self): return self.i
             def get_init(self): return True
-            def get_attached(self): return self.i in attached
-        attached={4,5}; pads=[Pad(4),Pad(5)]
+        pads=[Pad(4),Pad(5)]
         with patch.object(pg.joystick,'get_count',return_value=2),patch.object(pg.joystick,'Joystick',side_effect=lambda i:pads[i]):
             app.refresh_pads()
         self.assertEqual(app.controller_status()['missing'],0)
-        attached={4}
         with patch.object(pg.joystick,'get_count',return_value=1),patch.object(pg.joystick,'Joystick',return_value=pads[0]):
             pg.event.post(pg.event.Event(pg.JOYDEVICEREMOVED,instance_id=5)); app.events()
         status=app.controller_status()
         self.assertTrue(status['disconnected']); self.assertEqual(status['missing'],1)
         app.draw()
-        attached={4,5}
         with patch.object(pg.joystick,'get_count',return_value=2),patch.object(pg.joystick,'Joystick',side_effect=lambda i:pads[i]):
             pg.event.post(pg.event.Event(pg.JOYDEVICEADDED,device_index=1)); app.events()
         self.assertFalse(app.controller_status()['disconnected'])

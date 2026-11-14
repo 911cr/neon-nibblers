@@ -20,9 +20,10 @@ class PlayerContactTests(unittest.TestCase):
         p.direction=p.wanted=(1,0);q.direction=q.wanted=(-1,0)
         g.update(g.tuning['player_step_seconds'])
         self.assertEqual((p.pos,q.pos),((10,1),(11,1)))
-        self.assertEqual((p.direction,q.direction),((-1,0),(1,0)))
+        self.assertEqual((p.direction,q.direction),((1,0),(-1,0)))
+        self.assertEqual((p.recoil,q.recoil),((-1,0),(1,0)))
         # Buffered controls are retained; the first subsequent step still recoils.
-        for _ in range(math.ceil((.12+g.tuning['player_step_seconds'])*60)):g.update(1/60)
+        for _ in range(math.ceil(.09*60)):g.update(1/60)
         self.assertEqual((p.pos,q.pos),((9,1),(12,1)))
         self.assertEqual((p.wanted,q.wanted),((1,0),(-1,0)))
         self.assertEqual([p.lives,q.lives],[3,3])
@@ -71,6 +72,30 @@ class PlayerContactTests(unittest.TestCase):
         g.combat()
         self.assertEqual(q.lives,2)
         self.assertEqual(p.score,g.score_values['rival_eaten'])
+
+    def test_held_head_on_makes_one_visible_contact_and_can_disengage(self):
+        from game import App, pg
+        app=App()
+        self.addCleanup(pg.quit)
+        g=self.match()
+        app.match=g
+        p,q=g.players
+        p.pos=(11,1);q.pos=(21,1)
+        p.direction=p.wanted=(1,0);q.direction=q.wanted=(-1,0)
+        for _ in range(150):
+            app.advance(1/60)
+            app.update_player_visuals(g,1/60)
+        self.assertEqual(sum(e['event']=='player_bump' for e in g.ledger.events),1)
+        left,right=(app.visual_positions[i] for i in range(2))
+        self.assertAlmostEqual(right[0]-left[0],34,delta=.1)
+        self.assertEqual(left[1],right[1])
+        self.assertEqual((p.direction,q.direction),((1,0),(-1,0)))
+        p.wanted=(-1,0);q.wanted=(1,0)
+        for _ in range(30):app.advance(1/60)
+        self.assertNotIn((0,1),g.contact_origins)
+        p.wanted=(1,0);q.wanted=(-1,0)
+        for _ in range(100):app.advance(1/60)
+        self.assertEqual(sum(e['event']=='player_bump' for e in g.ledger.events),2)
 
     def test_recoil_clears_on_death_and_stage(self):
         g=self.match();p=g.players[0]

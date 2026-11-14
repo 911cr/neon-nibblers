@@ -9,7 +9,7 @@ ARCHIVE = ROOT / "dist/NeonNibblers-keyboard-playtest-5.zip"
 
 def sources():
     files = set()
-    pending = ["game", "turn_drill"]
+    pending = ["game", "turn_drill", "check_controllers"]
     while pending:
         path = ROOT / (pending.pop() + ".py")
         if path in files:
